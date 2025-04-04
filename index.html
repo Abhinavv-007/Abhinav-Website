@@ -124,25 +124,29 @@
   });
 </script>
 
-  <script>
-  document.title = "Welcome to Abhinav's Webverse";
+ <script>
+  document.addEventListener("DOMContentLoaded", function() {
+      document.title = "Welcome to Abhinav's Webverse";
 
-  // Update Open Graph and Twitter meta tags dynamically
-  function updateMetaTag(property, content) {
-      let metaTag = document.querySelector(`meta[property='${property}'], meta[name='${property}']`);
-      if (metaTag) {
-          metaTag.setAttribute("content", content);
-      } else {
-          metaTag = document.createElement("meta");
-          metaTag.setAttribute("property", property);
-          metaTag.setAttribute("content", content);
-          document.head.appendChild(metaTag);
+      function updateMetaTag(property, content) {
+          let metaTag = document.querySelector(`meta[property='${property}'], meta[name='${property}']`);
+          if (metaTag) {
+              metaTag.setAttribute("content", content);
+          } else {
+              metaTag = document.createElement("meta");
+              metaTag.setAttribute("property", property);
+              metaTag.setAttribute("content", content);
+              document.head.appendChild(metaTag);
+          }
       }
-  }
 
-  updateMetaTag("og:title", "Welcome to Abhinav's Webverse");
-  updateMetaTag("twitter:title", "Welcome to Abhinav's Webverse");
+      updateMetaTag("og:title", "Welcome to Abhinav's Webverse");
+      updateMetaTag("twitter:title", "Welcome to Abhinav's Webverse");
+      updateMetaTag("og:image", "image.png"); // Make sure "image.png" is in the root folder
+      updateMetaTag("twitter:image", "image.png");
+  });
 </script>
+
 
 </body>
 
