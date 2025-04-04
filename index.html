@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- ✨ Built with Framer • https://www.framer.com/ -->
+
 <html lang="en-US">
 
   <style>
@@ -28,7 +28,6 @@
   }
 </style>
 
-<!-- Mirrored from abhinavv007.framer.website/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 04 Apr 2025 07:55:51 GMT -->
 <head>
  <button id="musicBtn">🎧 Enter the Webverse</button>
 
@@ -125,24 +124,21 @@
 </script>
 <script>
   function forceTitleUpdate() {
-      document.title = "Welcome to Abhinav's Webverse";
+      document.title = "Abhinav's Webverse";
 
       // Check every second if the title gets overridden
       const checkTitle = setInterval(() => {
-          if (document.title !== "Welcome to Abhinav's Webverse") {
-              document.title = "Welcome to Abhinav's Webverse";
+          if (document.title !== "Abhinav's Webverse") {
+              document.title = "Abhinav's Webverse";
           } else {
               // Stop checking once it's stable
               clearInterval(checkTitle);
           }
-      }, 1);
+      }, 5);
   }
 
   document.addEventListener("DOMContentLoaded", forceTitleUpdate);
 </script>
-
-
-
 
 </body>
 
