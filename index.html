@@ -124,6 +124,26 @@
   });
 </script>
 
+  <script>
+  document.title = "Welcome to Abhinav's Webverse";
+
+  // Update Open Graph and Twitter meta tags dynamically
+  function updateMetaTag(property, content) {
+      let metaTag = document.querySelector(`meta[property='${property}'], meta[name='${property}']`);
+      if (metaTag) {
+          metaTag.setAttribute("content", content);
+      } else {
+          metaTag = document.createElement("meta");
+          metaTag.setAttribute("property", property);
+          metaTag.setAttribute("content", content);
+          document.head.appendChild(metaTag);
+      }
+  }
+
+  updateMetaTag("og:title", "Welcome to Abhinav's Webverse");
+  updateMetaTag("twitter:title", "Welcome to Abhinav's Webverse");
+</script>
+
 </body>
 
 <!-- Mirrored from abhinavv007.framer.website/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 04 Apr 2025 07:55:51 GMT -->
