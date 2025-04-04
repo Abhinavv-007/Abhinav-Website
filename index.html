@@ -123,22 +123,13 @@
   });
 </script>
 <script>
-  function forceTitleUpdate() {
-      document.title = "Abhinav's Webverse";
-
-      // Check every second if the title gets overridden
-      const checkTitle = setInterval(() => {
-          if (document.title !== "Abhinav's Webverse") {
-              document.title = "Abhinav's Webverse";
-          } else {
-              // Stop checking once it's stable
-              clearInterval(checkTitle);
-          }
-      }, 5);
-  }
-
-  document.addEventListener("DOMContentLoaded", forceTitleUpdate);
+  document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(() => {
+          document.title = "Welcome to Abhinav's Webverse";
+      }, 35); // Forces the title after 100ms
+  });
 </script>
+
 
 </body>
 
