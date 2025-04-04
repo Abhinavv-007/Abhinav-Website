@@ -123,29 +123,21 @@
     btn.classList.add("hide");
   });
 </script>
-
- <script>
-  document.addEventListener("DOMContentLoaded", function() {
+<script>
+  function forceTitleUpdate() {
       document.title = "Welcome to Abhinav's Webverse";
 
-      function updateMetaTag(property, content) {
-          let metaTag = document.querySelector(`meta[property='${property}'], meta[name='${property}']`);
-          if (metaTag) {
-              metaTag.setAttribute("content", content);
-          } else {
-              metaTag = document.createElement("meta");
-              metaTag.setAttribute("property", property);
-              metaTag.setAttribute("content", content);
-              document.head.appendChild(metaTag);
+      // Force update every 100ms (just in case something tries to reset it)
+      setInterval(() => {
+          if (document.title !== "Welcome to Abhinav's Webverse") {
+              document.title = "Welcome to Abhinav's Webverse";
           }
-      }
+      }, 100);
+  }
 
-      updateMetaTag("og:title", "Welcome to Abhinav's Webverse");
-      updateMetaTag("twitter:title", "Welcome to Abhinav's Webverse");
-      updateMetaTag("og:image", "image.png"); // Make sure "image.png" is in the root folder
-      updateMetaTag("twitter:image", "image.png");
-  });
+  document.addEventListener("DOMContentLoaded", forceTitleUpdate);
 </script>
+
 
 
 </body>
