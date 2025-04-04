@@ -2,8 +2,40 @@
 <!-- ✨ Built with Framer • https://www.framer.com/ -->
 <html lang="en-US">
 
+  <style>
+  #musicBtn {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #00ffcc;
+    color: #000;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 0 10px #00ffcc;
+    transition: opacity 0.5s ease, transform 0.3s ease;
+  }
+
+  #musicBtn.hide {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) scale(0.95);
+  }
+</style>
+
 <!-- Mirrored from abhinavv007.framer.website/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 04 Apr 2025 07:55:51 GMT -->
 <head>
+ <button id="musicBtn">🎧 Enter the Webverse</button>
+
+<audio id="bgMusic" loop>
+  <source src="chillin.mp3" type="audio/mp3">
+  Your browser does not support the audio element.
+</audio>
 
   <style>
     #__framer-badge-container {
@@ -78,6 +110,19 @@
     alert("Hey! For the best experience, switch to Desktop Mode from your browser options. Trust me, it looks way cooler 😎");
   }
 </script>
+
+  <script>
+  const music = document.getElementById("bgMusic");
+  const btn = document.getElementById("musicBtn");
+
+  btn.addEventListener("click", () => {
+    music.play().catch((err) => {
+      console.warn("Playback failed:", err);
+    });
+    btn.classList.add("hide");
+  });
+</script>
+
 </body>
 
 <!-- Mirrored from abhinavv007.framer.website/ by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 04 Apr 2025 07:55:51 GMT -->
