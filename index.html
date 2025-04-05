@@ -118,6 +118,37 @@
     btn.classList.add("hide");
   });
 </script>
+<script>
+  (function () {
+    const desiredTitle = "Abhinav’s Webverse";
+
+    // Set title immediately
+    document.title = desiredTitle;
+
+    // Observe <title> for any changes and override them
+    const titleTag = document.querySelector("title");
+    if (titleTag) {
+      new MutationObserver(() => {
+        if (document.title !== desiredTitle) {
+          document.title = desiredTitle;
+        }
+      }).observe(titleTag, { childList: true });
+    }
+
+    // Re-apply it repeatedly for the first few seconds
+    let attempts = 0;
+    const interval = setInterval(() => {
+      document.title = desiredTitle;
+      if (++attempts > 25) clearInterval(interval);
+    }, 200);
+
+    // Final safety hammer after page load
+    window.addEventListener("load", () => {
+      setTimeout(() => { document.title = desiredTitle; }, 1000);
+      setTimeout(() => { document.title = desiredTitle; }, 3000);
+    });
+  })();
+</script>
 
 </body>
 
