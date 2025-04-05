@@ -130,12 +130,18 @@
 
  
 
-
 <script>
-  setInterval(() => {
-    document.title = "Welcome to Abhinav's Webverse";
-  }, 100);
+  const target = document.querySelector('title');
+  const observer = new MutationObserver(() => {
+    if (document.title !== "Welcome to Abhinav's Webverse") {
+      document.title = "Welcome to Abhinav's Webverse";
+    }
+  });
+
+  observer.observe(target, { childList: true });
+  document.title = "Welcome to Abhinav's Webverse"; // Set it once at start too
 </script>
+
 
 
 </body>
