@@ -121,12 +121,22 @@
     });
     btn.classList.add("hide");
   });
+<script>
+  const forceTitle = () => {
+    if (document.title !== "Welcome to Abhinav's Webverse") {
+      document.title = "Welcome to Abhinav's Webverse";
+    }
+  };
+
+  // Run every 100 milliseconds for the first 5 seconds
+  let count = 0;
+  const interval = setInterval(() => {
+    forceTitle();
+    count++;
+    if (count > 50) clearInterval(interval); // Stop after 5 seconds
+  }, 100);
 </script>
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    document.title = "Welcome to Abhinav's Webverse";
-  });
-</script>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
