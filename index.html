@@ -29,11 +29,11 @@
 </style>
 
 <head>
-<audio id="bg-music" src="chillin.mp3" loop></audio>
-<button id="toggle-music" style="position: fixed; bottom: 20px; right: 20px; z-index: 999; padding: 10px 20px; font-weight: bold;">
-  Enter the Webverse 🎧
-</button>
 
+<button id="musicBtn">🎧 Enter the Webverse</button>
+
+<audio id="bgMusic" loop preload="none">
+  <source src="chillin.mp3" type="audio/mpeg" />
 </audio>
 
 
@@ -91,7 +91,7 @@
       <!-- Start of bodyEnd -->
     
     <!-- End of bodyEnd -->
-   <audio id="bgMusic" loop preload="none">
+  <audio id="bgMusic" loop preload="none">
   <source src="chillin.mp3" type="audio/mpeg" />
 </audio>
 
@@ -122,45 +122,7 @@
     });
     btn.classList.add("hide");
   });
-<script>
-  const forceTitle = () => {
-    if (document.title !== "Welcome to Abhinav's Webverse") {
-      document.title = "Welcome to Abhinav's Webverse";
-    }
-  };
-
- 
-
-<script>
-  const audio = document.getElementById("bg-music");
-  const button = document.getElementById("toggle-music");
-
-  let isPlaying = false;
-
-  button.addEventListener("click", () => {
-    if (isPlaying) {
-      audio.pause();
-      button.textContent = "🔇 Music";
-    } else {
-      audio.play().catch(() => {
-        alert("Audio playback is blocked. Tap again to enable it.");
-      });
-      button.textContent = "🔊 Music";
-    }
-    isPlaying = !isPlaying;
-  });
-
-  // Attempt autoplay on load for desktop
-  window.addEventListener("load", () => {
-    audio.volume = 0.5;
-    audio.play().catch(() => {
-      console.log("Autoplay blocked. Waiting for user interaction.");
-    });
-  });
 </script>
-
-
-
 
 
 </body>
