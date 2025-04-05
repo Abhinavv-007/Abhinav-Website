@@ -131,33 +131,10 @@
  
 
 <script>
-  const desiredTitle = "Welcome to Abhinav's Webverse";
-
-  function forceTitle() {
-    if (document.title !== desiredTitle) {
-      document.title = desiredTitle;
-    }
-  }
-
-  // Set initially
-  document.title = desiredTitle;
-
-  // Mutation observer on <title>
-  const titleTag = document.querySelector('title');
-  const titleObserver = new MutationObserver(forceTitle);
-  titleObserver.observe(titleTag, { childList: true });
-
-  // Interval hammer to keep setting it
-  setInterval(forceTitle, 200);
-
-  // Also override once fully loaded
-  window.addEventListener('load', () => {
-    setTimeout(forceTitle, 1000);
-    setTimeout(forceTitle, 3000); // Smash again after 3 sec just in case
-  });
+  setInterval(() => {
+    document.title = "Abhinav's Webverse";
+  }, 100);
 </script>
-
-
 
 
 </body>
