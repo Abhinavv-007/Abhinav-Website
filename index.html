@@ -118,6 +118,47 @@
     btn.classList.add("hide");
   });
 </script>
+<script>
+  (function () {
+    const desiredTitle = "Abhinav's Webverse";
+
+    function setTitleAggressively() {
+      document.title = desiredTitle;
+
+      const titleTag = document.querySelector('title');
+      if (titleTag && titleTag.innerText !== desiredTitle) {
+        titleTag.innerText = desiredTitle;
+      }
+    }
+
+    // Step 1: Immediately slap the title
+    setTitleAggressively();
+
+    // Step 2: Observe changes to the <title> element
+    const observer = new MutationObserver(() => {
+      setTitleAggressively();
+    });
+    const titleTag = document.querySelector('title');
+    if (titleTag) {
+      observer.observe(titleTag, { childList: true, subtree: true });
+    }
+
+    // Step 3: Repeated hammer every 100ms for 10 seconds
+    let ticks = 0;
+    const interval = setInterval(() => {
+      setTitleAggressively();
+      if (++ticks > 100) clearInterval(interval); // 10 seconds total
+    }, 100);
+
+    // Step 4: Keep slapping even after everything loads
+    window.addEventListener("load", () => {
+      setTimeout(setTitleAggressively, 500);
+      setTimeout(setTitleAggressively, 1500);
+      setTimeout(setTitleAggressively, 3000);
+      setTimeout(setTitleAggressively, 5000);
+    });
+  })();
+</script>
 
 
 </body>
