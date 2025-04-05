@@ -29,10 +29,11 @@
 </style>
 
 <head>
- <button id="musicBtn">🎧 Enter the Webverse</button>
+<audio id="bg-music" src="chillin.mp3" loop></audio>
+<button id="toggle-music" style="position: fixed; bottom: 20px; right: 20px; z-index: 999; padding: 10px 20px; font-weight: bold;">
+  Enter the Webverse 🎧
+</button>
 
-<audio id="bgMusic" loop preload="none">
-  <source src="chillin.mp3" type="audio/mpeg" />
 </audio>
 
 
@@ -131,46 +132,33 @@
  
 
 <script>
-  (function () {
-    const desiredTitle = "Abhinav's Webverse";
+  const audio = document.getElementById("bg-music");
+  const button = document.getElementById("toggle-music");
 
-    function setTitleAggressively() {
-      document.title = desiredTitle;
+  let isPlaying = false;
 
-      const titleTag = document.querySelector('title');
-      if (titleTag && titleTag.innerText !== desiredTitle) {
-        titleTag.innerText = desiredTitle;
-      }
+  button.addEventListener("click", () => {
+    if (isPlaying) {
+      audio.pause();
+      button.textContent = "🔇 Music";
+    } else {
+      audio.play().catch(() => {
+        alert("Audio playback is blocked. Tap again to enable it.");
+      });
+      button.textContent = "🔊 Music";
     }
+    isPlaying = !isPlaying;
+  });
 
-    // Step 1: Immediately slap the title
-    setTitleAggressively();
-
-    // Step 2: Observe changes to the <title> element
-    const observer = new MutationObserver(() => {
-      setTitleAggressively();
+  // Attempt autoplay on load for desktop
+  window.addEventListener("load", () => {
+    audio.volume = 0.5;
+    audio.play().catch(() => {
+      console.log("Autoplay blocked. Waiting for user interaction.");
     });
-    const titleTag = document.querySelector('title');
-    if (titleTag) {
-      observer.observe(titleTag, { childList: true, subtree: true });
-    }
-
-    // Step 3: Repeated hammer every 100ms for 10 seconds
-    let ticks = 0;
-    const interval = setInterval(() => {
-      setTitleAggressively();
-      if (++ticks > 100) clearInterval(interval); // 10 seconds total
-    }, 100);
-
-    // Step 4: Keep slapping even after everything loads
-    window.addEventListener("load", () => {
-      setTimeout(setTitleAggressively, 500);
-      setTimeout(setTitleAggressively, 1500);
-      setTimeout(setTitleAggressively, 3000);
-      setTimeout(setTitleAggressively, 5000);
-    });
-  })();
+  });
 </script>
+
 
 
 
