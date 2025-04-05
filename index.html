@@ -128,22 +128,13 @@
     }
   };
 
-  // Run every 100 milliseconds for the first 5 seconds
-  let count = 0;
-  const interval = setInterval(() => {
-    forceTitle();
-    count++;
-    if (count > 50) clearInterval(interval); // Stop after 5 seconds
-  }, 100);
-</script>
+ 
 
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-      setTimeout(() => {
-          document.title = "Abhinav's Webverse";
-      }, 35); // Forces the title after 100ms
-  });
+  setInterval(() => {
+    document.title = "Welcome to Abhinav's Webverse";
+  }, 100);
 </script>
 
 
