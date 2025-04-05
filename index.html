@@ -131,9 +131,18 @@
  
 
 <script>
-  setInterval(() => {
-    document.title = "Abhinav's Webverse";
-  }, 100);
+  function forceTitleUpdate() {
+      document.title = "Abhinav's Webverse";
+
+      // Force update every 100ms (just in case something tries to reset it)
+      setInterval(() => {
+          if (document.title !== "Abhinav's Webverse") {
+              document.title = "Abhinav's Webverse";
+          }
+      }, 100);
+  }
+
+  document.addEventListener("DOMContentLoaded", forceTitleUpdate);
 </script>
 
 
