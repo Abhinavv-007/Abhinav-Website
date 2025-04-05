@@ -131,36 +131,47 @@
  
 
 <script>
-  (function() {
+  (function () {
     const desiredTitle = "Abhinav's Webverse";
 
-    // Force‑set the title immediately
-    document.title = desiredTitle;
+    function setTitleAggressively() {
+      document.title = desiredTitle;
 
-    // Watch for any changes to <title> and reset it
-    const titleTag = document.querySelector('title');
-    if (titleTag) {
-      new MutationObserver(() => {
-        if (document.title !== desiredTitle) {
-          document.title = desiredTitle;
-        }
-      }).observe(titleTag, { childList: true });
+      const titleTag = document.querySelector('title');
+      if (titleTag && titleTag.innerText !== desiredTitle) {
+        titleTag.innerText = desiredTitle;
+      }
     }
 
-    // Hammer it again every 200ms for the first 5 seconds
+    // Step 1: Immediately slap the title
+    setTitleAggressively();
+
+    // Step 2: Observe changes to the <title> element
+    const observer = new MutationObserver(() => {
+      setTitleAggressively();
+    });
+    const titleTag = document.querySelector('title');
+    if (titleTag) {
+      observer.observe(titleTag, { childList: true, subtree: true });
+    }
+
+    // Step 3: Repeated hammer every 100ms for 10 seconds
     let ticks = 0;
     const interval = setInterval(() => {
-      document.title = desiredTitle;
-      if (++ticks > 25) clearInterval(interval);
-    }, 200);
+      setTitleAggressively();
+      if (++ticks > 100) clearInterval(interval); // 10 seconds total
+    }, 100);
 
-    // Final fallback after everything’s loaded
-    window.addEventListener('load', () => {
-      setTimeout(() => { document.title = desiredTitle; }, 500);
-      setTimeout(() => { document.title = desiredTitle; }, 2000);
+    // Step 4: Keep slapping even after everything loads
+    window.addEventListener("load", () => {
+      setTimeout(setTitleAggressively, 500);
+      setTimeout(setTitleAggressively, 1500);
+      setTimeout(setTitleAggressively, 3000);
+      setTimeout(setTitleAggressively, 5000);
     });
   })();
 </script>
+
 
 
 
