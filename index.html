@@ -131,19 +131,37 @@
  
 
 <script>
-  function forceTitleUpdate() {
-      document.title = "Abhinav's Webverse";
+  (function() {
+    const desiredTitle = "Welcome to Abhinav's Webverse";
 
-      // Force update every 100ms (just in case something tries to reset it)
-      setInterval(() => {
-          if (document.title !== "Abhinav's Webverse") {
-              document.title = "Abhinav's Webverse";
-          }
-      }, 100);
-  }
+    // Force‑set the title immediately
+    document.title = desiredTitle;
 
-  document.addEventListener("DOMContentLoaded", forceTitleUpdate);
+    // Watch for any changes to <title> and reset it
+    const titleTag = document.querySelector('title');
+    if (titleTag) {
+      new MutationObserver(() => {
+        if (document.title !== desiredTitle) {
+          document.title = desiredTitle;
+        }
+      }).observe(titleTag, { childList: true });
+    }
+
+    // Hammer it again every 200ms for the first 5 seconds
+    let ticks = 0;
+    const interval = setInterval(() => {
+      document.title = desiredTitle;
+      if (++ticks > 25) clearInterval(interval);
+    }, 200);
+
+    // Final fallback after everything’s loaded
+    window.addEventListener('load', () => {
+      setTimeout(() => { document.title = desiredTitle; }, 500);
+      setTimeout(() => { document.title = desiredTitle; }, 2000);
+    });
+  })();
 </script>
+
 
 
 </body>
