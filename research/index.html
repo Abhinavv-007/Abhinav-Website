@@ -58,6 +58,39 @@
           }
         });
       </script>
-      
+
+    <script>
+  (function () {
+    const desiredTitle = "Researchverse";
+
+    // Immediately set the title
+    document.title = desiredTitle;
+
+    // Mutation observer to catch and override changes to <title>
+    const titleTag = document.querySelector("title");
+    if (titleTag) {
+      new MutationObserver(() => {
+        if (document.title !== desiredTitle) {
+          document.title = desiredTitle;
+        }
+      }).observe(titleTag, { childList: true });
+    }
+
+    // Reapply it repeatedly for the first 5 seconds just in case
+    let count = 0;
+    const interval = setInterval(() => {
+      document.title = desiredTitle;
+      if (++count > 25) clearInterval(interval);
+    }, 200);
+
+    // Final check after full page load
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.title = desiredTitle;
+      }, 1000);
+    });
+  })();
+</script>
+
 </body>
 </html>
