@@ -2,48 +2,11 @@
 
 <html lang="en-US">
 
-<style>
-    #musicBtn {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: bold;
-      background-color: #111;
-      color: #0ff;
-      border: 2px solid #0ff;
-      border-radius: 30px;
-      cursor: pointer;
-      z-index: 9999;
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-      transition: all 0.3s ease;
-    }
-  
-    #musicBtn:hover {
-      background-color: #1e1e1e;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-      transform: translateX(-50%) scale(1.05);
-    }
-  </style>
+
   
 <head>
 
-    <button id="musicBtn">🎧 Enter the Webverse</button>
-<audio id="bgMusic" loop preload="auto">
-    <source src="chillin.mp3" type="audio/mpeg" />
-  </audio>
-
-  <style>
-    #__framer-badge-container {
-      display: none !important;
-    }
-  </style>
-  
-    <meta charset="utf-8">
-    
-    
+ 
     
     <!-- Start of headStart -->
     
@@ -87,93 +50,7 @@
 </div>
       <!-- Start of bodyEnd -->
     
-    <!-- End of bodyEnd -->
-  <audio id="bgMusic" loop preload="none">
-  <source src="chillin.mp3" type="audio/mpeg" />
-</audio>
 
-      
-  
-      
-<script>
-  // Wait until the page is fully loaded
-  window.addEventListener('load', function () {
-    // Override the title after Framer or any JS sets it
-    document.title = "Abhinav’s Webverse";
-  });
-</script>
-
-
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const musicBtn = document.getElementById('musicBtn');
-      const bgMusic = document.getElementById('bgMusic');
-  
-      const updateButton = () => {
-        if (bgMusic.paused) {
-          musicBtn.innerText = "🎧 Enter the Webverse";
-        } else {
-          musicBtn.innerText = "🔊 Stop the Vibe";
-        }
-      };
-  
-      musicBtn.addEventListener('click', async () => {
-        try {
-          if (bgMusic.paused) {
-            await bgMusic.play();
-          } else {
-            bgMusic.pause();
-          }
-          updateButton();
-        } catch (err) {
-          console.error("Audio control error:", err);
-          alert("Tap again! Your browser's throwing a fit.");
-        }
-      });
-  
-      // Update text once music ends
-      bgMusic.addEventListener('pause', updateButton);
-      bgMusic.addEventListener('play', updateButton);
-  
-      // Retry play on first body click (browser fallback)
-      document.body.addEventListener('click', () => {
-        if (bgMusic.paused) {
-          bgMusic.play().then(updateButton).catch(() => {});
-        }
-      }, { once: true });
-    });
-  </script>
-<script>
-  (function () {
-    const desiredTitle = "Abhinav’s Webverse";
-
-    // Set title immediately
-    document.title = desiredTitle;
-
-    // Observe <title> for any changes and override them
-    const titleTag = document.querySelector("title");
-    if (titleTag) {
-      new MutationObserver(() => {
-        if (document.title !== desiredTitle) {
-          document.title = desiredTitle;
-        }
-      }).observe(titleTag, { childList: true });
-    }
-
-    // Re-apply it repeatedly for the first few seconds
-    let attempts = 0;
-    const interval = setInterval(() => {
-      document.title = desiredTitle;
-      if (++attempts > 25) clearInterval(interval);
-    }, 200);
-
-    // Final safety hammer after page load
-    window.addEventListener("load", () => {
-      setTimeout(() => { document.title = desiredTitle; }, 1000);
-      setTimeout(() => { document.title = desiredTitle; }, 3000);
-    });
-  })();
-</script>
 
 </body>
 
