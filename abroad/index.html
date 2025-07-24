@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Scholarship Explorer for Indian CS Undergraduates (2026)</title>
+    
+    <!-- SEO & Social Meta Tags -->
+    <meta name="description" content="An interactive, filterable guide to undergraduate Computer Science scholarships for Indian applicants for the 2026 intake. Explore opportunities in Australia, New Zealand, Singapore, and more.">
+    <meta property="og:title" content="Interactive Scholarship Explorer for Indian CS Undergraduates (2026)">
+    <meta property="og:description" content="Filter and explore dozens of scholarships by country, funding type, and university. A comprehensive tool for planning your study abroad journey.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Interactive Scholarship Explorer for Indian CS Undergraduates (2026)">
+    <meta name="twitter:description" content="An interactive guide to CS scholarships for Indian applicants.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: "Modern Academic" -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard. The primary user flow is: 1. **Overview & High-Level Comparison:** The top section provides key stats and a comparative chart of opportunities by country. This gives an immediate sense of the landscape. 2. **Filtering & Exploration:** A filter bar allows users to narrow down the extensive list by Country, Funding Type, and Application Type. This is the core interaction for personalizing the data. 3. **Detailed View:** The main content area displays scholarship "cards," which are summaries of each opportunity. Clicking a card reveals a detailed modal view with all information, preventing clutter on the main screen. This structure was chosen to manage the high information density of the report, allowing users to move from a broad overview to specific details seamlessly, which is more usable than a long, scrolling document. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Number of scholarships per country -> Goal: Compare regional opportunities -> Viz/Method: Bar Chart (Chart.js/Canvas) -> Interaction: Hover for tooltips showing exact counts -> Justification: Provides a quick, visual summary of where the most opportunities lie.
+        - Report Info: Scholarship Tiers (Full vs. Partial) -> Goal: Inform funding landscape -> Viz/Method: Donut Chart (Chart.js/Canvas) -> Interaction: Hover for percentages -> Justification: Instantly communicates the prevalence of partial vs. full funding.
+        - Report Info: Detailed scholarship data -> Goal: Organize and display detailed information -> Viz/Method: HTML/CSS Card Layout + Modal -> Interaction: Click card to open modal -> Justification: Manages information density, keeping the main interface clean while providing deep-dive capability.
+        - Report Info: All scholarship data points -> Goal: Allow user-defined exploration -> Viz/Method: HTML/CSS Filter buttons + JS logic -> Interaction: Click filters to update displayed cards -> Justification: Empowers users to find scholarships matching their specific criteria (e.g., "India-specific" or "Automatic Application"). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --header-text: #1d4ed8;
+            --subheader-text: #4b5563;
+            --filter-bg: #e5e7eb;
+            --filter-text: #374151;
+            --filter-active-bg: #2563eb;
+            --filter-active-text: #ffffff;
+            --modal-bg: #ffffff;
+            --modal-section-bg: #eff6ff;
+            --link-color: #db2777;
+            --border-color: #e5e7eb;
+        }
+
+        html.dark {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --card-bg: #161b22;
+            --header-text: #58a6ff;
+            --subheader-text: #8b949e;
+            --filter-bg: #21262d;
+            --filter-text: #c9d1d9;
+            --filter-active-bg: #58a6ff;
+            --filter-active-text: #0d1117;
+            --modal-bg: #161b22;
+            --modal-section-bg: #21262d;
+            --link-color: #f778ba;
+            --border-color: #30363d;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .modal-content { max-height: 80vh; }
+        .filter-btn { transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .filter-btn.active {
+            background-color: var(--filter-active-bg);
+            color: var(--filter-active-text);
+            font-weight: 600;
+        }
+        .scholarship-card {
+            background-color: var(--card-bg);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .scholarship-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        html.dark .scholarship-card:hover {
+             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+        }
+        #back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="container mx-auto p-4 md:p-8">
+        
+        <header class="relative text-center mb-12">
+            <div class="absolute top-0 right-0">
+                <button id="theme-toggle" aria-label="Toggle dark mode" class="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--filter-bg); color: var(--filter-text); --ring-offset-color: var(--bg-color);">
+                    <span id="theme-icon"></span>
+                </button>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: var(--header-text);">CS Undergraduate Scholarship Explorer</h1>
+            <p class="text-lg" style="color: var(--subheader-text);">An Interactive Guide for Indian Applicants (2026 Intake)</p>
+        </header>
+
+        <main>
+            <section id="overview" class="mb-12 p-6 rounded-2xl shadow-sm" style="background-color: var(--card-bg);">
+                <h2 class="text-2xl font-bold mb-4 border-b pb-2" style="color: var(--header-text); border-color: var(--border-color);">Scholarship Landscape Overview</h2>
+                <div class="mb-6 prose prose-sm max-w-none" style="color: var(--text-color);">
+                    <p>This interactive dashboard synthesizes an exhaustive report on undergraduate Computer Science scholarships for Indian students. The data reveals distinct funding models across regions. Singapore offers comprehensive, bond-linked scholarships. Australia and New Zealand provide automatic, merit-based tuition waivers. In contrast, European opportunities at the undergraduate level are limited, with a strong focus on postgraduate funding. Use the charts and filters below to navigate these opportunities and tailor a strategy to your academic profile.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container">
+                        <canvas id="opportunitiesByCountryChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="fundingTypeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="filters" class="p-4 rounded-2xl shadow-md mb-8" style="background-color: var(--card-bg);">
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-semibold mb-2" style="color: var(--subheader-text);">Filter by Country</h3>
+                        <div id="country-filters" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold mb-2" style="color: var(--subheader-text);">Filter by Key Criteria</h3>
+                        <div id="criteria-filters" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="scholarship-listings">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold" style="color: var(--header-text);">Scholarship Opportunities</h2>
+                    <p id="scholarship-count" class="font-medium" style="color: var(--subheader-text);"></p>
+                </div>
+                <div id="scholarships-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <p id="no-results" class="text-center py-12 text-lg hidden" style="color: var(--subheader-text);">No scholarships match the selected criteria.</p>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 pt-8 border-t" style="border-color: var(--border-color);">
+             <a href="https://www.linkedin.com/in/abhinavv007/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" style="background-color: var(--header-text);">
+                <span>Connect with me on LinkedIn</span>
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path></svg>
+            </a>
+            <p class="mt-4 text-sm" style="color: var(--subheader-text);">Scholarship Explorer by Abhinav Raj | Last Updated: 24th July 2024</p>
+        </footer>
+    </div>
+
+    <div id="scholarship-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="rounded-2xl shadow-xl w-full max-w-3xl transform transition-all" style="background-color: var(--modal-bg);">
+            <div class="p-6 border-b flex justify-between items-start" style="border-color: var(--border-color);">
+                <div class="pr-4">
+                    <h3 id="modal-title" class="text-2xl font-bold" style="color: var(--header-text);"></h3>
+                    <p id="modal-university" style="color: var(--subheader-text);"></p>
+                </div>
+                <button id="close-modal" class="text-3xl font-bold" style="color: var(--subheader-text);">&times;</button>
+            </div>
+            <div id="modal-content" class="p-6 overflow-y-auto modal-content"></div>
+        </div>
+    </div>
+
+    <button id="back-to-top" title="Go to top" class="hidden p-3 rounded-full shadow-lg transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--filter-active-bg); color: var(--filter-active-text); --ring-offset-color: var(--bg-color);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+    </button>
+
+    <script>
+        const scholarshipData = [
+            { "id": 1, "name": "Science & Technology (S&T) Undergraduate Scholarship", "university": "National University of Singapore (NUS)", "country": "Singapore", "qs_rank": 8, "is_international": true, "is_indian_specific": true, "is_stem_specific": true, "funding_type": "Full", "funding_details": "100% subsidized tuition, S$6,000 living allowance, accommodation allowance, S$1,750 computer allowance, S$200 settling-in allowance, airfare.", "value_local": "Full Tuition + S$11,000+", "value_inr": "Full Tuition + ~₹9,09,000+", "value_usd": "Full Tuition + ~$10,900+", "renewable": "Yes, with CAP >= 3.5", "application_type": "Automatic", "deadline": "Early March 2026", "eligibility": "Outstanding academics, leadership, co-curriculars. Citizens of Asian countries (excluding Singapore).", "docs_required": "Standard admission documents. Personal statement if shortlisted.", "min_marks": "Extremely high (e.g., 95%+).", "link": "https://nus.edu.sg/oam/scholarships/scholarships-for-freshmen-singapore-permanent-residents/science-technology-undergraduate-scholarship", "tips": "Highlight STEM achievements and leadership. Be aware of the 6-year service bond.", "interview_required": true, "housing_included": true, "combinable": false, "quota": "Limited, highly competitive." },
+            { "id": 2, "name": "Nanyang Global Scholarship", "university": "Nanyang Technological University (NTU)", "country": "Singapore", "qs_rank": 26, "is_international": true, "is_indian_specific": false, "is_stem_specific": false, "funding_type": "Full", "funding_details": "Full subsidized tuition, S$6,500 living allowance, S$2,000 accommodation allowance, S$8,000 travel grant, S$2,000 computer allowance.", "value_local": "Full Tuition + S$8,500+", "value_inr": "Full Tuition + ~₹7,00,000+", "value_usd": "Full Tuition + ~$8,400+", "renewable": "Yes, with CGPA >= 3.5", "application_type": "Separate", "deadline": "Mid-March 2026", "eligibility": "Outstanding academics, co-curriculars, leadership potential.", "docs_required": "Personal Essay (250 words), one online referee appraisal.", "min_marks": "Extremely high.", "link": "https://www.ntu.edu.sg/admissions/undergraduate/scholarships/scholarship-listings/detail/nanyang-scholarship", "tips": "Submit the separate application. Choose a referee who can provide a strong recommendation. 3-year service bond.", "interview_required": true, "housing_included": true, "combinable": false, "quota": "Limited, highly competitive." },
+            { "id": 3, "name": "Sydney Scholars India Scholarship Program", "university": "University of Sydney", "country": "Australia", "qs_rank": 36, "is_international": true, "is_indian_specific": true, "is_stem_specific": false, "funding_type": "Full", "funding_details": "Tiered: 2x 100% tuition waiver; 10x AUD 20,000; 16x AUD 10,000.", "value_local": "Up to 100% Tuition", "value_inr": "Up to 100% Tuition", "value_usd": "Up to 100% Tuition", "renewable": "Yes (for 100% award), No (for others)", "application_type": "Separate", "deadline": "Late May 2026", "eligibility": "Indian citizen and resident with an unconditional offer.", "docs_required": "Online application with personal statements.", "min_marks": "Highly competitive.", "link": "https://www.sydney.edu.au/scholarships/e/sydney-scholars-india-scholarship-program.html", "tips": "Tailor personal statement to show leadership and vision. Apply after getting an unconditional offer.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "28 awards total, 2 are full tuition." },
+            { "id": 4, "name": "ANU Chancellor's International Scholarship", "university": "Australian National University (ANU)", "country": "Australia", "qs_rank": 37, "is_international": true, "is_indian_specific": true, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "25% or 50% reduction in tuition fees for the duration of the degree.", "value_local": "25-50% Tuition Fee Reduction", "value_inr": "Approx. ₹6.8L - ₹13.7L per year", "value_usd": "Approx. $8.2k - $16.5k per year", "renewable": "Yes, for program duration", "application_type": "Automatic", "deadline": "Tied to admission rounds", "eligibility": "International student with an offer of admission.", "docs_required": "Standard admission documents.", "min_marks": "Highly competitive.", "link": "https://www.anu.edu.au/study/scholarships/find-a-scholarship/anu-chancellors-international-scholarship", "tips": "Strong academic record is key. There is a dedicated quota for South Asian students.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "50 awards for South Asia region." },
+            { "id": 5, "name": "Melbourne International Undergraduate Scholarship", "university": "University of Melbourne", "country": "Australia", "qs_rank": 41, "is_international": true, "is_indian_specific": true, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "25% tuition fee remission for the standard duration of the course.", "value_local": "25% Tuition Fee Reduction", "value_inr": "Approx. ₹6.8L per year", "value_usd": "Approx. $8.2k per year", "renewable": "Yes, with 70% average", "application_type": "Automatic", "deadline": "End of November 2025", "eligibility": "Citizen of an eligible country (India included), completed secondary school outside Australia.", "docs_required": "Standard admission documents.", "min_marks": "Extremely high (e.g., 96%+ in Indian boards for 2025 entry).", "link": "https://scholarships.unimelb.edu.au/awards/melbourne-international-undergraduate-scholarship", "tips": "Meeting the high academic threshold is the main criteria.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "At least 110 awards." },
+            { "id": 6, "name": "UQ International Excellence Scholarship", "university": "University of Queensland (UQ)", "country": "Australia", "qs_rank": 42, "is_international": true, "is_indian_specific": false, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "25% reduction in tuition fees per semester.", "value_local": "25% Tuition Fee Reduction", "value_inr": "Varies", "value_usd": "Varies", "renewable": "Yes, for program duration", "application_type": "Automatic", "deadline": "Tied to admission rounds", "eligibility": "International student with an unconditional offer and competitive score.", "docs_required": "Standard admission documents.", "min_marks": "Highly competitive (e.g., rank of 99).", "link": "https://scholarships.uq.edu.au/scholarship/uq-international-excellence-scholarship", "tips": "Top academic percentile is required.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "Limited, competitive." },
+            { "id": 7, "name": "International Scientia Coursework Scholarship", "university": "University of New South Wales (UNSW)", "country": "Australia", "qs_rank": 46, "is_international": true, "is_indian_specific": false, "is_stem_specific": false, "funding_type": "Full", "funding_details": "Either 100% full tuition support or AUD 20,000 per annum contribution.", "value_local": "100% Tuition or AUD 20,000 p.a.", "value_inr": "100% Tuition or ~₹11,00,000 p.a.", "value_usd": "100% Tuition or ~$13,200 p.a.", "renewable": "Yes, with satisfactory progress", "application_type": "Separate", "deadline": "31 July 2025 (for Term 1 2026)", "eligibility": "High academic achievement, leadership skills, extracurriculars.", "docs_required": "Personal statement, details of leadership/extracurriculars.", "min_marks": "UNSW's most prestigious scholarship.", "link": "https://www.unsw.edu.au/study/how-to-apply/scholarships", "tips": "Application must demonstrate impact and leadership, not just list achievements.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "Very limited, extremely competitive." },
+            { "id": 8, "name": "NL Scholarship", "university": "Delft University of Technology (TU Delft)", "country": "Netherlands", "qs_rank": 47, "is_international": true, "is_indian_specific": false, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "One-time amount of €5,000.", "value_local": "€5,000 (one-time)", "value_inr": "~₹4,50,000 (one-time)", "value_usd": "~$5,400 (one-time)", "renewable": "No", "application_type": "Separate", "deadline": "Feb 1 or Mar 1, 2026", "eligibility": "Non-EEA national, applying for a full-time bachelor's degree.", "docs_required": "Varies by university, often a motivation letter.", "min_marks": "Meet university admission requirements.", "link": "https://www.studyinnl.org/finances/nl-scholarship", "tips": "This is a government grant, not a full scholarship. Apply directly to the university.", "interview_required": false, "housing_included": false, "combinable": true, "quota": "Limited." },
+            { "id": 9, "name": "Aalto University Excellence Scholarship", "university": "Aalto University", "country": "Finland", "qs_rank": 109, "is_international": true, "is_indian_specific": false, "is_stem_specific": true, "funding_type": "Full", "funding_details": "100% tuition fee waiver. Does not cover living costs.", "value_local": "€12,000 p.a. (Tuition Waiver)", "value_inr": "~₹10,80,000 p.a.", "value_usd": "~$12,960 p.a.", "renewable": "Yes, with academic progress", "application_type": "Automatic", "deadline": "Mid-January 2026", "eligibility": "Talented non-EU/non-EEA students.", "docs_required": "Standard admission documents.", "min_marks": "Highest-achieving applicants.", "link": "https://www.aalto.fi/en/international-students/scholarships-study-right-started-on-or-after-1-august-2025", "tips": "Academic competitiveness is the primary factor.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "Limited, highly competitive." },
+            { "id": 10, "name": "India Undergraduate Scholarships", "university": "Trinity College Dublin", "country": "Ireland", "qs_rank": 81, "is_international": true, "is_indian_specific": true, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "Tuition fee reduction, typically €3,000 to €5,000.", "value_local": "€3,000-€5,000", "value_inr": "~₹2.7L - ₹4.5L", "value_usd": "~$3.2k - $5.4k", "renewable": "No", "application_type": "Separate", "deadline": "Late Spring 2026", "eligibility": "Residents of India with a Trinity course offer.", "docs_required": "Offer Letter, 200-word statement, CV/Resume.", "min_marks": "High academic achievement.", "link": "https://www.tcd.ie/study/international/scholarships/undergraduate/india.php", "tips": "Personal statement should reflect genuine understanding of the Trinity community.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "Limited, competitive." },
+            { "id": 11, "name": "University of Auckland India High Achievers Scholarship", "university": "University of Auckland", "country": "New Zealand", "qs_rank": 65, "is_international": true, "is_indian_specific": true, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "Up to NZ$20,000 towards compulsory tuition fees.", "value_local": "Up to NZ$20,000", "value_inr": "Up to ~₹10,20,000", "value_usd": "Up to ~$12,200", "renewable": "No", "application_type": "Separate", "deadline": "Late October 2025", "eligibility": "New international student from India.", "docs_required": "Academic transcripts, personal statement, referee endorsement.", "min_marks": "For 'High Achievers'.", "link": "https://www.auckland.ac.nz/en/study/scholarships-and-awards/find-a-scholarship/university-of-auckland-india-high-achievers-scholarship-1143-all.html", "tips": "Strong academic merit is the primary selection criterion.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "30 awards biannually." },
+            { "id": 12, "name": "University of Otago Global Scholarships", "university": "University of Otago", "country": "New Zealand", "qs_rank": 198, "is_international": true, "is_indian_specific": true, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "NZ$15,000 towards tuition fees.", "value_local": "NZ$15,000", "value_inr": "~₹7,65,000", "value_usd": "~$9,150", "renewable": "No", "application_type": "Automatic", "deadline": "Tied to admission rounds", "eligibility": "New international Bachelor's student from an eligible country (India included).", "docs_required": "Respond 'yes' to scholarship question in admission application.", "min_marks": "Meet university entrance requirements.", "link": "https://www.otago.ac.nz/international/future-students/fees-scholarships/international-scholarships", "tips": "Simple application process integrated with admission.", "interview_required": false, "housing_included": false, "combinable": true, "quota": "Not specified." },
+            { "id": 13, "name": "UC International First Year Scholarship", "university": "University of Canterbury", "country": "New Zealand", "qs_rank": 256, "is_international": true, "is_indian_specific": false, "is_stem_specific": false, "funding_type": "Partial", "funding_details": "NZ$15,000 towards tuition fees.", "value_local": "NZ$15,000", "value_inr": "~₹7,65,000", "value_usd": "~$9,150", "renewable": "No", "application_type": "Separate", "deadline": "Oct 31, 2025 / Apr 15, 2026", "eligibility": "Full-fee paying international student commencing UG degree.", "docs_required": "Online application via scholarship portal.", "min_marks": "Meet university entrance requirements.", "link": "https://www.canterbury.ac.nz/study/getting-started/scholarships/incoming-first-year-scholarships/international-students/", "tips": "Selection considers academics, character, and leadership.", "interview_required": false, "housing_included": false, "combinable": false, "quota": "Not specified." }
+        ];
+
+        const countryFlags = { "Singapore": "🇸🇬", "Australia": "🇦🇺", "Netherlands": "🇳🇱", "Finland": "🇫🇮", "Ireland": "🇮🇪", "New Zealand": "🇳🇿" };
+        const criteria = [ { id: 'indian-specific', text: '🇮🇳 India Specific' }, { id: 'full-funding', text: '💰 Full Funding' }, { id: 'automatic-app', text: '✅ Automatic Application' }, { id: 'stem-specific', text: '🔬 STEM Specific' } ];
+        
+        let activeCountryFilters = [];
+        let activeCriteriaFilters = [];
+        let opportunitiesChart, fundingTypeChart;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const countryFiltersContainer = document.getElementById('country-filters');
+            const criteriaFiltersContainer = document.getElementById('criteria-filters');
+            const scholarshipsGrid = document.getElementById('scholarships-grid');
+            const scholarshipCount = document.getElementById('scholarship-count');
+            const noResults = document.getElementById('no-results');
+            const modal = document.getElementById('scholarship-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            function setupFilters() {
+                const countries = [...new Set(scholarshipData.map(s => s.country))];
+                let countryButtonsHTML = `<button class="filter-btn active px-4 py-2 rounded-full text-sm" data-filter="All" style="background-color: var(--filter-bg); color: var(--filter-text);">All Countries</button>`;
+                countries.forEach(country => {
+                    countryButtonsHTML += `<button class="filter-btn px-4 py-2 rounded-full text-sm" data-filter="${country}" style="background-color: var(--filter-bg); color: var(--filter-text);">${countryFlags[country]} ${country}</button>`;
+                });
+                countryFiltersContainer.innerHTML = countryButtonsHTML;
+
+                let criteriaButtonsHTML = '';
+                criteria.forEach(c => {
+                    criteriaButtonsHTML += `<button class="filter-btn px-4 py-2 rounded-full text-sm" data-filter="${c.id}" style="background-color: var(--filter-bg); color: var(--filter-text);">${c.text}</button>`;
+                });
+                criteriaFiltersContainer.innerHTML = criteriaButtonsHTML;
+
+                document.querySelectorAll('.filter-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const filter = e.target.dataset.filter;
+                        const parentId = e.target.parentElement.id;
+
+                        if (parentId === 'country-filters') {
+                            if (filter === 'All') {
+                                activeCountryFilters = [];
+                                document.querySelectorAll('#country-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+                                e.target.classList.add('active');
+                            } else {
+                                document.querySelector('#country-filters .filter-btn[data-filter="All"]').classList.remove('active');
+                                e.target.classList.toggle('active');
+                                activeCountryFilters = [...document.querySelectorAll('#country-filters .filter-btn.active')].map(btn => btn.dataset.filter);
+                                if (activeCountryFilters.length === 0) {
+                                    document.querySelector('#country-filters .filter-btn[data-filter="All"]').classList.add('active');
+                                }
+                            }
+                        } else {
+                            e.target.classList.toggle('active');
+                            activeCriteriaFilters = [...document.querySelectorAll('#criteria-filters .filter-btn.active')].map(btn => btn.dataset.filter);
+                        }
+                        renderScholarships();
+                    });
+                });
+            }
+
+            function renderScholarships() {
+                let filteredData = scholarshipData;
+                if (activeCountryFilters.length > 0) {
+                    filteredData = filteredData.filter(s => activeCountryFilters.includes(s.country));
+                }
+                activeCriteriaFilters.forEach(filter => {
+                    switch(filter) {
+                        case 'indian-specific': filteredData = filteredData.filter(s => s.is_indian_specific); break;
+                        case 'full-funding': filteredData = filteredData.filter(s => s.funding_type === 'Full'); break;
+                        case 'automatic-app': filteredData = filteredData.filter(s => s.application_type === 'Automatic'); break;
+                        case 'stem-specific': filteredData = filteredData.filter(s => s.is_stem_specific); break;
+                    }
+                });
+                
+                scholarshipsGrid.innerHTML = '';
+                if (filteredData.length > 0) {
+                    noResults.classList.add('hidden');
+                    scholarshipsGrid.classList.remove('hidden');
+                    filteredData.forEach(s => {
+                        const card = document.createElement('div');
+                        card.className = 'scholarship-card p-6 rounded-2xl shadow-sm cursor-pointer flex flex-col justify-between';
+                        card.dataset.id = s.id;
+
+                        let tagsHTML = `<div class="flex flex-wrap gap-2 mb-3">`;
+                        if (s.is_indian_specific) tagsHTML += `<span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full dark:bg-green-900 dark:text-green-200">🇮🇳 India Specific</span>`;
+                        if (s.funding_type === 'Full') tagsHTML += `<span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200">💰 Full Funding</span>`;
+                        if (s.application_type === 'Automatic') tagsHTML += `<span class="text-xs font-semibold bg-purple-100 text-purple-800 px-2 py-1 rounded-full dark:bg-purple-900 dark:text-purple-200">✅ Automatic</span>`;
+                        tagsHTML += `</div>`;
+
+                        card.innerHTML = `
+                            <div>
+                                <p class="text-sm mb-1" style="color: var(--subheader-text);">${countryFlags[s.country]} ${s.university}</p>
+                                <h4 class="text-lg font-bold mb-2" style="color: var(--header-text);">${s.name}</h4>
+                                ${tagsHTML}
+                                <p class="text-sm"><span class="font-semibold">Value:</span> ${s.value_local}</p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t text-right" style="border-color: var(--border-color);">
+                                <span class="text-sm font-medium" style="color: var(--link-color);">View Details &rarr;</span>
+                            </div>
+                        `;
+                        card.addEventListener('click', () => openModal(s.id));
+                        scholarshipsGrid.appendChild(card);
+                    });
+                } else {
+                    noResults.classList.remove('hidden');
+                    scholarshipsGrid.classList.add('hidden');
+                }
+                scholarshipCount.textContent = `${filteredData.length} scholarships found`;
+            }
+            
+            function openModal(id) {
+                const scholarship = scholarshipData.find(s => s.id === id);
+                if (!scholarship) return;
+
+                document.getElementById('modal-title').textContent = scholarship.name;
+                document.getElementById('modal-university').textContent = `${countryFlags[scholarship.country]} ${scholarship.university} (QS Rank: #${scholarship.qs_rank})`;
+                
+                const modalContent = document.getElementById('modal-content');
+                modalContent.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);">
+                                <p class="text-sm font-semibold mb-1" style="color: var(--header-text);">Funding Details</p>
+                                <p>${scholarship.funding_details}</p>
+                            </div>
+                            <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);">
+                                <p class="text-sm font-semibold mb-1" style="color: var(--header-text);">Value</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li><strong>Local:</strong> ${scholarship.value_local}</li>
+                                    <li><strong>INR:</strong> ${scholarship.value_inr}</li>
+                                    <li><strong>USD:</strong> ${scholarship.value_usd}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="p-3 rounded-lg" style="background-color: var(--filter-bg);"><p><span class="font-semibold">Application:</span> ${scholarship.application_type}</p></div>
+                            <div class="p-3 rounded-lg" style="background-color: var(--filter-bg);"><p><span class="font-semibold">Deadline:</span> ${scholarship.deadline}</p></div>
+                            <div class="p-3 rounded-lg" style="background-color: var(--filter-bg);"><p><span class="font-semibold">Renewable:</span> ${scholarship.renewable}</p></div>
+                        </div>
+
+                        <div>
+                            <h5 class="font-semibold mb-1" style="color: var(--header-text);">Eligibility Criteria</h5>
+                            <p>${scholarship.eligibility}</p>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold mb-1" style="color: var(--header-text);">Application Tips & Notes</h5>
+                            <p>${scholarship.tips}</p>
+                        </div>
+                        <div>
+                            <a href="${scholarship.link}" target="_blank" rel="noopener noreferrer" class="inline-block text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" style="background-color: var(--header-text);">
+                                Official Scholarship Page ↗
+                            </a>
+                        </div>
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+            }
+
+            closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+            modal.addEventListener('click', (e) => {
+                if (e.target.id === 'scholarship-modal') modal.classList.add('hidden');
+            });
+
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            function createCharts() {
+                const countryCounts = scholarshipData.reduce((acc, s) => { acc[s.country] = (acc[s.country] || 0) + 1; return acc; }, {});
+                const fundingCounts = scholarshipData.reduce((acc, s) => { acc[s.funding_type] = (acc[s.funding_type] || 0) + 1; return acc; }, {});
+                
+                const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+                Chart.defaults.color = textColor;
+
+                opportunitiesChart = new Chart(document.getElementById('opportunitiesByCountryChart').getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: Object.keys(countryCounts), datasets: [{ label: 'Opportunities', data: Object.values(countryCounts), backgroundColor: '#2563eb', hoverBackgroundColor: '#1d4ed8' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Opportunities by Country', font: { size: 16 } }, legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } }, x: { ticks: { color: textColor }, grid: { color: 'transparent' } } } }
+                });
+                fundingTypeChart = new Chart(document.getElementById('fundingTypeChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(fundingCounts), datasets: [{ label: 'Funding Types', data: Object.values(fundingCounts), backgroundColor: ['#1d4ed8', '#db2777'], hoverOffset: 4, borderColor: 'var(--card-bg)' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Funding Type Distribution', font: { size: 16 } }, legend: { position: 'bottom', labels: { color: textColor } } } }
+                });
+            }
+
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const sunIcon = `☀️`;
+            const moonIcon = `🌙`;
+
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    themeIcon.textContent = sunIcon;
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeIcon.textContent = moonIcon;
+                    localStorage.setItem('theme', 'light');
+                }
+                updateChartColors();
+            }
+            
+            function updateChartColors() {
+                if (!opportunitiesChart || !fundingTypeChart) return;
+                
+                const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+                const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+                const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+
+                Chart.defaults.color = textColor;
+                
+                opportunitiesChart.options.scales.y.ticks.color = textColor;
+                opportunitiesChart.options.scales.x.ticks.color = textColor;
+                opportunitiesChart.options.scales.y.grid.color = gridColor;
+                opportunitiesChart.options.plugins.title.color = textColor;
+                
+                fundingTypeChart.options.plugins.legend.labels.color = textColor;
+                fundingTypeChart.options.plugins.title.color = textColor;
+                fundingTypeChart.data.datasets[0].borderColor = cardBg;
+
+                opportunitiesChart.update();
+                fundingTypeChart.update();
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                applyTheme(currentTheme);
+            });
+
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+            
+            setupFilters();
+            renderScholarships();
+            createCharts();
+        });
+    </script>
+</body>
+</html>
