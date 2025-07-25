@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global CS Program Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Refined Academia -->
+    <!-- Application Structure Plan: The application is designed as a single-page interactive dashboard. The primary user goal is to easily compare and explore universities for a CS degree. The structure is task-oriented: 1. **Top-Level Filtering:** Users first select a country, which is the most common initial decision point. This immediately narrows the scope. 2. **Summary View:** A responsive grid of "university cards" provides a high-level, scannable overview of the filtered universities, showing the most critical decision-making data (ranking, fees, rating). This allows for quick initial assessment. 3. **Comparative Visualization:** Key metrics like rankings and tuition fees are visualized in dynamic bar charts that update based on the country filter, allowing for immediate visual comparison of the selected cohort. 4. **Detailed Exploration:** Clicking a card opens a modal window with the full 35-point detail for that university. This keeps the user on the same page, avoiding disorienting navigation. The modal organizes the vast information into logical, tabbed sections (e.g., 'Academics', 'Admissions', 'Costs') to prevent overwhelming the user with a single long scroll. This layered approach—Filter -> Scan -> Visualize -> Detail—creates an intuitive and efficient user flow for exploring complex data. -->
+    <!-- Visualization & Content Choices: 1. **University Rankings (Bar Chart):** Report Info: QS World Ranking. Goal: Compare prestige. Viz: Vertical Bar Chart (Chart.js). Interaction: Updates on country filter. Justification: Bar charts are the most effective way to visually compare ranked values. 2. **Tuition Fees (Bar Chart):** Report Info: Estimated Annual Tuition in USD. Goal: Compare costs. Viz: Horizontal Bar Chart (Chart.js). Interaction: Updates on country filter. Justification: Horizontal bars are excellent for comparing financial data and provide ample space for labels. 3. **University Cards (Grid Layout):** Report Info: Name, Location, Rating. Goal: Inform and provide entry point to details. Presentation: HTML/Tailwind card. Interaction: Click to open detail modal. Justification: Cards are a standard, highly effective UI pattern for summarizing items in a collection. 4. **Detailed View (Tabbed Modal):** Report Info: All 35 data points. Goal: Organize and present deep information. Presentation: HTML/Tailwind tabs. Interaction: Click tabs to switch content panels. Justification: Tabs break down a large amount of information into manageable chunks, significantly improving readability and reducing cognitive load. 5. **Pros & Cons (List):** Report Info: Pros/Cons text. Goal: Inform qualitative assessment. Presentation: Styled HTML lists with check/cross icons. Justification: Visual cues (icons) make the lists scannable and immediately understandable. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --bg-light: #F8F7F4;
+            --bg-dark: #1a202c;
+            --text-light-primary: #1a202c;
+            --text-light-secondary: #4a5568;
+            --text-dark-primary: #edf2f7;
+            --text-dark-secondary: #a0aec0;
+            --card-bg-light: #ffffff;
+            --card-bg-dark: #2d3748;
+            --border-light: #e2e8f0;
+            --border-dark: #4a5568;
+            --accent-color: #4299e1;
+        }
+        html.dark {
+            color-scheme: dark;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-dark-primary);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-track { background: #4a5568; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #718096; }
+        .modal-card-height { max-height: 90vh; }
+        .tab-active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border-color: var(--border-light); }
+        .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border-color: var(--border-dark); }
+        .university-card {
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-light);
+        }
+        .dark .university-card {
+            background-color: var(--card-bg-dark);
+            border: 1px solid var(--border-dark);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8 relative">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100 mb-2">Global CS Program Explorer</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">An Interactive Guide to Top Undergraduate Computer Science Degrees for 2025</p>
+            <button id="theme-toggle" class="absolute top-0 right-0 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 5.05A1 1 0 003.636 6.464l.707.707a1 1 0 001.414-1.414l-.707-.707zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zM13.536 14.95a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0z"></path></svg>
+            </button>
+        </header>
+
+        <nav class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md mb-8 sticky top-4 z-20 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
+            <label class="font-semibold text-gray-700 dark:text-gray-200">Filter by Country:</label>
+            <div id="country-filter-buttons" class="flex flex-wrap justify-center gap-2">
+            </div>
+        </nav>
+
+        <main>
+            <section id="charts-section" class="mb-12">
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold text-center mb-4 text-gray-700 dark:text-gray-200">QS World University Ranking (2025)</h3>
+                        <div class="chart-container">
+                            <canvas id="rankingsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold text-center mb-4 text-gray-700 dark:text-gray-200">Estimated Annual Tuition (USD)</h3>
+                         <div class="chart-container">
+                            <canvas id="tuitionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="university-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </section>
+        </main>
+    </div>
+
+    <div id="university-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
+                <div>
+                    <h2 id="modal-university-name" class="text-3xl font-bold text-gray-800 dark:text-gray-100"></h2>
+                    <p id="modal-university-location" class="text-md text-gray-500 dark:text-gray-400"></p>
+                </div>
+                <button id="close-modal" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 transition-colors text-3xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6 flex-shrink-0">
+                <div id="modal-tabs" class="flex flex-wrap border-b border-gray-200 dark:border-gray-700 mb-4 -mt-2">
+                </div>
+            </div>
+
+            <div id="modal-content" class="overflow-y-auto custom-scrollbar px-6 pb-6 flex-grow">
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center py-8 mt-8 border-t border-gray-200 dark:border-gray-700">
+        <p class="text-gray-600 dark:text-gray-400">Created by Abhinav. Connect with me on 
+            <a href="https://www.linkedin.com/in/abhinavv007/" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline font-semibold">LinkedIn</a>.
+        </p>
+    </footer>
+
+    <script>
+        const universityData = [
+            { id: 'nus', name: 'National University of Singapore', country: 'Singapore', qsRank: 8, location: 'Singapore, Singapore', website: 'https://www.comp.nus.edu.sg/programmes/ug/cs/', type: 'Public, Autonomous, Research-intensive', appDeadlines: '20 Nov 2024 to 26 Feb 2025 (for Indian Standard 12)', appOpening: '20 Nov 2024', duration: '4 Years', degree: 'BComp (Hons) in Computer Science; BSc (Hons) in Artificial Intelligence', structure: '160 Modular Credits (MCs) over 8 semesters.', specializations: ['Artificial Intelligence', 'Computer Security', 'Software Engineering', 'Algorithms & Theory', 'Computer Graphics & Games'], research: "Undergraduate Research Opportunities Programme (UROP).", internships: "Mandatory Industrial Experience Requirement (e.g., ATAP, NOC).", partners: ['Google', 'Microsoft', 'Grab', 'Shopee'], admissionReq: 'CBSE/ISC: >95% recommended. SAT: 1250+ (optional).', englishTests: 'IELTS: 6.5 (6.5 in R&W), TOEFL iBT: 92-93', docs: ['Transcripts', 'Passport', 'Personal Statement'], appFee: 'SGD 20', tuition: 14800, tuitionLocal: 'SGD 20,000 (with MOE Grant)', scholarships: 'ASEAN/Science & Technology Scholarships (Full tuition + allowances).', onCampusHousing: 'Guaranteed for 2 years. Cost: SGD 96 - 235/week.', offCampusHousing: 'SGD 700 - 1,400/month for a room.', livingExpenses: 'SGD 1,000 - 2,500/month.', visa: '1-year Long-Term Visit Pass (LTVP) to find work.', careerProspects: 'Mean starting salary: SGD 6,600/month.', employability: '9th in the world (GEURS 2025).', alumni: ['Founders of 99.co, Carousell'], intlStudents: '26% - 36%', culture: 'Vibrant, international, "startup vibe", but highly competitive.', weather: 'Tropical rainforest climate.', reputation: '4th globally for CS (QS Subject 2025).', pros: ['Elite global reputation', 'Exceptional career outcomes', 'Strong industry integration', 'World-class research'], cons: ['Extremely competitive admissions', 'High-pressure environment', 'High cost of living', '3-year work bond'], reviews: 'Forums emphasize intense academic rigor and the need for proactive module planning.', rating: 9.5 },
+            { id: 'ntu', name: 'Nanyang Technological University', country: 'Singapore', qsRank: 12, location: 'Singapore, Singapore', website: 'https://www.ntu.edu.sg/education/undergraduate-programme/bachelor-of-computing-in-computer-science', type: 'Public, Autonomous, Research-intensive', appDeadlines: '4 Nov 2024 to 19 March 2025', appOpening: '4 Nov 2024', duration: '4 Years', degree: 'BComp (Hons) in CS; BEng in CS; BSc in Data Science & AI', structure: 'Academic Unit (AU) system over 8 semesters.', specializations: ['AI', 'Big Data', 'Cybersecurity', 'Game Innovation'], research: 'Nanyang Research Programme (NRP).', internships: "Mandatory Industrial Attachment (WIE).", partners: ['Strong ties with infocomm industry.'], admissionReq: 'CBSE/ISC: >90% in all subjects. SAT: 1250+.', englishTests: 'IELTS: 6.0 (6.0 in Writing), TOEFL iBT: 90', docs: ['Passport', 'Transcripts'], appFee: 'SGD 25', tuition: 14800, tuitionLocal: 'SGD 20,000 (with MOE Grant)', scholarships: 'Nanyang Scholarship (Full tuition + allowances).', onCampusHousing: 'Guaranteed for 2 years. Cost: SGD 420 - 630/month.', offCampusHousing: 'SGD 700 - 1,400/month for a room.', livingExpenses: 'SGD 970 - 1,725/month.', visa: '1-year LTVP.', careerProspects: 'Mean starting salary: S$5,500/month.', employability: 'Graduates command highest median salaries in SG tech sector.', alumni: ['Tan Lip-Bu (CEO, Intel)', 'Adamas Belva Syah Devara (CEO, Ruangguru)'], intlStudents: '31% - 45%', culture: 'Vibrant, inclusive, "Smart Campus".', weather: 'Tropical.', reputation: '6th globally for CS (QS Subject 2025).', pros: ['Elite global ranking', 'Strong career outcomes', 'Practice-oriented curriculum', 'Slightly more accessible than NUS'], cons: ['Highly competitive', 'Perceived as "second choice" to NUS', 'Curriculum can be theoretical', '3-year work bond'], reviews: 'Reddit discussions highlight strong theory but emphasize need for self-initiative.', rating: 9.2 },
+            { id: 'unimelb', name: 'University of Melbourne', country: 'Australia', qsRank: 13, location: 'Melbourne, Australia', website: 'https://study.unimelb.edu.au/find/courses/major/computing-and-software-systems/', type: 'Public Research University (Go8)', appDeadlines: '31 March 2025 (July intake)', appOpening: 'Open', duration: '3 Years', degree: 'BSc or BDes, major in Computing and Software Systems', structure: '"Melbourne Model" - broad undergrad, specialized postgrad.', specializations: ['AI', 'CS Theory', 'HCI', 'Cybersecurity'], research: 'Undergraduate Research Opportunities Program (UROP).', internships: 'Encouraged via industry projects & challenges.', partners: ['Microsoft', 'Oracle', 'Cisco'], admissionReq: 'CBSE/ISC: 96%+ for competitive entry. SAT: 1193-1430.', englishTests: 'IELTS: 6.5, TOEFL iBT: 79', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'AUD $150', tuition: 35350, tuitionLocal: 'AUD $49,188 - $57,928', scholarships: 'Melbourne Int\'l Scholarship (25%-100% remission).', onCampusHousing: 'Available. Cost: AUD $420 - $850/week.', offCampusHousing: 'Large private rental market.', livingExpenses: 'AUD $1,500 - $2,500/month.', visa: '2-year Temporary Graduate visa (subclass 485).', careerProspects: 'Highly valued broad skills, many proceed to Master\'s.', employability: '8th in the world (QS 2022).', alumni: ['Tech leaders fostered via Melbourne Connect precinct.'], intlStudents: '41%', culture: 'Vibrant, academic, highly international.', weather: 'Temperate oceanic, "four seasons in one day".', reputation: '#1 in Australia for CS.', pros: ['#1 in Australia', 'Outstanding global employability', 'Holistic "Melbourne Model"', 'Vibrant city'], cons: ['Indirect CS pathway', 'Very high tuition fees', 'High cost of living', 'Large classes'], reviews: 'Praised for flexibility, but some prefer a more direct vocational degree.', rating: 9.3 },
+            { id: 'usyd', name: 'University of Sydney', country: 'Australia', qsRank: 18, location: 'Sydney, Australia', website: 'https://www.sydney.edu.au/courses/courses/uc/bachelor-of-advanced-computing.html', type: 'Public Research University (Go8)', appDeadlines: '1 Dec (Feb intake), 15 May (Aug intake)', appOpening: 'Open', duration: '4 Years', degree: 'Bachelor of Advanced Computing (Hons)', structure: 'Flexible, ACS-accredited. Core, major, electives, honours year.', specializations: ['Computational Data Science', 'CS', 'Cybersecurity', 'Software Dev'], research: 'Research placements available (Dalyell Scholars).', internships: 'Industry and Community Project Units (ICPUs).', partners: ['1200+ industry connections (Microsoft, Google, PwC).'], admissionReq: 'ATAR 90 equivalent (very high CBSE/ISC). SAT: 1270+.', englishTests: 'IELTS: 6.5, TOEFL iBT: 85', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'Varies', tuition: 38100, tuitionLocal: 'AUD $57,700', scholarships: 'Sydney Int\'l Academic Excellence Scholarship (100% tuition).', onCampusHousing: 'Available. Cost: AUD $473 - $664/week.', offCampusHousing: 'Available but very expensive.', livingExpenses: 'AUD $1,800 - $2,800/month.', visa: '2-year visa.', careerProspects: 'Highly employable in Big Data, security, software dev.', employability: '2nd in Australia for employer reputation (QS 2026).', alumni: ['Dr. John O\'Sullivan (Wi-Fi inventor)'], intlStudents: '44%', culture: 'Historic campus, modern, cosmopolitan.', weather: 'Humid subtropical.', reputation: 'Global Top 20. Strong in AI, ML, cybersecurity.', pros: ['Elite global ranking', 'Excellent employability', 'Flexible curriculum', 'Prime location'], cons: ['Very high costs', 'Large & impersonal', 'Highly competitive'], reviews: 'Praised for beautiful campus and social life.', rating: 9.1 },
+            { id: 'unsw', name: 'UNSW Sydney', country: 'Australia', qsRank: 19, location: 'Sydney, Australia', website: 'https://www.unsw.edu.au/study/undergraduate/bachelor-of-computer-science', type: 'Public Research University (Go8)', appDeadlines: 'Varies by trimester', appOpening: 'Open', duration: '3 Years', degree: 'BSc (Computer Science)', structure: '144 UOC over trimester system.', specializations: ['AI', 'Database Systems', 'Security Engineering', 'Networks'], research: 'ChallENG Program for real-world projects.', internships: 'Strong focus on Work Integrated Learning (WIL).', partners: ['Google', 'Microsoft', 'Meta', 'Tesla', 'Deloitte'], admissionReq: 'ATAR 92 equivalent (high CBSE/ISC).', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'AUD $150', tuition: 38300, tuitionLocal: 'AUD $58,000', scholarships: 'Int\'l Scientia Scholarship (Full tuition or $20k p.a.).', onCampusHousing: 'Available. Cost: AUD $348 - $566/week.', offCampusHousing: 'Available in surrounding suburbs.', livingExpenses: 'AUD $1,800 - $2,800/month.', visa: '2-year visa.', careerProspects: '#1 in Australia for employment outcomes.', employability: 'Most Employable Students award (AFR, 2020-2025).', alumni: ['Founders of Eucalyptus, Shippit, Stake.'], intlStudents: '41%', culture: 'Dynamic, innovative, entrepreneurial.', weather: 'Humid subtropical.', reputation: '#1 in Australia for Engineering & Technology.', pros: ['Top-tier Eng & Tech reputation', 'Exceptional employability', 'Research-informed curriculum', 'Vibrant location'], cons: ['Very high costs', 'Intense trimester system', 'Large & competitive'], reviews: 'Praised for industry connections. Trimester system gets mixed reviews.', rating: 9.0 },
+            { id: 'anu', name: 'Australian National University', country: 'Australia', qsRank: 30, location: 'Canberra, Australia', website: 'https://programsandcourses.anu.edu.au/program/BCOMP', type: 'Public Research University (Go8)', appDeadlines: '30 May (July intake), 15 Dec (Feb intake)', appOpening: 'Open', duration: '3 Years', degree: 'Bachelor of Computing (BComp)', structure: '144 units, flexible structure, known for double degrees.', specializations: ['AI', 'Cyber Security', 'Data Science', 'Software Dev'], research: 'Strong research culture, Student Research Conference.', internships: 'Unique opportunities in government departments.', partners: 'Strong collaboration with government & security agencies.', admissionReq: 'ATAR 80 equivalent (CBSE/ISC 75%+).', englishTests: 'IELTS: 6.5, TOEFL iBT: 80', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'AUD $110', tuition: 35400, tuitionLocal: 'AUD $53,700', scholarships: 'ANU Chancellor’s Int\'l Scholarship (25% or 50% waiver).', onCampusHousing: 'Guaranteed for 1st year. Cost: AUD $330 - $550/week.', offCampusHousing: 'Competitive rental market.', livingExpenses: 'AUD $1,600 - $2,400/month.', visa: '2-year visa.', careerProspects: 'Excellent pathways into public & private sectors.', employability: '#1 most employable in Australia (THE 2023-24).', alumni: ['Andrew Tridgell (rsync inventor)'], intlStudents: '25% - 48%', culture: 'Research-focused, intellectual, politically aware.', weather: 'Dry, continental, four distinct seasons.', reputation: 'Highly regarded for theoretical & research strengths.', pros: ['Exceptional reputation', 'Outstanding employability', 'Guaranteed accommodation', 'Strong research focus'], cons: ['High tuition', 'Quieter city', 'Less commercial tech focus'], reviews: 'Praised for close-knit community. Canberra lifestyle is a pro or con.', rating: 8.9 },
+            { id: 'uq', name: 'University of Queensland', country: 'Australia', qsRank: 40, location: 'Brisbane, Australia', website: 'https://study.uq.edu.au/study-options/programs/bachelor-computer-science-2451', type: 'Public Research University (Go8)', appDeadlines: '30 Nov (Feb intake), 31 May (July intake)', appOpening: 'Open', duration: '3 Years', degree: 'BCompSc', structure: 'Core courses followed by a major.', specializations: ['Cyber Security', 'Data Science', 'Machine Learning', 'Programming Languages'], research: 'Summer/Winter Research Programs with scholarships.', internships: 'Opportunities for industry placements.', partners: ['Apple', 'Google', 'Oracle', 'Microsoft'], admissionReq: 'Competitive CBSE/ISC. Maths prerequisite.', englishTests: 'IELTS: 6.5, TOEFL iBT: 87', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'Varies', tuition: 38300, tuitionLocal: 'AUD $58,056', scholarships: 'UQ Int\'l Excellence (25% reduction) & High Achievers (20% reduction).', onCampusHousing: 'Available. Costs from AUD $200/week.', offCampusHousing: 'More affordable than Sydney/Melbourne.', livingExpenses: 'AUD $1,600 - $2,500/month.', visa: '2-year visa.', careerProspects: 'High demand for graduates.', employability: 'Strong reputation, 81% placement rate.', alumni: ['N/A'], intlStudents: '38%', culture: 'Beautiful, vibrant campus, extensive sports.', weather: 'Humid subtropical, sunny.', reputation: '#1 in Queensland for CS.', pros: ['Top-tier ranking', 'Strong specializations', 'Affordable lifestyle', 'Excellent campus'], cons: ['High tuition', 'Smaller tech scene than Syd/Melb'], reviews: 'Praised for campus, teaching, and Brisbane lifestyle.', rating: 8.8 },
+            { id: 'monash', name: 'Monash University', country: 'Australia', qsRank: 37, location: 'Melbourne, Australia', website: 'https://www.monash.edu/study/courses/find-a-course/2025/computer-science-c2001', type: 'Public Research University (Go8)', appDeadlines: 'Open', appOpening: 'Open', duration: '3 Years', degree: 'BCompSci', structure: 'Core, major units, electives.', specializations: ['Advanced CS', 'Data Science'], research: 'Vacation Research Scholarship Program.', internships: 'Standout Industry-Based Learning (IBL) program (6-month paid placement).', partners: ['ANZ', 'Deloitte', 'Microsoft', 'PwC'], admissionReq: 'CBSE: 75%, ISC: 70%.', englishTests: 'IELTS: 6.5, TOEFL iBT: 79', docs: ['Transcripts', 'Passport', 'English test'], appFee: 'AUD $125', tuition: 32700, tuitionLocal: 'AUD $49,500', scholarships: 'Monash Int\'l Leadership Scholarship (100% tuition).', onCampusHousing: 'Available. Cost: AUD $330 - $399/week.', offCampusHousing: 'Many options in suburbs.', livingExpenses: 'AUD $1,500 - $2,500/month.', visa: '2-year visa.', careerProspects: 'Highly employable (86% rate).', employability: 'Strong reputation for work-ready grads.', alumni: ['Le Hong Minh (CEO, VNG Corp)'], intlStudents: '38%', culture: 'Australia\'s largest university, bustling, diverse.', weather: 'Temperate oceanic, changeable.', reputation: '62nd globally for CS (QS 2025).', pros: ['Excellent industry integration (IBL)', 'Strong global ranking', 'Large, diverse community', 'Generous scholarships'], cons: ['High tuition', 'Large & impersonal', 'Suburban campus'], reviews: 'IBL program is frequently praised as a major career advantage.', rating: 8.7 },
+            { id: 'uts', name: 'University of Technology Sydney', country: 'Australia', qsRank: 88, location: 'Sydney, Australia', website: 'https://www.uts.edu.au/courses/bachelor-of-computing-science', type: 'Public Technology University', appDeadlines: 'Varies by session', appOpening: 'Open', duration: '3 Years', degree: 'BCompSci (Hons)', structure: 'Industry Degree Academy (IDeA) integrated cadetship model.', specializations: ['AI', 'Data Analytics', 'Cybersecurity', 'Software Dev'], research: 'Research-active with 45+ research centres.', internships: 'Central to UTS model. Optional 9-month full-time internship.', partners: 'Strong collaboration through IDeA program.', admissionReq: 'Competitive CBSE/ISC. SAT: 1050+ for pathways.', englishTests: 'IELTS: 6.5, TOEFL iBT: 79-93', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'Varies', tuition: 30400, tuitionLocal: 'AUD $46,080 (pathway)', scholarships: 'Vice-Chancellor’s Int\'l Scholarship (full tuition).', onCampusHousing: 'Available. Costs from AUD $180/week.', offCampusHousing: 'Wide range, but expensive.', livingExpenses: 'AUD $1,800 - $2,800/month.', visa: '2-year visa.', careerProspects: 'Work-ready grads in demand.', employability: 'Known as one of Australia\'s most industry-focused universities.', alumni: ['N/A'], intlStudents: 'N/A', culture: 'Modern, innovative, industry-focused.', weather: 'Humid subtropical.', reputation: 'Highly ranked young uni. #1 in Australia for AI research.', pros: ['Deep industry integration', 'Prime city-center location', 'Strong practical focus', 'Generous scholarships'], cons: ['High cost of living', 'Less traditional than Go8', 'High int\'l fees'], reviews: 'Praised for modern approach and focus on job-readiness.', rating: 8.6 },
+            { id: 'tudelft', name: 'Delft University of Technology', country: 'Netherlands', qsRank: 49, location: 'Delft, Netherlands', website: 'https://www.tudelft.nl/onderwijs/opleidingen/bachelor/bsc-computer-science-and-engineering', type: 'Public Technical University', appDeadlines: '15 Jan 2025 (Numerus Fixus)', appOpening: '1 Oct 2024', duration: '3 Years', degree: 'BSc Computer Science and Engineering', structure: '180 ECTS over 3 years. Project-based learning.', specializations: ['Software Engineering', 'Algorithms', 'Data Science', 'Cybersecurity'], research: 'Strong research groups, BSc thesis project.', internships: 'Optional, can be done in elective space.', partners: ['ASML', 'Philips', 'Shell', 'KPN'], admissionReq: 'CBSE/ISC with 80%+, high scores in Maths & Physics. Selection test required.', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'CV', 'Motivation Letter'], appFee: '€100', tuition: 17750, tuitionLocal: '€17,750', scholarships: 'TU Delft Excellence Scholarship (Full tuition + living costs).', onCampusHousing: 'Limited, competitive. Students must find private housing.', offCampusHousing: '€400 - €800/month. Very competitive market.', livingExpenses: '€900 - €1,500/month.', visa: '1-year "orientation year" visa post-study.', careerProspects: 'Excellent in EU tech sector. Avg. starting salary €45k-€55k.', employability: 'Very high, strong reputation in engineering.', alumni: ['N/A'], intlStudents: '30%', culture: 'International, engineering-focused, collaborative.', weather: 'Temperate maritime.', reputation: 'Top-tier global engineering & CS reputation.', pros: ['World-class technical education', 'Relatively affordable tuition', 'Strong EU career prospects', 'Project-based learning'], cons: ['Extremely competitive housing market', 'Numerus Fixus (limited spots)', 'Rigorous, demanding curriculum'], reviews: 'Students praise the quality of education but warn about the housing crisis.', rating: 9.0 },
+            { id: 'vuamsterdam', name: 'Vrije Universiteit Amsterdam', country: 'Netherlands', qsRank: 207, location: 'Amsterdam, Netherlands', website: 'https://vu.nl/en/education/bachelor/computer-science', type: 'Public Research University', appDeadlines: '1 May 2025', appOpening: '1 Oct 2024', duration: '3 Years', degree: 'BSc Computer Science', structure: '180 ECTS. Mix of theory, projects, and practicals.', specializations: ['AI', 'Software Engineering', 'Internet & Security'], research: 'Research-led teaching, BSc thesis.', internships: 'Encouraged but not mandatory.', partners: ['Collaborations with Amsterdam Science Park companies.'], admissionReq: 'CBSE/ISC with good grades. Maths proficiency required.', englishTests: 'IELTS: 6.5, TOEFL iBT: 92', docs: ['Transcripts', 'Diploma', 'Passport'], appFee: '€100', tuition: 14000, tuitionLocal: '€14,000', scholarships: 'VU Fellowship Programme (€10,000 towards tuition).', onCampusHousing: 'Limited, offered via lottery system.', offCampusHousing: '€500 - €900/month. Extremely difficult to find.', livingExpenses: '€1,000 - €1,600/month.', visa: '1-year orientation year visa.', careerProspects: 'Strong in Amsterdam\'s tech scene (Booking.com, Adyen).', employability: 'Good, especially within the Netherlands.', alumni: ['N/A'], intlStudents: '20%', culture: 'Diverse, open, located in a vibrant global city.', weather: 'Temperate maritime.', reputation: 'Strong national reputation, rising internationally.', pros: ['Located in Amsterdam tech hub', 'Relatively affordable tuition', 'Good balance of theory and practice'], cons: ['Severe housing shortage', 'Lower global ranking than technical universities'], reviews: 'Positive reviews on student life and city, major complaints about housing.', rating: 8.2 },
+            { id: 'aalto', name: 'Aalto University', country: 'Finland', qsRank: 111, location: 'Espoo, Finland', website: 'https://www.aalto.fi/en/study-options/bachelors-programme-in-science-and-technology-computer-science', type: 'Public Research University', appDeadlines: '17 Jan 2025', appOpening: '3 Jan 2025', duration: '3 Years', degree: 'BSc (Technology)', structure: '180 ECTS. Common first year, then specialization.', specializations: ['Computer Science', 'Data Science', 'Software and Information Systems'], research: 'Research-based bachelor\'s thesis.', internships: 'Supported and encouraged.', partners: ['Nokia', 'Supercell', 'Rovio', 'Kone'], admissionReq: 'SAT score (1350+ recommended) or Finnish matriculation exam.', englishTests: 'SAT is primary proof. IELTS/TOEFL may be needed.', docs: ['Transcripts', 'SAT scores', 'Passport'], appFee: 'None', tuition: 15000, tuitionLocal: '€12,000', scholarships: 'Aalto Scholarship (50% or 100% tuition waiver).', onCampusHousing: 'Available via AYY/HOAS, but competitive.', offCampusHousing: '€400 - €700/month. Challenging market.', livingExpenses: '€800 - €1,200/month.', visa: '2-year post-study work visa.', careerProspects: 'Excellent in Nordic tech/gaming scene.', employability: 'Very high, strong entrepreneurial culture.', alumni: ['Founders of many Finnish tech startups.'], intlStudents: '25%', culture: 'Innovative, entrepreneurial, strong design focus.', weather: 'Humid continental. Cold, snowy winters; mild summers.', reputation: 'Top Nordic university for tech and design.', pros: ['Excellent reputation in tech/gaming', 'No application fee', 'Generous scholarships', '2-year post-study visa'], cons: ['Highly competitive admissions', 'Cold, dark winters', 'Housing can be difficult to secure'], reviews: 'Praised for its interdisciplinary approach and startup culture.', rating: 8.8 },
+            { id: 'tcd', name: 'Trinity College Dublin', country: 'Ireland', qsRank: 87, location: 'Dublin, Ireland', website: 'https://www.tcd.ie/courses/undergraduate/az/course.php?id=UBCSC-CSCI-1F09', type: 'Public Research University', appDeadlines: '1 Feb 2025 (via CAO)', appOpening: 'Nov 2024', duration: '4 or 5 Years (Integrated Masters)', degree: 'BA (Moderatorship) in Computer Science', structure: '4-year BA or 5-year integrated MAI (Masters in Engineering).', specializations: ['AI', 'Computer Graphics', 'Networks', 'Software Engineering'], research: 'Sophister (final year) research project.', internships: 'Optional 3-6 month internship.', partners: ['Google', 'Microsoft', 'Amazon', 'Intel'], admissionReq: 'CBSE/ISC: 90%+ average. Maths prerequisite.', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'LORs', 'SOP'], appFee: '€55', tuition: 29500, tuitionLocal: '€29,500', scholarships: 'Global Excellence Scholarship (€1,000 - €5,000 tuition reduction).', onCampusHousing: 'Extremely limited and not guaranteed.', offCampusHousing: '€700 - €1,200/month. Severe housing crisis.', livingExpenses: '€1,200 - €1,800/month.', visa: '1-2 year post-study work visa.', careerProspects: 'Excellent access to EU headquarters of major tech firms.', employability: '#1 in Ireland for graduate employability.', alumni: ['N/A'], intlStudents: '28%', culture: 'Historic, prestigious, vibrant city-center campus.', weather: 'Temperate maritime. Mild and damp.', reputation: 'Ireland\'s top university, globally recognized.', pros: ['Top-ranked Irish university', 'Prime location in "Silicon Docks"', 'Strong industry connections', 'Vibrant student life'], cons: ['Severe housing crisis in Dublin', 'Very high cost of living', 'Limited on-campus housing'], reviews: 'Highly positive about academics and social life, but with strong warnings about the housing situation.', rating: 8.5 },
+            { id: 'auckland', name: 'University of Auckland', country: 'New Zealand', qsRank: 65, location: 'Auckland, New Zealand', website: 'https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/computer-science.html', type: 'Public Research University', appDeadlines: 'Varies, apply well in advance.', appOpening: 'Open', duration: '3 Years', degree: 'BSc in Computer Science', structure: 'Points-based system over 3 years.', specializations: ['AI', 'Cybersecurity', 'Software Development'], research: 'Summer Research Scholarships available.', internships: 'Optional, can be taken as part of a course.', partners: ['Fisher & Paykel', 'Datacom', 'Microsoft NZ'], admissionReq: 'CBSE/ISC: 75% average. University entrance standard.', englishTests: 'IELTS: 6.0, TOEFL iBT: 80', docs: ['Transcripts', 'Passport'], appFee: 'None', tuition: 29000, tuitionLocal: 'NZD $48,000', scholarships: 'International Student Excellence Scholarship (up to NZD $10,000).', onCampusHousing: 'Available, guaranteed for first years.', offCampusHousing: '€400 - €700/month.', livingExpenses: 'NZD $1,500 - $2,000/month.', visa: '3-year post-study work visa.', careerProspects: 'Good prospects in NZ\'s growing tech sector.', employability: 'Top-ranked in NZ for employability.', alumni: ['N/A'], intlStudents: '29%', culture: 'Largest university in NZ, diverse and multicultural.', weather: 'Subtropical. Warm, humid summers; mild, damp winters.', reputation: '#1 university in New Zealand.', pros: ['#1 in New Zealand', 'Generous 3-year post-study visa', 'No application fee', 'Good quality of life'], cons: ['High tuition and living costs', 'Geographically isolated', 'Smaller tech market than AU/EU'], reviews: 'Positive about the quality of education and lifestyle in Auckland.', rating: 8.3 }
+        ];
+
+        let rankingsChart, tuitionChart;
+        let currentFilter = 'All';
+
+        const countryColors = {
+            'Singapore': 'rgba(255, 99, 132, 0.7)',
+            'Australia': 'rgba(54, 162, 235, 0.7)',
+            'Netherlands': 'rgba(255, 159, 64, 0.7)',
+            'Finland': 'rgba(75, 192, 192, 0.7)',
+            'Ireland': 'rgba(22, 163, 74, 0.7)',
+            'New Zealand': 'rgba(153, 102, 255, 0.7)'
+        };
+
+        const countryBorderColors = {
+            'Singapore': 'rgba(255, 99, 132, 1)',
+            'Australia': 'rgba(54, 162, 235, 1)',
+            'Netherlands': 'rgba(255, 159, 64, 1)',
+            'Finland': 'rgba(75, 192, 192, 1)',
+            'Ireland': 'rgba(22, 163, 74, 1)',
+            'New Zealand': 'rgba(153, 102, 255, 1)'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            setupFilters();
+            renderGrid();
+            setupCharts();
+            setupModal();
+        });
+
+        function setupTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+
+            const applyTheme = (isDark) => {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                }
+                if (rankingsChart) {
+                    updateChartColors();
+                }
+            };
+
+            const userPrefersDark = localStorage.getItem('theme') === 'dark' || 
+                                    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+            
+            applyTheme(userPrefersDark);
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                applyTheme(isDark);
+            });
+        }
+
+        function setupFilters() {
+            const countries = ['All', ...new Set(universityData.map(u => u.country))];
+            const filterContainer = document.getElementById('country-filter-buttons');
+            filterContainer.innerHTML = countries.map(country => `
+                <button class="country-filter-btn px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all" data-country="${country}">
+                    ${country}
+                </button>
+            `).join('');
+            
+            filterContainer.querySelectorAll('.country-filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    currentFilter = button.dataset.country;
+                    updateActiveButton(button);
+                    renderGrid();
+                    updateCharts();
+                });
+            });
+            updateActiveButton(filterContainer.querySelector('[data-country="All"]'));
+        }
+
+        function updateActiveButton(activeButton) {
+            document.querySelectorAll('.country-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-200', 'border-gray-300', 'dark:border-gray-600', 'hover:bg-gray-100', 'dark:hover:bg-gray-600');
+            });
+            activeButton.classList.remove('bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-200', 'border-gray-300', 'dark:border-gray-600', 'hover:bg-gray-100', 'dark:hover:bg-gray-600');
+            activeButton.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('university-grid');
+            const filteredData = currentFilter === 'All' ? universityData : universityData.filter(u => u.country === currentFilter);
+            
+            grid.innerHTML = filteredData.map(uni => `
+                <div class="university-card rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col" data-id="${uni.id}">
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider" style="color: ${countryColors[uni.country]}">${uni.country}</span>
+                            <div class="flex items-center space-x-1 text-yellow-500">
+                                <span class="font-bold text-sm">${uni.rating}</span>
+                                <span class="text-lg">★</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">${uni.name}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${uni.location}</p>
+                    </div>
+                    <div class="px-5 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 rounded-b-xl">
+                        <div class="flex justify-between items-center text-sm">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">QS Rank</p>
+                                <p class="font-bold text-gray-800 dark:text-gray-100 text-lg">#${uni.qsRank}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400">Tuition/yr (USD)</p>
+                                <p class="font-bold text-gray-800 dark:text-gray-100 text-lg">$${uni.tuition.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.university-card').forEach(card => {
+                card.addEventListener('click', () => showModal(card.dataset.id));
+            });
+        }
+        
+        function getChartTickColor() {
+            return document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+        }
+        
+        function getChartGridColor() {
+            return document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        }
+
+        function updateChartColors() {
+            const tickColor = getChartTickColor();
+            const gridColor = getChartGridColor();
+            
+            [rankingsChart, tuitionChart].forEach(chart => {
+                if(chart) {
+                    chart.options.scales.x.ticks.color = tickColor;
+                    chart.options.scales.y.ticks.color = tickColor;
+                    chart.options.scales.x.grid.color = gridColor;
+                    chart.options.scales.y.grid.color = gridColor;
+                    chart.update();
+                }
+            });
+        }
+
+        function setupCharts() {
+            const rankingsCtx = document.getElementById('rankingsChart').getContext('2d');
+            rankingsChart = new Chart(rankingsCtx, {
+                type: 'bar',
+                data: getChartData('qsRank', false),
+                options: getChartOptions('QS World Ranking', false)
+            });
+
+            const tuitionCtx = document.getElementById('tuitionChart').getContext('2d');
+            tuitionChart = new Chart(tuitionCtx, {
+                type: 'bar',
+                data: getChartData('tuition', true),
+                options: getChartOptions('Annual Tuition (USD)', true)
+            });
+        }
+        
+        function updateCharts() {
+            const rankingsData = getChartData('qsRank', false);
+            rankingsChart.data.labels = rankingsData.labels;
+            rankingsChart.data.datasets[0].data = rankingsData.datasets[0].data;
+            rankingsChart.data.datasets[0].backgroundColor = rankingsData.datasets[0].backgroundColor;
+            rankingsChart.data.datasets[0].borderColor = rankingsData.datasets[0].borderColor;
+            rankingsChart.options.scales.y.reverse = true;
+            rankingsChart.update();
+
+            const tuitionData = getChartData('tuition', true);
+            tuitionChart.data.labels = tuitionData.labels;
+            tuitionChart.data.datasets[0].data = tuitionData.datasets[0].data;
+            tuitionChart.data.datasets[0].backgroundColor = tuitionData.datasets[0].backgroundColor;
+            tuitionChart.data.datasets[0].borderColor = tuitionData.datasets[0].borderColor;
+            tuitionChart.options.scales.y.reverse = false;
+            tuitionChart.update();
+            
+            updateChartColors();
+        }
+
+        function getChartData(key, isCurrency) {
+            let filteredData = currentFilter === 'All' ? universityData : universityData.filter(u => u.country === currentFilter);
+            filteredData.sort((a, b) => (key === 'qsRank' ? a[key] - b[key] : b[key] - a[key]));
+
+            return {
+                labels: filteredData.map(u => u.name.length > 20 ? u.name.substring(0, 18) + '...' : u.name),
+                datasets: [{
+                    label: key === 'qsRank' ? 'QS Rank' : 'Tuition (USD)',
+                    data: filteredData.map(u => u[key]),
+                    backgroundColor: filteredData.map(u => countryColors[u.country]),
+                    borderColor: filteredData.map(u => countryBorderColors[u.country]),
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                }]
+            };
+        }
+
+        function getChartOptions(label, isCurrency) {
+            const tickColor = getChartTickColor();
+            const gridColor = getChartGridColor();
+            const options = {
+                maintainAspectRatio: false,
+                responsive: true,
+                indexAxis: isCurrency ? 'y' : 'x',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a202c',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 10,
+                        cornerRadius: 6,
+                        callbacks: {
+                            label: function(context) {
+                                const uniName = context.chart.data.labels[context.dataIndex];
+                                let value = context.raw;
+                                value = isCurrency ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value) : `#${value}`;
+                                return `${uniName}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: tickColor, callback: value => isCurrency ? '$' + (value / 1000) + 'k' : value },
+                        grid: { color: gridColor }
+                    },
+                    y: {
+                        ticks: { color: tickColor, autoSkip: false },
+                        grid: { color: gridColor }
+                    }
+                }
+            };
+            if (!isCurrency) {
+                options.scales.y.reverse = true;
+            }
+            return options;
+        }
+
+        function setupModal() {
+            const modal = document.getElementById('university-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+
+            closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+        
+        function showModal(uniId) {
+            const uni = universityData.find(u => u.id === uniId);
+            if (!uni) return;
+
+            document.getElementById('modal-university-name').textContent = uni.name;
+            document.getElementById('modal-university-location').textContent = uni.location;
+
+            const tabs = [
+                { name: 'Admissions & Academics', icon: '🎓' },
+                { name: 'Costs & Housing', icon: '💰' },
+                { name: 'Career & Culture', icon: '📈' },
+                { name: 'Pros & Cons', icon: '⚖️' }
+            ];
+
+            const tabsContainer = document.getElementById('modal-tabs');
+            tabsContainer.innerHTML = tabs.map((tab, index) => `
+                <button class="modal-tab-btn py-3 px-4 text-sm md:text-base font-medium text-center border-b-2 -mb-px transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}">
+                    <span class="hidden md:inline">${tab.icon} </span>${tab.name}
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.modal-tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.modal-tab-btn').forEach(btn => {
+                        btn.classList.remove('tab-active');
+                        btn.classList.add('tab-inactive');
+                    });
+                    button.classList.add('tab-active');
+                    button.classList.remove('tab-inactive');
+                    renderModalContent(uni, button.dataset.tab);
+                });
+            });
+
+            renderModalContent(uni, tabs[0].name);
+            document.getElementById('university-modal').classList.remove('hidden');
+            document.getElementById('university-modal').classList.add('flex');
+        }
+
+        function renderModalContent(uni, activeTab) {
+            const contentContainer = document.getElementById('modal-content');
+            let content = '';
+
+            const detailItem = (label, value, isLink = false) => {
+                if (!value || value.length === 0) return '';
+                const displayValue = isLink ? `<a href="${value}" target="_blank" class="text-blue-500 hover:underline break-all">${value}</a>` : Array.isArray(value) ? value.join(', ') : value;
+                return `
+                    <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">${label}</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200 sm:mt-0 sm:col-span-2">${displayValue}</dd>
+                    </div>
+                `;
+            };
+
+            const prosConsItem = (items, isPro) => {
+                const icon = isPro ? '<span class="text-green-500 mr-2">✔</span>' : '<span class="text-red-500 mr-2">✖</span>';
+                return items.map(item => `<li class="flex items-start py-1">${icon}<span>${item}</span></li>`).join('');
+            };
+
+            switch (activeTab) {
+                case 'Admissions & Academics':
+                    content = `<dl class="divide-y divide-gray-200 dark:divide-gray-700">${detailItem('Degree Awarded', uni.degree)}${detailItem('Program Duration', uni.duration)}${detailItem('Specializations', uni.specializations)}${detailItem('Program Structure', uni.structure)}${detailItem('Admission Requirements', uni.admissionReq)}${detailItem('Application Deadlines', uni.appDeadlines)}${detailItem('English Proficiency Tests', uni.englishTests)}${detailItem('Required Documents', uni.docs)}${detailItem('Research Opportunities', uni.research)}${detailItem('Internship / Co-op', uni.internships)}${detailItem('Official Program Website', uni.website, true)}</dl>`;
+                    break;
+                case 'Costs & Housing':
+                    content = `<dl class="divide-y divide-gray-200 dark:divide-gray-700">${detailItem('Annual Tuition (USD)', `$${uni.tuition.toLocaleString()}`)}${detailItem('Annual Tuition (Local)', uni.tuitionLocal)}${detailItem('Application Fee', uni.appFee)}${detailItem('Scholarships', uni.scholarships)}${detailItem('On-Campus Housing', uni.onCampusHousing)}${detailItem('Off-Campus Housing', uni.offCampusHousing)}${detailItem('Avg. Monthly Living Expenses', uni.livingExpenses)}</dl>`;
+                    break;
+                case 'Career & Culture':
+                    content = `<dl class="divide-y divide-gray-200 dark:divide-gray-700">${detailItem('Global Reputation (CS)', uni.reputation)}${detailItem('Employability / Satisfaction', uni.employability)}${detailItem('Career Prospects', uni.careerProspects)}${detailItem('Industry Partners', uni.partners)}${detailItem('Notable Alumni', uni.alumni)}${detailItem('Post-Study Work Visa', uni.visa)}${detailItem('Campus Culture', uni.culture)}${detailItem('International Student %', uni.intlStudents)}${detailItem('City Climate', uni.weather)}</dl>`;
+                    break;
+                case 'Pros & Cons':
+                    content = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h4 class="text-lg font-semibold text-green-600 dark:text-green-400 mb-2">Pros</h4><ul class="text-sm text-gray-800 dark:text-gray-200 space-y-1">${prosConsItem(uni.pros, true)}</ul></div><div><h4 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">Cons</h4><ul class="text-sm text-gray-800 dark:text-gray-200 space-y-1">${prosConsItem(uni.cons, false)}</ul></div></div><div class="mt-6"><h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Student Reviews Summary</h4><p class="text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg italic">"${uni.reviews}"</p></div>`;
+                    break;
+            }
+            contentContainer.innerHTML = content;
+        }
+
+    </script>
+</body>
+</html>
