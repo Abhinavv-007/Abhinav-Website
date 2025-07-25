@@ -120,8 +120,16 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
             border-color: var(--accent-color);
         }
-        html:not(.dark) #university-modal .text-text-light-primary { color: white !important; }
-        html:not(.dark) #university-modal .text-text-light-secondary { color: white !important; }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-effect {
+            background: rgba(28, 33, 40, 0.3);
+            border: 1px solid rgba(48, 54, 61, 1);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -143,16 +151,18 @@
             </div>
         </nav>
 
+       
+
         <main>
             <section id="charts-section" class="mb-12">
                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white dark:bg-card-bg-dark p-6 rounded-xl shadow-lg border border-gray-200 dark:border-border-dark transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
                         <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">QS World University Ranking (2025)</h3>
                         <div class="chart-container">
                             <canvas id="rankingsChart"></canvas>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-card-bg-dark p-6 rounded-xl shadow-lg border border-gray-200 dark:border-border-dark transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
+                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
                         <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">Estimated Annual Tuition (USD)</h3>
                          <div class="chart-container">
                             <canvas id="tuitionChart"></canvas>
@@ -182,6 +192,31 @@
             </div>
 
             <div id="modal-content" class="overflow-y-auto custom-scrollbar px-6 pb-6 flex-grow">
+            </div>
+        </div>
+    </div>
+
+    <div id="ask-ai-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
+             <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
+                <div>
+                    <h2 class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary">Ask AI Anything</h2>
+                    <p class="text-md text-text-light-secondary dark:text-text-dark-secondary">Your personal university application assistant.</p>
+                </div>
+                <button id="close-ask-ai-modal" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 transition-colors text-3xl font-bold">&times;</button>
+            </div>
+            <div id="ai-chat-box" class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-4">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <div class="p-6 border-t border-border-light dark:border-border-dark">
+                <div id="ai-thinking-indicator" class="hidden mb-2 flex items-center space-x-2">
+                    <span class="text-gray-500 dark:text-gray-400">Thinking...</span>
+                    <div class="typing-indicator"><span></span><span></span><span></span></div>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="ai-question-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="Ask about scholarships, applications, etc.">
+                    <button id="send-ai-question" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Send</button>
+                </div>
             </div>
         </div>
     </div>
@@ -612,7 +647,7 @@
                                 </div>
                             </div>
                             <div id="thinking-indicator" class="hidden mt-4 flex items-center justify-center space-x-2">
-                                <span class="text-gray-500 dark:text-gray-400">Thinking</span>
+                                <span class="text-gray-500 dark:text-gray-400">Thinking...</span>
                                 <div class="typing-indicator"><span></span><span></span><span></span></div>
                             </div>
                         </div>
