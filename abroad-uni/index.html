@@ -48,15 +48,14 @@
             height: 400px;
             max-height: 500px;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: var(--border-light); border-radius: 10px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-track { background: var(--border-dark); }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 10px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; }
         .modal-card-height { max-height: 90vh; }
         .tab-active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
-        .tab-inactive { background-color: rgba(255, 255, 255, 0.3); color: var(--text-light-secondary); border-color: transparent; }
-        .dark .tab-inactive { background-color: rgba(28, 33, 40, 0.3); color: var(--text-dark-secondary); border-color: transparent; }
+        .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border-color: var(--border-light); }
+        .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border-color: var(--border-dark); }
         .university-card {
             background-color: var(--card-bg-light);
             border: 1px solid var(--border-light);
@@ -112,20 +111,15 @@
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1.0); }
         }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-        .dark .glass-effect {
-            background: rgba(28, 33, 40, 0.3);
-            border: 1px solid rgba(48, 54, 61, 1);
-        }
         .ask-ai-input:focus {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
             border-color: var(--accent-color);
         }
+        /* Specific fix for light mode modal text */
+        #university-modal:not(.dark) .text-text-light-primary { color: #ffffff !important; }
+        #university-modal:not(.dark) .text-text-light-secondary { color: #ffffff !important; }
+        #university-modal:not(.dark) #modal-university-name,
+        #university-modal:not(.dark) #modal-university-location { color: #ffffff !important; }
     </style>
 </head>
 <body class="antialiased">
@@ -150,13 +144,13 @@
         <main>
             <section id="charts-section" class="mb-12">
                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
+                    <div class="bg-white dark:bg-card-bg-dark p-6 rounded-xl shadow-lg border border-gray-200 dark:border-border-dark">
                         <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">QS World University Ranking (2025)</h3>
                         <div class="chart-container">
                             <canvas id="rankingsChart"></canvas>
                         </div>
                     </div>
-                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
+                    <div class="bg-white dark:bg-card-bg-dark p-6 rounded-xl shadow-lg border border-gray-200 dark:border-border-dark">
                         <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">Estimated Annual Tuition (USD)</h3>
                          <div class="chart-container">
                             <canvas id="tuitionChart"></canvas>
@@ -171,7 +165,7 @@
     </div>
 
     <div id="university-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass-effect rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col">
+        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
             <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
                 <div>
                     <h2 id="modal-university-name" class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary"></h2>
@@ -181,7 +175,7 @@
             </div>
             
             <div class="p-6 flex-shrink-0">
-                <div id="modal-tabs" class="flex flex-wrap border-b border-border-light dark:border-border-dark mb-4 -mt-2">
+                <div id="modal-tabs" class="flex flex-nowrap overflow-x-auto custom-scrollbar border-b border-border-light dark:border-border-dark mb-4 -mt-2">
                 </div>
             </div>
 
@@ -486,7 +480,7 @@
             document.getElementById('modal-university-location').textContent = uni.location;
             const tabs = [ { name: 'Admissions & Academics', icon: '🎓' }, { name: 'Costs & Housing', icon: '💰' }, { name: 'Career & Culture', icon: '📈' }, { name: 'AI Insights', icon: '✨' }, { name: 'Pros & Cons', icon: '⚖️' } ];
             const tabsContainer = document.getElementById('modal-tabs');
-            tabsContainer.innerHTML = tabs.map((tab, index) => `<button class="modal-tab-btn py-3 px-4 text-sm md:text-base font-medium text-center border-b-2 -mb-px transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}"><span class="hidden md:inline">${tab.icon} </span>${tab.name}</button>`).join('');
+            tabsContainer.innerHTML = tabs.map((tab, index) => `<button class="modal-tab-btn whitespace-nowrap py-3 px-4 text-sm md:text-base font-medium text-center border-b-2 -mb-px transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}"><span class="hidden md:inline">${tab.icon} </span>${tab.name}</button>`).join('');
             document.querySelectorAll('.modal-tab-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     document.querySelectorAll('.modal-tab-btn').forEach(btn => { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); });
@@ -541,7 +535,7 @@
                 contentContainer.innerHTML = `<ul class="space-y-2">${formattedText}</ul>`;
                 askAiContainer.classList.remove('hidden');
             } catch (error) {
-                contentContainer.innerHTML = `<p class="text-red-500">Sorry, something went wrong while generating insights. Please try again later.</p>`;
+                contentContainer.innerHTML = `<p class="text-red-500">Sorry, something went wrong while generating insights. This may be due to a missing API key. Please try again later.</p>`;
                 button.disabled = false;
             } finally {
                 loader.classList.add('hidden');
@@ -613,11 +607,11 @@
                                 <div id="follow-up-form" class="hidden mt-4">
                                     <textarea id="follow-up-question" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="e.g., What are the top 3 research labs for AI at this university?"></textarea>
                                     <button id="send-follow-up" class="mt-2 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Send</button>
-                                    <div id="thinking-indicator" class="hidden mt-2 flex items-center space-x-2">
-                                        <span class="text-gray-500 dark:text-gray-400">Thinking...</span>
-                                        <div class="typing-indicator"><span></span><span></span><span></span></div>
-                                    </div>
                                 </div>
+                            </div>
+                            <div id="thinking-indicator" class="hidden mt-4 flex items-center justify-center space-x-2">
+                                <span class="text-gray-500 dark:text-gray-400">Thinking...</span>
+                                <div class="typing-indicator"><span></span><span></span><span></span></div>
                             </div>
                         </div>
                     `;
