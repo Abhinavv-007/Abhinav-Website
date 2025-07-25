@@ -54,8 +54,8 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; }
         .modal-card-height { max-height: 90vh; }
         .tab-active { background-color: var(--accent-color); color: white !important; border-color: var(--accent-color); }
-        .tab-inactive { background-color: rgba(255, 255, 255, 0.3); color: var(--text-light-secondary); border-color: transparent; }
-        .dark .tab-inactive { background-color: rgba(28, 33, 40, 0.3); color: var(--text-dark-secondary); border-color: transparent; }
+        .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border: 1px solid var(--border-light); }
+        .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border: 1px solid var(--border-dark); }
         .university-card {
             background-color: var(--card-bg-light);
             border: 1px solid var(--border-light);
@@ -160,14 +160,12 @@
         <main>
             <section id="charts-section" class="mb-12">
                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">QS World University Ranking (2025)</h3>
+                    <div class="glass-effect p-6 rounded-2xl shadow-lg">                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">QS World University Ranking (2025)</h3>
                         <div class="chart-container">
                             <canvas id="rankingsChart"></canvas>
                         </div>
                     </div>
-                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">Estimated Annual Tuition (USD)</h3>
+                    <div class="glass-effect p-6 rounded-2xl shadow-lg">                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">Estimated Annual Tuition (USD)</h3>
                          <div class="chart-container">
                             <canvas id="tuitionChart"></canvas>
                         </div>
