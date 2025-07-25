@@ -275,8 +275,10 @@
 
         function renderGrid() {
             const grid = document.getElementById('university-grid');
-            const filteredData = currentFilter === 'All' ? universityData : universityData.filter(u => u.country === currentFilter);
+            let filteredData = currentFilter === 'All' ? universityData : universityData.filter(u => u.country === currentFilter);
             
+            filteredData.sort((a, b) => a.qsRank - b.qsRank);
+
             grid.innerHTML = filteredData.map(uni => `
                 <div class="university-card rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col" data-id="${uni.id}">
                     <div class="p-5 flex-grow">
