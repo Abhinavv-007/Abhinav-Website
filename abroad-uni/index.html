@@ -55,8 +55,8 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; }
         .modal-card-height { max-height: 90vh; }
         .tab-active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
-        .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border-color: var(--border-light); }
-        .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border-color: var(--border-dark); }
+        .tab-inactive { background-color: rgba(255, 255, 255, 0.3); color: var(--text-light-secondary); border-color: transparent; }
+        .dark .tab-inactive { background-color: rgba(28, 33, 40, 0.3); color: var(--text-dark-secondary); border-color: transparent; }
         .university-card {
             background-color: var(--card-bg-light);
             border: 1px solid var(--border-light);
@@ -112,6 +112,20 @@
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1.0); }
         }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-effect {
+            background: rgba(28, 33, 40, 0.3);
+            border: 1px solid rgba(48, 54, 61, 1);
+        }
+        .ask-ai-input:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+            border-color: var(--accent-color);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -136,14 +150,14 @@
         <main>
             <section id="charts-section" class="mb-12">
                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white/30 dark:bg-card-bg-dark/30 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/50 dark:border-border-dark">
-                        <h3 class="text-xl font-bold text-center mb-4 text-gray-700 dark:text-gray-200">QS World University Ranking (2025)</h3>
+                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">QS World University Ranking (2025)</h3>
                         <div class="chart-container">
                             <canvas id="rankingsChart"></canvas>
                         </div>
                     </div>
-                    <div class="bg-white/30 dark:bg-card-bg-dark/30 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/50 dark:border-border-dark">
-                        <h3 class="text-xl font-bold text-center mb-4 text-gray-700 dark:text-gray-200">Estimated Annual Tuition (USD)</h3>
+                    <div class="glass-effect p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">Estimated Annual Tuition (USD)</h3>
                          <div class="chart-container">
                             <canvas id="tuitionChart"></canvas>
                         </div>
@@ -157,7 +171,7 @@
     </div>
 
     <div id="university-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
+        <div class="glass-effect rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col">
             <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
                 <div>
                     <h2 id="modal-university-name" class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary"></h2>
@@ -327,18 +341,18 @@
                                 <span class="text-lg">★</span>
                             </div>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">${uni.name}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${uni.location}</p>
+                        <h3 class="text-xl font-bold text-text-light-primary dark:text-text-dark-primary mb-1">${uni.name}</h3>
+                        <p class="text-sm text-text-light-secondary dark:text-text-dark-secondary mb-4">${uni.location}</p>
                     </div>
                     <div class="px-5 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 rounded-b-xl">
                         <div class="flex justify-between items-center text-sm">
                             <div>
-                                <p class="text-gray-500 dark:text-gray-400">QS Rank</p>
-                                <p class="font-bold text-gray-800 dark:text-gray-100 text-lg">#${uni.qsRank}</p>
+                                <p class="text-text-light-secondary dark:text-text-dark-secondary">QS Rank</p>
+                                <p class="font-bold text-text-light-primary dark:text-text-dark-primary text-lg">#${uni.qsRank}</p>
                             </div>
                             <div>
-                                <p class="text-gray-500 dark:text-gray-400">Tuition/yr (USD)</p>
-                                <p class="font-bold text-gray-800 dark:text-gray-100 text-lg">$${uni.tuition.toLocaleString()}</p>
+                                <p class="text-text-light-secondary dark:text-text-dark-secondary">Tuition/yr (USD)</p>
+                                <p class="font-bold text-text-light-primary dark:text-text-dark-primary text-lg">$${uni.tuition.toLocaleString()}</p>
                             </div>
                         </div>
                     </div>
@@ -523,7 +537,7 @@
 
             try {
                 const text = await callGemini(prompt);
-                const formattedText = text.replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
+                const formattedText = text.replace(/\*\*/g, '').replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
                 contentContainer.innerHTML = `<ul class="space-y-2">${formattedText}</ul>`;
                 askAiContainer.classList.remove('hidden');
             } catch (error) {
@@ -542,8 +556,10 @@
             const thinkingIndicator = document.getElementById('thinking-indicator');
             const insightsContainer = document.getElementById('ai-insights-content');
             const sendBtn = document.getElementById('send-follow-up');
+            const askAiContainer = document.getElementById('ask-ai-container');
 
             sendBtn.disabled = true;
+            askAiContainer.classList.add('hidden');
             thinkingIndicator.classList.remove('hidden');
             
             const userQuestionHTML = `<div class="mt-4 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><p class="font-semibold text-text-light-primary dark:text-text-dark-primary">You:</p><p class="text-sm text-text-light-secondary dark:text-text-dark-secondary">${question}</p></div>`;
@@ -554,7 +570,7 @@
             try {
                 const prompt = `Based on the previous conversation about ${uni.name}, answer this follow-up question: "${question}"`;
                 const text = await callGemini(prompt);
-                const formattedText = text.replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
+                const formattedText = text.replace(/\*\*/g, '').replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
                 const aiResponseHTML = `<div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><p class="font-semibold text-blue-800 dark:text-blue-300">AI Counselor:</p><ul class="space-y-2">${formattedText}</ul></div>`;
                 insightsContainer.insertAdjacentHTML('beforeend', aiResponseHTML);
             } catch (error) {
@@ -563,6 +579,7 @@
             } finally {
                 sendBtn.disabled = false;
                 thinkingIndicator.classList.add('hidden');
+                askAiContainer.classList.remove('hidden');
                 contentContainer.parentElement.parentElement.scrollTop = contentContainer.parentElement.parentElement.scrollHeight;
             }
         }
@@ -594,7 +611,7 @@
                             <div id="ask-ai-container" class="mt-6 text-left hidden">
                                 <button id="ask-ai-btn" class="w-full text-left font-semibold text-gray-700 dark:text-gray-200 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Ask a follow-up question...</button>
                                 <div id="follow-up-form" class="hidden mt-4">
-                                    <textarea id="follow-up-question" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="e.g., What are the top 3 research labs for AI at this university?"></textarea>
+                                    <textarea id="follow-up-question" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="e.g., What are the top 3 research labs for AI at this university?"></textarea>
                                     <button id="send-follow-up" class="mt-2 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Send</button>
                                     <div id="thinking-indicator" class="hidden mt-2 flex items-center space-x-2">
                                         <span class="text-gray-500 dark:text-gray-400">Thinking...</span>
