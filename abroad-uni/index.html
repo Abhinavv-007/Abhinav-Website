@@ -75,6 +75,43 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .ai-button {
+            background-image: linear-gradient(to right, #4f46e5 0%, #3b82f6 51%, #4f46e5 100%);
+            background-size: 200% auto;
+            transition: background-position 0.5s;
+        }
+        .ai-button:hover {
+            background-position: right center;
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: var(--text-light-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dark .typing-indicator span {
+            background-color: var(--text-dark-secondary);
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -120,17 +157,17 @@
     </div>
 
     <div id="university-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col border border-gray-200 dark:border-border-dark">
-            <div class="p-6 border-b border-gray-200 dark:border-border-dark flex justify-between items-start">
+        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
+            <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
                 <div>
-                    <h2 id="modal-university-name" class="text-3xl font-bold text-gray-800 dark:text-gray-100"></h2>
-                    <p id="modal-university-location" class="text-md text-gray-500 dark:text-gray-400"></p>
+                    <h2 id="modal-university-name" class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary"></h2>
+                    <p id="modal-university-location" class="text-md text-text-light-secondary dark:text-text-dark-secondary"></p>
                 </div>
                 <button id="close-modal" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 transition-colors text-3xl font-bold">&times;</button>
             </div>
             
             <div class="p-6 flex-shrink-0">
-                <div id="modal-tabs" class="flex flex-wrap border-b border-gray-200 dark:border-border-dark mb-4 -mt-2">
+                <div id="modal-tabs" class="flex flex-wrap border-b border-border-light dark:border-border-dark mb-4 -mt-2">
                 </div>
             </div>
 
@@ -176,6 +213,7 @@
 
         let rankingsChart, tuitionChart;
         let currentFilter = 'All';
+        let chatHistory = [];
 
         const countryColors = {
             'Singapore': 'rgba(255, 99, 132, 0.8)',
@@ -318,13 +356,15 @@
         function updateChartColors() {
             const tickColor = getChartTickColor();
             const gridColor = getChartGridColor();
-            
+            const isDark = document.documentElement.classList.contains('dark');
+
             [rankingsChart, tuitionChart].forEach(chart => {
                 if(chart) {
                     chart.options.scales.x.ticks.color = tickColor;
                     chart.options.scales.y.ticks.color = tickColor;
                     chart.options.scales.x.grid.color = gridColor;
                     chart.options.scales.y.grid.color = gridColor;
+                    chart.options.plugins.tooltip.backgroundColor = isDark ? '#0d1117' : '#1f2937';
                     chart.data.datasets[0].backgroundColor = getChartData(chart.canvas.id === 'rankingsChart' ? 'qsRank' : 'tuition').datasets[0].backgroundColor;
                     chart.update();
                 }
@@ -342,18 +382,14 @@
             const rankingsData = getChartData('qsRank', false);
             rankingsChart.data.labels = rankingsData.labels;
             rankingsChart.data.datasets[0].data = rankingsData.datasets[0].data;
-            rankingsChart.data.datasets[0].backgroundColor = rankingsData.datasets[0].backgroundColor;
             rankingsChart.options.scales.y.reverse = true;
             
             const tuitionData = getChartData('tuition', true);
             tuitionChart.data.labels = tuitionData.labels;
             tuitionChart.data.datasets[0].data = tuitionData.datasets[0].data;
-            tuitionChart.data.datasets[0].backgroundColor = tuitionData.datasets[0].backgroundColor;
             tuitionChart.options.scales.y.reverse = false;
 
             updateChartColors();
-            rankingsChart.update();
-            tuitionChart.update();
         }
 
         function getChartData(key, isCurrency) {
@@ -434,7 +470,7 @@
             if (!uni) return;
             document.getElementById('modal-university-name').textContent = uni.name;
             document.getElementById('modal-university-location').textContent = uni.location;
-            const tabs = [ { name: 'Admissions & Academics', icon: '🎓' }, { name: 'Costs & Housing', icon: '💰' }, { name: 'Career & Culture', icon: '📈' }, { name: 'Pros & Cons', icon: '⚖️' } ];
+            const tabs = [ { name: 'Admissions & Academics', icon: '🎓' }, { name: 'Costs & Housing', icon: '💰' }, { name: 'Career & Culture', icon: '📈' }, { name: 'AI Insights', icon: '✨' }, { name: 'Pros & Cons', icon: '⚖️' } ];
             const tabsContainer = document.getElementById('modal-tabs');
             tabsContainer.innerHTML = tabs.map((tab, index) => `<button class="modal-tab-btn py-3 px-4 text-sm md:text-base font-medium text-center border-b-2 -mb-px transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}"><span class="hidden md:inline">${tab.icon} </span>${tab.name}</button>`).join('');
             document.querySelectorAll('.modal-tab-btn').forEach(button => {
@@ -449,26 +485,141 @@
             document.getElementById('university-modal').classList.add('flex');
         }
 
+        async function callGemini(prompt) {
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+            
+            const result = await response.json();
+
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                const text = result.candidates[0].content.parts[0].text;
+                chatHistory.push({ role: "model", parts: [{ text: text }] });
+                return text;
+            }
+            throw new Error("Unexpected API response structure.");
+        }
+
+        async function generateAiInsights(uni, button) {
+            const contentContainer = document.getElementById('ai-insights-content');
+            const loader = document.getElementById('ai-loader');
+            const askAiContainer = document.getElementById('ask-ai-container');
+
+            button.disabled = true;
+            loader.classList.remove('hidden');
+            contentContainer.innerHTML = '';
+            chatHistory = [];
+
+            const prompt = `You are an expert career counselor for aspiring computer science students. Based on the following university profile, generate a concise, bulleted list of potential career paths and job opportunities that a graduate from this program would be well-suited for. Mention specific roles, potential industries, and highlight any unique advantages this university's location or specializations might offer. University Profile: ${uni.name}, located in ${uni.location}, with a ${uni.degree} degree, specializations in ${uni.specializations.join(', ')}, and notable industry partners like ${uni.partners.join(', ')}. It has a strong reputation in ${uni.reputation}.`;
+
+            try {
+                const text = await callGemini(prompt);
+                const formattedText = text.replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
+                contentContainer.innerHTML = `<ul class="space-y-2">${formattedText}</ul>`;
+                askAiContainer.classList.remove('hidden');
+            } catch (error) {
+                contentContainer.innerHTML = `<p class="text-red-500">Sorry, something went wrong while generating insights. Please try again later.</p>`;
+                button.disabled = false;
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+        
+        async function handleFollowUp(uni) {
+            const questionInput = document.getElementById('follow-up-question');
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            const thinkingIndicator = document.getElementById('thinking-indicator');
+            const insightsContainer = document.getElementById('ai-insights-content');
+            const sendBtn = document.getElementById('send-follow-up');
+
+            sendBtn.disabled = true;
+            thinkingIndicator.classList.remove('hidden');
+            
+            const userQuestionHTML = `<div class="mt-4 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><p class="font-semibold text-text-light-primary dark:text-text-dark-primary">You:</p><p class="text-sm text-text-light-secondary dark:text-text-dark-secondary">${question}</p></div>`;
+            insightsContainer.insertAdjacentHTML('beforeend', userQuestionHTML);
+
+            questionInput.value = '';
+
+            try {
+                const prompt = `Based on the previous conversation about ${uni.name}, answer this follow-up question: "${question}"`;
+                const text = await callGemini(prompt);
+                const formattedText = text.replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
+                const aiResponseHTML = `<div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><p class="font-semibold text-blue-800 dark:text-blue-300">AI Counselor:</p><ul class="space-y-2">${formattedText}</ul></div>`;
+                insightsContainer.insertAdjacentHTML('beforeend', aiResponseHTML);
+            } catch (error) {
+                const errorHTML = `<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg"><p class="text-red-500">Sorry, there was an error. Please try again.</p></div>`;
+                insightsContainer.insertAdjacentHTML('beforeend', errorHTML);
+            } finally {
+                sendBtn.disabled = false;
+                thinkingIndicator.classList.add('hidden');
+                contentContainer.parentElement.parentElement.scrollTop = contentContainer.parentElement.parentElement.scrollHeight;
+            }
+        }
+
         function renderModalContent(uni, activeTab) {
             const contentContainer = document.getElementById('modal-content');
             let content = '';
             const detailItem = (label, value, isLink = false) => {
                 if (!value || value.length === 0) return '';
                 const displayValue = isLink ? `<a href="${value}" target="_blank" class="text-blue-500 hover:underline break-all">${value}</a>` : Array.isArray(value) ? value.join(', ') : value;
-                return `<div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4"><dt class="text-sm font-medium text-gray-500 dark:text-gray-400">${label}</dt><dd class="mt-1 text-sm text-gray-900 dark:text-gray-200 sm:mt-0 sm:col-span-2">${displayValue}</dd></div>`;
+                return `<div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4"><dt class="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">${label}</dt><dd class="mt-1 text-sm text-text-light-primary dark:text-text-dark-primary sm:mt-0 sm:col-span-2">${displayValue}</dd></div>`;
             };
             const prosConsItem = (items, isPro) => {
                 const icon = isPro ? '<span class="text-emerald-500 dark:text-emerald-400 mr-2">✔</span>' : '<span class="text-rose-500 dark:text-rose-400 mr-2">✖</span>';
                 return items.map(item => `<li class="flex items-start py-1">${icon}<span>${item}</span></li>`).join('');
             };
             switch (activeTab) {
-                case 'Admissions & Academics': content = `<dl class="divide-y divide-gray-200 dark:divide-border-dark">${detailItem('Degree Awarded', uni.degree)}${detailItem('Program Duration', uni.duration)}${detailItem('Specializations', uni.specializations)}${detailItem('Program Structure', uni.structure)}${detailItem('Admission Requirements', uni.admissionReq)}${detailItem('Application Deadlines', uni.appDeadlines)}${detailItem('English Proficiency Tests', uni.englishTests)}${detailItem('Required Documents', uni.docs)}${detailItem('Research Opportunities', uni.research)}${detailItem('Internship / Co-op', uni.internships)}${detailItem('Official Program Website', uni.website, true)}</dl>`; break;
-                case 'Costs & Housing': content = `<dl class="divide-y divide-gray-200 dark:divide-border-dark">${detailItem('Annual Tuition (USD)', `$${uni.tuition.toLocaleString()}`)}${detailItem('Annual Tuition (Local)', uni.tuitionLocal)}${detailItem('Application Fee', uni.appFee)}${detailItem('Scholarships', uni.scholarships)}${detailItem('On-Campus Housing', uni.onCampusHousing)}${detailItem('Off-Campus Housing', uni.offCampusHousing)}${detailItem('Avg. Monthly Living Expenses', uni.livingExpenses)}</dl>`; break;
-                case 'Career & Culture': content = `<dl class="divide-y divide-gray-200 dark:divide-border-dark">${detailItem('Global Reputation (CS)', uni.reputation)}${detailItem('Employability / Satisfaction', uni.employability)}${detailItem('Career Prospects', uni.careerProspects)}${detailItem('Industry Partners', uni.partners)}${detailItem('Notable Alumni', uni.alumni)}${detailItem('Post-Study Work Visa', uni.visa)}${detailItem('Campus Culture', uni.culture)}${detailItem('International Student %', uni.intlStudents)}${detailItem('City Climate', uni.weather)}</dl>`; break;
-                case 'Pros & Cons': content = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><h4 class="text-lg font-semibold text-emerald-700 dark:text-emerald-400 mb-2">Pros</h4><ul class="text-sm text-gray-800 dark:text-gray-200 space-y-1">${prosConsItem(uni.pros, true)}</ul></div><div><h4 class="text-lg font-semibold text-rose-700 dark:text-rose-400 mb-2">Cons</h4><ul class="text-sm text-gray-800 dark:text-gray-200 space-y-1">${prosConsItem(uni.cons, false)}</ul></div></div><div class="mt-6"><h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Student Reviews Summary</h4><p class="text-sm text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-700/50 p-4 rounded-lg italic">"${uni.reviews}"</p></div>`; break;
+                case 'Admissions & Academics': content = `<dl class="divide-y divide-border-light dark:divide-border-dark">${detailItem('Degree Awarded', uni.degree)}${detailItem('Program Duration', uni.duration)}${detailItem('Specializations', uni.specializations)}${detailItem('Program Structure', uni.structure)}${detailItem('Admission Requirements', uni.admissionReq)}${detailItem('Application Deadlines', uni.appDeadlines)}${detailItem('English Proficiency Tests', uni.englishTests)}${detailItem('Required Documents', uni.docs)}${detailItem('Research Opportunities', uni.research)}${detailItem('Internship / Co-op', uni.internships)}${detailItem('Official Program Website', uni.website, true)}</dl>`; break;
+                case 'Costs & Housing': content = `<dl class="divide-y divide-border-light dark:divide-border-dark">${detailItem('Annual Tuition (USD)', `$${uni.tuition.toLocaleString()}`)}${detailItem('Annual Tuition (Local)', uni.tuitionLocal)}${detailItem('Application Fee', uni.appFee)}${detailItem('Scholarships', uni.scholarships)}${detailItem('On-Campus Housing', uni.onCampusHousing)}${detailItem('Off-Campus Housing', uni.offCampusHousing)}${detailItem('Avg. Monthly Living Expenses', uni.livingExpenses)}</dl>`; break;
+                case 'Career & Culture': content = `<dl class="divide-y divide-border-light dark:divide-border-dark">${detailItem('Global Reputation (CS)', uni.reputation)}${detailItem('Employability / Satisfaction', uni.employability)}${detailItem('Career Prospects', uni.careerProspects)}${detailItem('Industry Partners', uni.partners)}${detailItem('Notable Alumni', uni.alumni)}${detailItem('Post-Study Work Visa', uni.visa)}${detailItem('Campus Culture', uni.culture)}${detailItem('International Student %', uni.intlStudents)}${detailItem('City Climate', uni.weather)}</dl>`; break;
+                case 'AI Insights':
+                    content = `
+                        <div class="text-center">
+                            <button id="generate-ai-btn" class="ai-button text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                ✨ Generate Career Insights
+                            </button>
+                            <div id="ai-loader" class="loader mx-auto my-4 hidden"></div>
+                            <div id="ai-insights-content" class="mt-4 text-left text-text-light-primary dark:text-text-dark-primary"></div>
+                            <div id="ask-ai-container" class="mt-6 text-left hidden">
+                                <button id="ask-ai-btn" class="w-full text-left font-semibold text-gray-700 dark:text-gray-200 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Ask a follow-up question...</button>
+                                <div id="follow-up-form" class="hidden mt-4">
+                                    <textarea id="follow-up-question" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="e.g., What are the top 3 research labs for AI at this university?"></textarea>
+                                    <button id="send-follow-up" class="mt-2 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Send</button>
+                                    <div id="thinking-indicator" class="hidden mt-2 flex items-center space-x-2">
+                                        <span class="text-gray-500 dark:text-gray-400">Thinking...</span>
+                                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'Pros & Cons': content = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="text-text-light-primary dark:text-text-dark-primary"><h4 class="text-lg font-semibold text-emerald-700 dark:text-emerald-400 mb-2">Pros</h4><ul class="text-sm space-y-1">${prosConsItem(uni.pros, true)}</ul></div><div class="text-text-light-primary dark:text-text-dark-primary"><h4 class="text-lg font-semibold text-rose-700 dark:text-rose-400 mb-2">Cons</h4><ul class="text-sm space-y-1">${prosConsItem(uni.cons, false)}</ul></div></div><div class="mt-6 text-text-light-primary dark:text-text-dark-primary"><h4 class="text-lg font-semibold mb-2">Student Reviews Summary</h4><p class="text-sm bg-gray-100 dark:bg-gray-700/50 p-4 rounded-lg italic">"${uni.reviews}"</p></div>`; break;
             }
             contentContainer.innerHTML = content;
+
+            if (activeTab === 'AI Insights') {
+                const generateBtn = document.getElementById('generate-ai-btn');
+                const askAiBtn = document.getElementById('ask-ai-btn');
+                const followUpForm = document.getElementById('follow-up-form');
+                const sendFollowUpBtn = document.getElementById('send-follow-up');
+
+                generateBtn.addEventListener('click', () => generateAiInsights(uni, generateBtn));
+                askAiBtn.addEventListener('click', () => followUpForm.classList.toggle('hidden'));
+                sendFollowUpBtn.addEventListener('click', () => handleFollowUp(uni));
+            }
         }
     </script>
 </body>
-</ht
+</html>
