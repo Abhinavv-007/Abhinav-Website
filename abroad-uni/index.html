@@ -53,7 +53,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 10px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; }
         .modal-card-height { max-height: 90vh; }
-        .tab-active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .tab-active { background-color: var(--accent-color); color: white !important; border-color: var(--accent-color); }
         .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border: 1px solid var(--border-light); }
         .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border: 1px solid var(--border-dark); }
         .university-card {
@@ -120,6 +120,8 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
             border-color: var(--accent-color);
         }
+        html:not(.dark) #university-modal .text-text-light-primary { color: white !important; }
+        html:not(.dark) #university-modal .text-text-light-secondary { color: white !important; }
     </style>
 </head>
 <body class="antialiased">
@@ -480,7 +482,7 @@
             document.getElementById('modal-university-location').textContent = uni.location;
             const tabs = [ { name: 'Admissions & Academics', icon: '🎓' }, { name: 'Costs & Housing', icon: '💰' }, { name: 'Career & Culture', icon: '📈' }, { name: 'AI Insights', icon: '✨' }, { name: 'Pros & Cons', icon: '⚖️' } ];
             const tabsContainer = document.getElementById('modal-tabs');
-            tabsContainer.innerHTML = tabs.map((tab, index) => `<button class="modal-tab-btn whitespace-nowrap py-2 px-4 text-sm font-medium text-center rounded-full transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}"><span class="hidden md:inline">${tab.icon} </span>${tab.name}</button>`).join('');
+            tabsContainer.innerHTML = tabs.map((tab, index) => `<button class="modal-tab-btn whitespace-nowrap py-2 px-3.5 text-xs font-medium text-center rounded-full transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}"><span class="hidden md:inline">${tab.icon} </span>${tab.name}</button>`).join('');
             document.querySelectorAll('.modal-tab-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     document.querySelectorAll('.modal-tab-btn').forEach(btn => { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); });
