@@ -54,8 +54,8 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; }
         .modal-card-height { max-height: 90vh; }
         .tab-active { background-color: var(--accent-color); color: white !important; border-color: var(--accent-color); }
-        .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border: 1px solid var(--border-light); }
-        .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border: 1px solid var(--border-dark); }
+        .tab-inactive { background-color: rgba(255, 255, 255, 0.3); color: var(--text-light-secondary); border-color: transparent; }
+        .dark .tab-inactive { background-color: rgba(28, 33, 40, 0.3); color: var(--text-dark-secondary); border-color: transparent; }
         .university-card {
             background-color: var(--card-bg-light);
             border: 1px solid var(--border-light);
@@ -130,6 +130,12 @@
             background: rgba(28, 33, 40, 0.3);
             border: 1px solid rgba(48, 54, 61, 1);
         }
+        html:not(.dark) #university-modal .text-text-light-primary,
+        html:not(.dark) #university-modal .text-text-light-secondary,
+        html:not(.dark) #university-modal .dark\:text-text-dark-primary,
+        html:not(.dark) #university-modal .dark\:text-text-dark-secondary {
+            color: white !important;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -150,8 +156,6 @@
             <div id="country-filter-buttons" class="flex flex-wrap justify-center gap-2">
             </div>
         </nav>
-
-       
 
         <main>
             <section id="charts-section" class="mb-12">
