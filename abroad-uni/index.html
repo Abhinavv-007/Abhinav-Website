@@ -115,11 +115,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
             border-color: var(--accent-color);
         }
-        /* Specific fix for light mode modal text */
-        #university-modal:not(.dark) .text-text-light-primary { color: #ffffff !important; }
-        #university-modal:not(.dark) .text-text-light-secondary { color: #ffffff !important; }
-        #university-modal:not(.dark) #modal-university-name,
-        #university-modal:not(.dark) #modal-university-location { color: #ffffff !important; }
     </style>
 </head>
 <body class="antialiased">
@@ -496,14 +491,18 @@
         async function callGemini(prompt) {
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
             const payload = { contents: chatHistory };
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            // IMPORTANT: You must replace this empty string with your own Google AI API key for this to work on your website.
+            const apiKey = "AIzaSyDOXRfEtJYn1XTndKOkcRND04cL5Qn1Iz8";
+const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+});
+
 
             if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
             
