@@ -145,7 +145,6 @@
             </div>
         </nav>
 
-
         <main>
             <section id="charts-section" class="mb-12">
                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -185,31 +184,6 @@
             </div>
 
             <div id="modal-content" class="overflow-y-auto custom-scrollbar px-6 pb-6 flex-grow">
-            </div>
-        </div>
-    </div>
-
-    <div id="ask-ai-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
-             <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
-                <div>
-                    <h2 class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary">UniWhiz</h2>
-                    <p class="text-md text-text-light-secondary dark:text-text-dark-secondary">Hey there! I'm UniWhiz — Anya's smart university helper 🤖💬</p>
-                </div>
-                <button id="close-ask-ai-modal" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 transition-colors text-3xl font-bold">&times;</button>
-            </div>
-            <div id="ai-chat-box" class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-4">
-                <!-- Chat messages will be appended here -->
-            </div>
-            <div class="p-6 border-t border-border-light dark:border-border-dark">
-                <div id="ai-thinking-indicator" class="hidden mb-2 flex items-center space-x-2">
-                    <span class="text-gray-500 dark:text-gray-400">UniWhiz is thinking</span>
-                    <div class="typing-indicator"><span></span><span></span><span></span></div>
-                </div>
-                <div class="flex space-x-2">
-                    <input type="text" id="ai-question-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-shadow" placeholder="Type your question about university applications…">
-                    <button id="send-ai-question" class="ai-button text-white font-bold py-2 px-4 rounded-lg hover:shadow-xl transition-all">Send</button>
-                </div>
             </div>
         </div>
     </div>
