@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Scholarship Explorer for Indian CS Undergraduates (2026)</title>
+    <title>Interactive Scholarship Explorer with Gemini AI</title>
     
     <!-- SEO & Social Meta Tags -->
-    <meta name="description" content="An interactive, filterable guide to undergraduate Computer Science scholarships for Indian applicants for the 2026 intake. Explore opportunities in Australia, New Zealand, Singapore, and more.">
-    <meta property="og:title" content="Interactive Scholarship Explorer for Indian CS Undergraduates (2026)">
-    <meta property="og:description" content="Filter and explore dozens of scholarships by country, funding type, and university. A comprehensive tool for planning your study abroad journey.">
+    <meta name="description" content="An AI-powered, interactive guide to undergraduate Computer Science scholarships for Indian applicants for the 2026 intake. Get AI-generated application tips and comparisons.">
+    <meta property="og:title" content="Interactive Scholarship Explorer with Gemini AI">
+    <meta property="og:description" content="Filter and compare dozens of scholarships with AI-powered insights to supercharge your study abroad application journey.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Interactive Scholarship Explorer for Indian CS Undergraduates (2026)">
-    <meta name="twitter:description" content="An interactive guide to CS scholarships for Indian applicants.">
+    <meta name="twitter:title" content="Interactive Scholarship Explorer with Gemini AI">
+    <meta name="twitter:description" content="An AI-powered interactive guide to CS scholarships for Indian applicants.">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -78,7 +79,11 @@
         }
         @media (min-width: 768px) { .chart-container { height: 350px; } }
         .modal-content { max-height: 80vh; }
-        .filter-btn { transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .filter-btn {
+            background-color: var(--filter-bg);
+            color: var(--filter-text);
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
         .filter-btn.active {
             background-color: var(--filter-active-bg);
             color: var(--filter-active-text);
@@ -95,12 +100,18 @@
         html.dark .scholarship-card:hover {
              box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
         }
-        #back-to-top {
+        #back-to-top, #compare-btn-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 50;
         }
+        #compare-btn-container {
+            right: auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .prose ul > li::before { background-color: var(--text-color); }
     </style>
 </head>
 <body class="antialiased">
@@ -121,7 +132,7 @@
             <section id="overview" class="mb-12 p-6 rounded-2xl shadow-sm" style="background-color: var(--card-bg);">
                 <h2 class="text-2xl font-bold mb-4 border-b pb-2" style="color: var(--header-text); border-color: var(--border-color);">Scholarship Landscape Overview</h2>
                 <div class="mb-6 prose prose-sm max-w-none" style="color: var(--text-color);">
-                    <p>This interactive dashboard synthesizes an exhaustive report on undergraduate Computer Science scholarships for Indian students. The data reveals distinct funding models across regions. Singapore offers comprehensive, bond-linked scholarships. Australia and New Zealand provide automatic, merit-based tuition waivers. In contrast, European opportunities at the undergraduate level are limited, with a strong focus on postgraduate funding. Use the charts and filters below to navigate these opportunities and tailor a strategy to your academic profile.</p>
+                    <p>This interactive dashboard synthesizes an exhaustive report on undergraduate Computer Science scholarships for Indian students, now enhanced with AI-powered tools. Use the new "Compare" feature to get an AI analysis of your top choices, and find the "AI Application Assistant" in each scholarship's detail view to generate custom application tips. These features are designed to give you a competitive edge.</p>
                 </div>
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div class="chart-container">
@@ -161,10 +172,11 @@
                 <span>Connect with me on LinkedIn</span>
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path></svg>
             </a>
-            <p class="mt-4 text-sm" style="color: var(--subheader-text);">Scholarship Explorer by Abhinav Raj | Last Updated: 24th July 2024</p>
+            <p class="mt-4 text-sm" style="color: var(--subheader-text);">Scholarship Explorer | Last Updated: July 2024</p>
         </footer>
     </div>
 
+    <!-- Modals -->
     <div id="scholarship-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="rounded-2xl shadow-xl w-full max-w-3xl transform transition-all" style="background-color: var(--modal-bg);">
             <div class="p-6 border-b flex justify-between items-start" style="border-color: var(--border-color);">
@@ -176,6 +188,24 @@
             </div>
             <div id="modal-content" class="p-6 overflow-y-auto modal-content"></div>
         </div>
+    </div>
+
+    <div id="compare-modal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="rounded-2xl shadow-xl w-full max-w-5xl transform transition-all" style="background-color: var(--modal-bg);">
+            <div class="p-6 border-b flex justify-between items-start" style="border-color: var(--border-color);">
+                <h3 class="text-2xl font-bold" style="color: var(--header-text);">Compare Scholarships</h3>
+                <button id="close-compare-modal" class="text-3xl font-bold" style="color: var(--subheader-text);">&times;</button>
+            </div>
+            <div id="compare-modal-content" class="p-6 overflow-y-auto modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Floating Buttons -->
+    <div id="compare-btn-container" class="hidden">
+        <button id="compare-btn" class="flex items-center space-x-2 text-white font-semibold py-3 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105" style="background-color: var(--header-text);">
+            <span>Compare Selected</span>
+            <span id="compare-count" class="bg-white text-blue-700 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+        </button>
     </div>
 
     <button id="back-to-top" title="Go to top" class="hidden p-3 rounded-full shadow-lg transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--filter-active-bg); color: var(--filter-active-text); --ring-offset-color: var(--bg-color);">
@@ -204,6 +234,7 @@
         
         let activeCountryFilters = [];
         let activeCriteriaFilters = [];
+        let scholarshipsToCompare = [];
         let opportunitiesChart, fundingTypeChart;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -212,21 +243,30 @@
             const scholarshipsGrid = document.getElementById('scholarships-grid');
             const scholarshipCount = document.getElementById('scholarship-count');
             const noResults = document.getElementById('no-results');
-            const modal = document.getElementById('scholarship-modal');
-            const closeModalBtn = document.getElementById('close-modal');
             const backToTopBtn = document.getElementById('back-to-top');
+
+            // Modals
+            const scholarshipModal = document.getElementById('scholarship-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const compareModal = document.getElementById('compare-modal');
+            const closeCompareModalBtn = document.getElementById('close-compare-modal');
+            
+            // Compare functionality
+            const compareBtnContainer = document.getElementById('compare-btn-container');
+            const compareBtn = document.getElementById('compare-btn');
+            const compareCount = document.getElementById('compare-count');
 
             function setupFilters() {
                 const countries = [...new Set(scholarshipData.map(s => s.country))];
-                let countryButtonsHTML = `<button class="filter-btn active px-4 py-2 rounded-full text-sm" data-filter="All" style="background-color: var(--filter-bg); color: var(--filter-text);">All Countries</button>`;
+                let countryButtonsHTML = `<button class="filter-btn active px-4 py-2 rounded-full text-sm" data-filter="All">All Countries</button>`;
                 countries.forEach(country => {
-                    countryButtonsHTML += `<button class="filter-btn px-4 py-2 rounded-full text-sm" data-filter="${country}" style="background-color: var(--filter-bg); color: var(--filter-text);">${countryFlags[country]} ${country}</button>`;
+                    countryButtonsHTML += `<button class="filter-btn px-4 py-2 rounded-full text-sm" data-filter="${country}">${countryFlags[country]} ${country}</button>`;
                 });
                 countryFiltersContainer.innerHTML = countryButtonsHTML;
 
                 let criteriaButtonsHTML = '';
                 criteria.forEach(c => {
-                    criteriaButtonsHTML += `<button class="filter-btn px-4 py-2 rounded-full text-sm" data-filter="${c.id}" style="background-color: var(--filter-bg); color: var(--filter-text);">${c.text}</button>`;
+                    criteriaButtonsHTML += `<button class="filter-btn px-4 py-2 rounded-full text-sm" data-filter="${c.id}">${c.text}</button>`;
                 });
                 criteriaFiltersContainer.innerHTML = criteriaButtonsHTML;
 
@@ -277,7 +317,7 @@
                     scholarshipsGrid.classList.remove('hidden');
                     filteredData.forEach(s => {
                         const card = document.createElement('div');
-                        card.className = 'scholarship-card p-6 rounded-2xl shadow-sm cursor-pointer flex flex-col justify-between';
+                        card.className = 'scholarship-card p-6 rounded-2xl shadow-sm flex flex-col justify-between';
                         card.dataset.id = s.id;
 
                         let tagsHTML = `<div class="flex flex-wrap gap-2 mb-3">`;
@@ -285,19 +325,34 @@
                         if (s.funding_type === 'Full') tagsHTML += `<span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200">💰 Full Funding</span>`;
                         if (s.application_type === 'Automatic') tagsHTML += `<span class="text-xs font-semibold bg-purple-100 text-purple-800 px-2 py-1 rounded-full dark:bg-purple-900 dark:text-purple-200">✅ Automatic</span>`;
                         tagsHTML += `</div>`;
+                        
+                        const isChecked = scholarshipsToCompare.includes(s.id);
 
                         card.innerHTML = `
-                            <div>
+                            <div class="flex-grow cursor-pointer" data-action="open-modal">
                                 <p class="text-sm mb-1" style="color: var(--subheader-text);">${countryFlags[s.country]} ${s.university}</p>
                                 <h4 class="text-lg font-bold mb-2" style="color: var(--header-text);">${s.name}</h4>
                                 ${tagsHTML}
                                 <p class="text-sm"><span class="font-semibold">Value:</span> ${s.value_local}</p>
                             </div>
-                            <div class="mt-4 pt-4 border-t text-right" style="border-color: var(--border-color);">
-                                <span class="text-sm font-medium" style="color: var(--link-color);">View Details &rarr;</span>
+                            <div class="mt-4 pt-4 border-t flex justify-between items-center" style="border-color: var(--border-color);">
+                                <label class="flex items-center space-x-2 text-sm cursor-pointer" style="color: var(--subheader-text);">
+                                    <input type="checkbox" data-action="compare" class="form-checkbox h-5 w-5 rounded" style="color: var(--header-text);" ${isChecked ? 'checked' : ''}>
+                                    <span>Compare</span>
+                                </label>
+                                <span class="text-sm font-medium cursor-pointer" data-action="open-modal" style="color: var(--link-color);">View Details &rarr;</span>
                             </div>
                         `;
-                        card.addEventListener('click', () => openModal(s.id));
+                        
+                        card.addEventListener('click', (e) => {
+                            const action = e.target.dataset.action || e.target.parentElement.dataset.action;
+                            if (action === 'open-modal') {
+                                openScholarshipModal(s.id);
+                            } else if (action === 'compare') {
+                                toggleCompare(s.id, e.target.checked);
+                            }
+                        });
+
                         scholarshipsGrid.appendChild(card);
                     });
                 } else {
@@ -306,11 +361,12 @@
                 }
                 scholarshipCount.textContent = `${filteredData.length} scholarships found`;
             }
-            
-            function openModal(id) {
+
+            function openScholarshipModal(id) {
                 const scholarship = scholarshipData.find(s => s.id === id);
                 if (!scholarship) return;
 
+                compareBtnContainer.classList.add('hidden');
                 document.getElementById('modal-title').textContent = scholarship.name;
                 document.getElementById('modal-university').textContent = `${countryFlags[scholarship.country]} ${scholarship.university} (QS Rank: #${scholarship.qs_rank})`;
                 
@@ -318,59 +374,208 @@
                 modalContent.innerHTML = `
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);">
-                                <p class="text-sm font-semibold mb-1" style="color: var(--header-text);">Funding Details</p>
-                                <p>${scholarship.funding_details}</p>
-                            </div>
-                            <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);">
-                                <p class="text-sm font-semibold mb-1" style="color: var(--header-text);">Value</p>
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li><strong>Local:</strong> ${scholarship.value_local}</li>
-                                    <li><strong>INR:</strong> ${scholarship.value_inr}</li>
-                                    <li><strong>USD:</strong> ${scholarship.value_usd}</li>
-                                </ul>
-                            </div>
+                            <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);"><p class="text-sm font-semibold mb-1" style="color: var(--header-text);">Funding Details</p><p>${scholarship.funding_details}</p></div>
+                            <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);"><p class="text-sm font-semibold mb-1" style="color: var(--header-text);">Value</p><ul class="list-disc list-inside space-y-1"><li><strong>Local:</strong> ${scholarship.value_local}</li><li><strong>INR:</strong> ${scholarship.value_inr}</li><li><strong>USD:</strong> ${scholarship.value_usd}</li></ul></div>
                         </div>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div class="p-3 rounded-lg" style="background-color: var(--filter-bg);"><p><span class="font-semibold">Application:</span> ${scholarship.application_type}</p></div>
                             <div class="p-3 rounded-lg" style="background-color: var(--filter-bg);"><p><span class="font-semibold">Deadline:</span> ${scholarship.deadline}</p></div>
                             <div class="p-3 rounded-lg" style="background-color: var(--filter-bg);"><p><span class="font-semibold">Renewable:</span> ${scholarship.renewable}</p></div>
                         </div>
+                        <div><h5 class="font-semibold mb-1" style="color: var(--header-text);">Eligibility Criteria</h5><p>${scholarship.eligibility}</p></div>
+                        <div><h5 class="font-semibold mb-1" style="color: var(--header-text);">Application Tips & Notes</h5><p>${scholarship.tips}</p></div>
+                        
+                        <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);">
+                            <h5 class="font-semibold mb-2" style="color: var(--header-text);">✨ AI Application Assistant</h5>
+                            <button id="generate-tips-btn" data-id="${id}" class="inline-flex items-center space-x-2 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" style="background-color: var(--link-color);">Generate Application Tips</button>
+                            <div id="ai-tips-result" class="mt-4 prose prose-sm max-w-none" style="color: var(--text-color);"></div>
+                        </div>
 
-                        <div>
-                            <h5 class="font-semibold mb-1" style="color: var(--header-text);">Eligibility Criteria</h5>
-                            <p>${scholarship.eligibility}</p>
-                        </div>
-                        <div>
-                            <h5 class="font-semibold mb-1" style="color: var(--header-text);">Application Tips & Notes</h5>
-                            <p>${scholarship.tips}</p>
-                        </div>
-                        <div>
-                            <a href="${scholarship.link}" target="_blank" rel="noopener noreferrer" class="inline-block text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" style="background-color: var(--header-text);">
-                                Official Scholarship Page ↗
-                            </a>
-                        </div>
+                        <div><a href="${scholarship.link}" target="_blank" rel="noopener noreferrer" class="inline-block text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" style="background-color: var(--header-text);">Official Scholarship Page ↗</a></div>
                     </div>
                 `;
-                modal.classList.remove('hidden');
+                scholarshipModal.classList.remove('hidden');
+                document.getElementById('generate-tips-btn').addEventListener('click', handleGenerateTips);
             }
 
-            closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
-            modal.addEventListener('click', (e) => {
-                if (e.target.id === 'scholarship-modal') modal.classList.add('hidden');
-            });
-
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTopBtn.classList.remove('hidden');
+            function toggleCompare(id, isChecked) {
+                if (isChecked) {
+                    if (scholarshipsToCompare.length < 3) {
+                        scholarshipsToCompare.push(id);
+                    } else {
+                        alert("You can only compare up to 3 scholarships at a time.");
+                        const checkbox = document.querySelector(`.scholarship-card[data-id='${id}'] input[type='checkbox']`);
+                        if(checkbox) checkbox.checked = false;
+                    }
                 } else {
-                    backToTopBtn.classList.add('hidden');
+                    scholarshipsToCompare = scholarshipsToCompare.filter(item => item !== id);
+                }
+                updateCompareButton();
+            }
+
+            function updateCompareButton() {
+                const count = scholarshipsToCompare.length;
+                if (count >= 2) {
+                    compareBtnContainer.classList.remove('hidden');
+                    compareCount.textContent = count;
+                } else {
+                    compareBtnContainer.classList.add('hidden');
+                }
+            }
+            
+            async function handleGenerateTips(e) {
+                const button = e.target;
+                const scholarshipId = parseInt(button.dataset.id);
+                const scholarship = scholarshipData.find(s => s.id === scholarshipId);
+                const resultDiv = document.getElementById('ai-tips-result');
+
+                button.disabled = true;
+                resultDiv.innerHTML = `<p>✨ Generating tips with Gemini...</p>`;
+
+                const prompt = `You are an expert scholarship application advisor. For the "${scholarship.name}" at "${scholarship.university}", which requires "${scholarship.eligibility}", generate three concise, actionable, and unique application tips. Focus on how a student from India can stand out. Format the response as a simple, numbered list.`;
+                
+                try {
+                    const text = await callGemini(prompt);
+                    resultDiv.innerHTML = marked.parse(text);
+                } catch (error) {
+                    resultDiv.innerHTML = `<p class="text-red-500">Sorry, something went wrong while generating tips. Please try again later.</p>`;
+                    console.error("Gemini API Error:", error);
+                } finally {
+                    button.disabled = false;
+                }
+            }
+            
+            function openCompareModal() {
+                compareBtnContainer.classList.add('hidden');
+                const compareModalContent = document.getElementById('compare-modal-content');
+                const selectedScholarships = scholarshipData.filter(s => scholarshipsToCompare.includes(s.id));
+                
+                let contentHTML = `<div class="grid grid-cols-1 md:grid-cols-${selectedScholarships.length} gap-6 mb-6">`;
+                selectedScholarships.forEach(s => {
+                    contentHTML += `
+                        <div class="p-4 rounded-lg" style="background-color: var(--modal-section-bg);">
+                            <h4 class="font-bold text-lg mb-2" style="color: var(--header-text);">${s.name}</h4>
+                            <p class="text-sm font-medium" style="color: var(--subheader-text);">${s.university}</p>
+                            <hr class="my-3" style="border-color: var(--border-color);">
+                            <ul class="space-y-2 text-sm">
+                                <li><strong>Funding:</strong> ${s.funding_type}</li>
+                                <li><strong>Value:</strong> ${s.value_local}</li>
+                                <li><strong>Eligibility:</strong> ${s.eligibility}</li>
+                            </ul>
+                        </div>
+                    `;
+                });
+                contentHTML += `</div>`;
+                
+                contentHTML += `
+                    <div class="text-center">
+                        <button id="generate-comparison-btn" class="inline-flex items-center space-x-2 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" style="background-color: var(--link-color);">✨ Get AI Comparison</button>
+                    </div>
+                    <div id="ai-comparison-result" class="mt-6 prose prose-sm max-w-none" style="color: var(--text-color);"></div>
+                `;
+
+                compareModalContent.innerHTML = contentHTML;
+                compareModal.classList.remove('hidden');
+                document.getElementById('generate-comparison-btn').addEventListener('click', handleGenerateComparison);
+            }
+
+            async function handleGenerateComparison() {
+                const button = document.getElementById('generate-comparison-btn');
+                const resultDiv = document.getElementById('ai-comparison-result');
+                const selectedScholarships = scholarshipData.filter(s => scholarshipsToCompare.includes(s.id));
+
+                button.disabled = true;
+                resultDiv.innerHTML = `<p>✨ Analyzing with Gemini... This may take a moment.</p>`;
+
+                let scholarshipDetails = "";
+                selectedScholarships.forEach((s, index) => {
+                    scholarshipDetails += `
+                        Scholarship ${index + 1}:
+                        - Name: ${s.name}
+                        - University: ${s.university} (QS Rank: #${s.qs_rank})
+                        - Country: ${s.country}
+                        - Funding: ${s.funding_type} (${s.funding_details})
+                        - Eligibility: ${s.eligibility}
+                        - Existing Tip: ${s.tips}
+                    \n`;
+                });
+
+                const prompt = `You are a study abroad counselor advising an Indian student. Here are details for ${selectedScholarships.length} scholarships:\n\n${scholarshipDetails}\nBased on this information, provide a concise comparison for an Indian applicant. Analyze the pros and cons of each, considering funding, university prestige (QS rank), and specific eligibility notes. Conclude with a brief recommendation on which might be a better strategic choice and why. Structure the response with clear headings for each scholarship and a final 'Recommendation' section. Use Markdown for formatting.`;
+
+                try {
+                    const text = await callGemini(prompt);
+                    resultDiv.innerHTML = marked.parse(text);
+                } catch (error) {
+                    resultDiv.innerHTML = `<p class="text-red-500">Sorry, something went wrong while generating the comparison. Please try again later.</p>`;
+                    console.error("Gemini API Error:", error);
+                } finally {
+                    button.disabled = false;
+                }
+            }
+
+            async function callGemini(prompt) {
+                const apiKey = "AIzaSyDQI7b1FfCPfpbvFErx18KCFWfHo8MElw4"; // Leave empty, handled by environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const payload = {
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response structure from Gemini API");
+                }
+            }
+
+
+            // Event Listeners
+            closeModalBtn.addEventListener('click', () => {
+                scholarshipModal.classList.add('hidden');
+                updateCompareButton();
+            });
+            scholarshipModal.addEventListener('click', (e) => { 
+                if (e.target.id === 'scholarship-modal') {
+                    scholarshipModal.classList.add('hidden');
+                    updateCompareButton();
                 }
             });
-            backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            closeCompareModalBtn.addEventListener('click', () => {
+                compareModal.classList.add('hidden');
+                updateCompareButton();
             });
+            compareModal.addEventListener('click', (e) => { 
+                if (e.target.id === 'compare-modal') {
+                    compareModal.classList.add('hidden');
+                    updateCompareButton();
+                }
+            });
+
+            compareBtn.addEventListener('click', openCompareModal);
+
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) { backToTopBtn.classList.remove('hidden'); } 
+                else { backToTopBtn.classList.add('hidden'); }
+            });
+            backToTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
             function createCharts() {
                 const countryCounts = scholarshipData.reduce((acc, s) => { acc[s.country] = (acc[s.country] || 0) + 1; return acc; }, {});
