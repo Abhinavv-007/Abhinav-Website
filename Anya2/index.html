@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anya's Humanities Program Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #fdf2f8; /* Light Pink */
+            --bg-dark: #1e293b;  /* Dark Blue */
+            --text-light-primary: #4b5563;
+            --text-light-secondary: #6b7280;
+            --text-dark-primary: #e0e7ff;
+            --text-dark-secondary: #94a3b8;
+            --card-bg-light: #ffffff;
+            --card-bg-dark: #334155;
+            --border-light: #f3f4f6;
+            --border-dark: #475569;
+            --accent-color: #ec4899; /* Pink */
+            --secondary-accent-color: #60a5fa; /* Blue */
+        }
+        html.dark { color-scheme: dark; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-light-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark body {
+            background-color: var(--bg-dark);
+            color: var(--text-dark-primary);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 500px;
+        }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; }
+        .modal-card-height { max-height: 90vh; }
+        .tab-active { background-color: var(--accent-color); color: white !important; border-color: var(--accent-color); }
+        .tab-inactive { background-color: var(--card-bg-light); color: var(--text-light-secondary); border: 1px solid var(--border-light); }
+        .dark .tab-inactive { background-color: var(--card-bg-dark); color: var(--text-dark-secondary); border: 1px solid var(--border-dark); }
+        .university-card {
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 1.5rem; /* More rounded */
+        }
+        .dark .university-card {
+            background-color: var(--card-bg-dark);
+            border: 1px solid var(--border-dark);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #ec4899, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: subtle-glow 4s ease-in-out infinite;
+        }
+        .dark .gradient-text {
+            background: linear-gradient(to right, #f9a8d4, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .ai-button {
+            background-image: linear-gradient(to right, #ec4899 0%, #60a5fa 51%, #ec4899 100%);
+            background-size: 200% auto;
+            transition: background-position 0.5s;
+        }
+        .ai-button:hover {
+            background-position: right center;
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: var(--text-light-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dark .typing-indicator span {
+            background-color: var(--text-dark-secondary);
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        @keyframes subtle-glow {
+            0%, 100% { filter: drop-shadow(0 0 3px rgba(236, 72, 153, 0.4)); }
+            50% { filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4)); }
+        }
+        .ask-ai-input:focus {
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.4);
+            border-color: var(--accent-color);
+        }
+        html:not(.dark) #university-modal .text-text-light-primary,
+        html:not(.dark) #university-modal .text-text-light-secondary,
+        html:not(.dark) #university-modal .dark\:text-text-dark-primary,
+        html:not(.dark) #university-modal .dark\:text-text-dark-secondary {
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-10 relative">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2 gradient-text">Anya's Humanities Hub</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Your Personal Guide to Top Humanities Degrees for 2026</p>
+            <button id="theme-toggle" class="absolute top-0 right-0 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-pink-100 dark:hover:bg-slate-700 transition-colors">
+                <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 5.05A1 1 0 003.636 6.464l.707.707a1 1 0 001.414-1.414l-.707-.707zM3 11a1 1 0 100-2H2a1 1 0 100 2h1zM13.536 14.95a1 1 0 010-1.414l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414 0z"></path></svg>
+            </button>
+        </header>
+
+        <nav class="bg-white/70 dark:bg-gray-800/50 backdrop-blur-sm p-4 rounded-xl shadow-lg mb-8 sticky top-4 z-20 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 border border-gray-200 dark:border-gray-700">
+            <label class="font-semibold text-gray-700 dark:text-gray-200">Filter by Country:</label>
+            <div id="country-filter-buttons" class="flex flex-wrap justify-center gap-2">
+            </div>
+        </nav>
+
+
+        <main>
+            <section id="charts-section" class="mb-12">
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white/30 dark:bg-card-bg-dark/30 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/50 dark:border-border-dark">
+                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">QS World Ranking (2025)</h3>
+                        <div class="chart-container">
+                            <canvas id="rankingsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white/30 dark:bg-card-bg-dark/30 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/50 dark:border-border-dark">
+                        <h3 class="text-xl font-bold text-center mb-4 text-text-light-primary dark:text-text-dark-primary">Estimated Annual Tuition (USD)</h3>
+                         <div class="chart-container">
+                            <canvas id="tuitionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="university-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </section>
+        </main>
+    </div>
+
+    <div id="university-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-4xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
+            <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
+                <div>
+                    <h2 id="modal-university-name" class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary"></h2>
+                    <p id="modal-university-location" class="text-md text-text-light-secondary dark:text-text-dark-secondary"></p>
+                </div>
+                <button id="close-modal" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 transition-colors text-3xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6 flex-shrink-0">
+                <div id="modal-tabs" class="flex flex-nowrap overflow-x-auto custom-scrollbar border-b border-border-light dark:border-border-dark mb-4 -mt-2 space-x-2 pb-2">
+                </div>
+            </div>
+
+            <div id="modal-content" class="overflow-y-auto custom-scrollbar px-6 pb-6 flex-grow">
+            </div>
+        </div>
+    </div>
+
+    <div id="ask-ai-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-card-bg-light dark:bg-card-bg-dark rounded-2xl shadow-2xl w-full max-w-2xl modal-card-height flex flex-col border border-border-light dark:border-border-dark">
+             <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-start">
+                <div>
+                    <h2 class="text-3xl font-bold text-text-light-primary dark:text-text-dark-primary">UniWhiz</h2>
+                    <p class="text-md text-text-light-secondary dark:text-text-dark-secondary">Hey there! I'm UniWhiz — Anya's smart university helper 🤖💬</p>
+                </div>
+                <button id="close-ask-ai-modal" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 transition-colors text-3xl font-bold">&times;</button>
+            </div>
+            <div id="ai-chat-box" class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-4">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <div class="p-6 border-t border-border-light dark:border-border-dark">
+                <div id="ai-thinking-indicator" class="hidden mb-2 flex items-center space-x-2">
+                    <span class="text-gray-500 dark:text-gray-400">UniWhiz is thinking</span>
+                    <div class="typing-indicator"><span></span><span></span><span></span></div>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="ai-question-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-shadow" placeholder="Type your question about university applications…">
+                    <button id="send-ai-question" class="ai-button text-white font-bold py-2 px-4 rounded-lg hover:shadow-xl transition-all">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center py-8 mt-8 border-t border-gray-200 dark:border-gray-700">
+        <p class="text-gray-600 dark:text-gray-400">A special creation for Anya, from Abhinav.
+        </p>
+    </footer>
+
+    <script>
+        const universityData = [
+            { id: 'sciencespo', name: 'Sciences Po', country: 'France', qsRank: 39, location: 'Paris, France', website: 'https://www.sciencespo.fr/en/undergraduate/', type: 'Public Research University', appDeadlines: 'Varies by region, typically Jan-Apr', appOpening: 'Late Oct', duration: '3 Years', degree: 'BA in Social Sciences & Humanities', structure: 'Multidisciplinary curriculum with a regional specialization and a mandatory year abroad.', specializations: ['Politics & Government', 'Economics & Society', 'Political Humanities'], research: "Grand Écrit (final dissertation).", internships: "Encouraged during the third year abroad.", partners: ['Columbia University', 'LSE', 'UC Berkeley'], admissionReq: 'High school diploma with excellent grades. Holistic review.', englishTests: 'IELTS: 7.0, TOEFL iBT: 100', docs: ['Transcripts', 'Personal Statement', 'LORs'], appFee: '€150', tuition: 18000, tuitionLocal: '€13,190 (non-EU)', scholarships: 'Emile Boutmy Scholarship for non-EU students.', onCampusHousing: 'Not guaranteed, assistance provided.', offCampusHousing: '€800 - €1500/month in Paris.', livingExpenses: '€1,200 - €1,800/month.', visa: 'VLS-TS visa required.', careerProspects: 'Strong pathways to international organizations, diplomacy, and consulting.', employability: 'Very high, #1 in France for Politics & IR.', alumni: ['Emmanuel Macron', 'Justin Trudeau'], intlStudents: '50%', culture: 'Highly international, politically engaged, and intellectually rigorous.', weather: 'Oceanic.', reputation: 'World-renowned for political science and international relations.', pros: ['Global elite reputation in social sciences', 'Mandatory year abroad', 'Strong alumni network'], cons: ['Extremely competitive', 'High cost of living in Paris', 'Housing is difficult'], reviews: 'Students praise the international environment and intellectual stimulation.', rating: 9.6 },
+            { id: 'sorbonne', name: 'Sorbonne University', country: 'France', qsRank: 59, location: 'Paris, France', website: 'https://www.sorbonne-universite.fr/en/education', type: 'Public Research University', appDeadlines: 'Jan-Mar via Parcoursup', appOpening: 'Jan', duration: '3 Years (Licence)', degree: 'Licence in Economics', structure: 'Focus on microeconomics, macroeconomics, and econometrics. Taught in French, but some courses available in English.', specializations: ['Economics', 'Management'], research: "Research opportunities in later years.", internships: "Internships are encouraged.", partners: ['Various European universities under Erasmus+.'], admissionReq: 'French Baccalaureate or equivalent. Strong maths background required.', englishTests: 'B2 level in French (DELF/DALF) typically required for most programs.', docs: ['High school transcripts'], appFee: 'None via Parcoursup', tuition: 170, tuitionLocal: '€170 (for EU/EEA)', scholarships: 'Limited for non-EU undergrads, Eiffel scholarship for Masters.', onCampusHousing: 'Extremely limited, through CROUS.', offCampusHousing: '€800 - €1500/month in Paris.', livingExpenses: '€1,200 - €1,800/month.', visa: 'VLS-TS visa required.', careerProspects: 'Strong foundation for postgraduate studies or careers in French economic sectors.', employability: 'High within France.', alumni: ['Marie Curie', 'Simone de Beauvoir'], intlStudents: '20%', culture: 'Historic, traditional, and academically focused in the heart of Paris.', weather: 'Oceanic.', reputation: 'Historic and prestigious, especially strong in humanities and sciences.', pros: ['Historic prestige', 'Extremely low tuition fees', 'Located in central Paris'], cons: ['Most courses taught in French', 'Bureaucratic administration', 'Limited on-campus housing'], reviews: 'Revered for its academic history, but can be challenging for non-French speakers.', rating: 8.7 },
+            { id: 'bocconi', name: 'Bocconi University', country: 'Italy', qsRank: 154, location: 'Milan, Italy', website: 'https://www.unibocconi.eu/undergraduate', type: 'Private University', appDeadlines: 'Varies by round (3 rounds, Nov-Apr)', appOpening: 'July', duration: '3 Years', degree: 'BSc in International Politics and Government', structure: 'Focus on political science, international relations, and public policy with a quantitative approach.', specializations: ['International Relations', 'Public Policy'], research: "Final thesis required.", internships: "Mandatory internship.", partners: ['Major international companies and organizations.'], admissionReq: 'High school diploma, SAT/ACT or Bocconi Test.', englishTests: 'IELTS: 6.0, TOEFL iBT: 88', docs: ['Transcripts', 'CV', 'Motivation Letter'], appFee: '€100', tuition: 16000, tuitionLocal: '€14,073', scholarships: 'Bocconi International Award (50% tuition waiver).', onCampusHousing: 'Available, but competitive.', offCampusHousing: '€600 - €1200/month in Milan.', livingExpenses: '€1,000 - €1,500/month.', visa: 'Type D National Visa.', careerProspects: 'Excellent placement in finance, consulting, and international institutions.', employability: 'Top-ranked in Italy for Economics & Social Sciences.', alumni: ['Mario Monti (Former PM of Italy)'], intlStudents: '25%', culture: 'Competitive, professional, and international environment in a fashion capital.', weather: 'Humid subtropical.', reputation: 'One of Europe\'s leading universities for economics and business.', pros: ['Elite reputation in Europe', 'Strong career placement', 'Vibrant city'], cons: ['High tuition for Italy', 'Competitive environment', 'Housing can be expensive'], reviews: 'Praised for career opportunities and quality of teaching.', rating: 9.4 },
+            { id: 'sapienza', name: 'Sapienza University of Rome', country: 'Italy', qsRank: 132, location: 'Rome, Italy', website: 'https://www.uniroma1.it/en/pagina-strutturale/home', type: 'Public University', appDeadlines: 'Apr-Jul', appOpening: 'Nov', duration: '3 Years', degree: 'BA in Global Humanities', structure: 'Interdisciplinary program taught entirely in English, focusing on history, literature, and art history from a global perspective.', specializations: ['History', 'Art History', 'Literature'], research: "Final thesis required.", internships: "Encouraged through university partnerships.", partners: ['Global network of universities for exchange programs.'], admissionReq: 'High school diploma. Admission test may be required.', englishTests: 'B2 level English certificate (e.g., IELTS 6.0).', docs: ['Transcripts', 'Passport', 'English Certificate'], appFee: '€30-50', tuition: 1000, tuitionLocal: '€1,000 (non-EU)', scholarships: 'Various need-based scholarships available.', onCampusHousing: 'Limited availability.', offCampusHousing: '€400 - €800/month in Rome.', livingExpenses: '€800 - €1,200/month.', visa: 'Type D National Visa.', careerProspects: 'Pathways to careers in cultural heritage, international organizations, and journalism.', employability: 'Good, especially in culture-related fields.', alumni: ['Federico Fellini'], intlStudents: '10%', culture: 'Vibrant student life in a historic, world-class city.', weather: 'Mediterranean.', reputation: 'One of the oldest and largest universities in Europe, with a strong reputation in classics and humanities.', pros: ['Extremely low tuition', 'Live and study in Rome', 'English-taught humanities program'], cons: ['Large class sizes', 'Bureaucratic processes can be slow', 'Limited on-campus housing'], reviews: 'Students love the location but often mention the challenges of navigating the university\'s administration.', rating: 8.6 },
+            { id: 'nus_fass', name: 'National University of Singapore (FASS)', country: 'Singapore', qsRank: 8, location: 'Singapore', website: 'https://fass.nus.edu.sg/prospective-students/', type: 'Public Research University', appDeadlines: 'Feb-Mar', appOpening: 'Nov', duration: '4 Years', degree: 'Bachelor of Social Sciences (e.g., Economics, PPE)', structure: 'Modular credit system. Students can major in Economics or the Philosophy, Politics, and Economics (PPE) program.', specializations: ['Economics', 'Political Science', 'Philosophy'], research: "Honours Thesis option.", internships: "Strongly encouraged through FASS internship programs.", partners: ['Global university partners for exchange programs.'], admissionReq: 'CBSE/ISC: >95% recommended. Strong grades in relevant subjects.', englishTests: 'IELTS: 6.5, TOEFL iBT: 92-93', docs: ['Transcripts', 'Passport', 'Personal Statement'], appFee: 'SGD 20', tuition: 14800, tuitionLocal: 'SGD 17,550 (non-subsidized)', scholarships: 'ASEAN Undergraduate Scholarship.', onCampusHousing: 'Guaranteed for 2 years.', offCampusHousing: 'SGD 700 - 1,400/month.', livingExpenses: 'SGD 1,000 - 2,500/month.', visa: '1-year LTVP to find work.', careerProspects: 'Excellent pathways into civil service, finance, and academia.', employability: '9th in the world (GEURS 2025).', alumni: ['Many Singaporean ministers and public figures.'], intlStudents: '26%', culture: 'Vibrant, international, highly competitive.', weather: 'Tropical.', reputation: 'Asia\'s top university with world-class faculty.', pros: ['#1 in Asia', 'Globally recognized degree', 'Strong research focus'], cons: ['Extremely competitive admissions', 'High-pressure environment', 'High cost of living'], reviews: 'Known for its academic rigor and diverse student body.', rating: 9.5 },
+            { id: 'anu_cass', name: 'Australian National University (CASS)', country: 'Australia', qsRank: 34, location: 'Canberra, Australia', website: 'https://cass.anu.edu.au/', type: 'Public Research University (Go8)', appDeadlines: 'Varies by round', appOpening: 'Open', duration: '3 Years', degree: 'Bachelor of Politics, Philosophy and Economics (PPE)', structure: 'Interdisciplinary program combining three fields. Flexible structure to specialize.', specializations: ['PPE', 'International Relations', 'Economics'], research: "Honours pathway available.", internships: "ANU Global Programs offers international internship opportunities.", partners: ['Government departments, think tanks.'], admissionReq: 'ATAR 96 equivalent (high CBSE/ISC).', englishTests: 'IELTS: 6.5, TOEFL iBT: 80', docs: ['Transcripts', 'English test', 'Passport'], appFee: 'AUD $110', tuition: 33000, tuitionLocal: 'AUD $48,030', scholarships: 'ANU Chancellor’s Int\'l Scholarship (25% or 50% waiver).', onCampusHousing: 'Guaranteed for 1st year.', offCampusHousing: 'Competitive rental market.', livingExpenses: 'AUD $1,600 - $2,400/month.', visa: '2-year visa.', careerProspects: 'Strong pathways to public service, policy analysis, and diplomacy.', employability: '#1 most employable in Australia (THE 2023-24).', alumni: ['Many Australian Prime Ministers.'], intlStudents: '38%', culture: 'Research-focused, intellectual, politically aware.', weather: 'Dry, continental.', reputation: 'Australia\'s top-ranked university, especially for politics.', pros: ['#1 in Australia for Politics & IR', 'Strong government connections', 'Guaranteed accommodation'], cons: ['High tuition', 'Quieter city life than Sydney/Melbourne'], reviews: 'Praised for its close-knit academic community and research opportunities.', rating: 9.3 },
+            { id: 'uva_ppe', name: 'University of Amsterdam (PPE)', country: 'Netherlands', qsRank: 53, location: 'Amsterdam, Netherlands', website: 'https://www.uva.nl/en/programmes/bachelors/politics-psychology-law-and-economics/', type: 'Public Research University', appDeadlines: '1 Feb (Selective)', appOpening: '1 Oct', duration: '3 Years', degree: 'BSc in Politics, Psychology, Law and Economics (PPLE)', structure: 'Selective, small-scale interdisciplinary program with a cohort of ~200 students.', specializations: ['Politics', 'Psychology', 'Law', 'Economics'], research: "Final thesis required.", internships: "Encouraged, but not mandatory.", partners: ['Various international exchange partners.'], admissionReq: 'High school diploma with strong grades, motivation letter, interview.', englishTests: 'IELTS: 7.0, TOEFL iBT: 100', docs: ['Transcripts', 'CV', 'Motivation Letter'], appFee: '€100', tuition: 5000, tuitionLocal: '€4,400 (statutory fee for EU) / €15,500 (non-EU)', scholarships: 'Amsterdam Merit Scholarship.', onCampusHousing: 'Not guaranteed, assistance provided.', offCampusHousing: '€500 - €900/month. Extremely difficult.', livingExpenses: '€1,000 - €1,600/month.', visa: '1-year orientation year visa.', careerProspects: 'Graduates pursue careers in public service, NGOs, and the private sector.', employability: 'High, especially in Europe.', alumni: ['N/A'], intlStudents: '50%+', culture: 'Liberal, international, and discussion-based learning.', weather: 'Temperate maritime.', reputation: 'Highly-ranked and selective PPE program in Europe.', pros: ['Prestigious PPE program', 'Vibrant city life', 'Relatively affordable for EU students'], cons: ['Severe housing crisis in Amsterdam', 'Highly selective admissions', 'High cost of living'], reviews: 'Students love the small-scale, international, and challenging environment.', rating: 9.2 },
+            { id: 'tcd_hss', name: 'Trinity College Dublin (HSS)', country: 'Ireland', qsRank: 81, location: 'Dublin, Ireland', website: 'https://www.tcd.ie/courses/undergraduate/az/course.php?id=DUBAH-PPEC-1F09', type: 'Public Research University', appDeadlines: '1 Feb (via CAO)', appOpening: 'Nov', duration: '4 Years', degree: 'BA (Mod) in Philosophy, Political Science, Economics and Sociology', structure: 'Flexible program allowing students to specialize in one or two subjects after a common first year.', specializations: ['Economics', 'Political Science', 'Philosophy', 'Sociology'], research: "Final year dissertation.", internships: "Optional summer internships.", partners: ['Major tech and finance companies in Dublin.'], admissionReq: 'CBSE/ISC: 90%+. Subject prerequisites apply.', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'LORs', 'SOP'], appFee: '€55', tuition: 21000, tuitionLocal: '€20,618', scholarships: 'Global Excellence Scholarship (€1,000 - €5,000 reduction).', onCampusHousing: 'Extremely limited and not guaranteed.', offCampusHousing: '€700 - €1,200/month. Severe housing crisis.', livingExpenses: '€1,200 - €1,800/month.', visa: '1-2 year post-study work visa.', careerProspects: 'Excellent access to EU headquarters of major tech and finance firms.', employability: '#1 in Ireland for graduate employability.', alumni: ['Oscar Wilde', 'Samuel Beckett'], intlStudents: '28%', culture: 'Historic, prestigious, vibrant city-center campus.', weather: 'Temperate maritime.', reputation: 'Ireland\'s top university, globally recognized.', pros: ['Top-ranked Irish university', 'Flexible degree structure', 'Strong industry connections'], cons: ['Severe housing crisis in Dublin', 'Very high cost of living', 'Limited on-campus housing'], reviews: 'Highly positive about academics and social life, but with strong warnings about the housing situation.', rating: 9.0 },
+            { id: 'helsinki_ss', name: 'University of Helsinki (Social Sciences)', country: 'Finland', qsRank: 117, location: 'Helsinki, Finland', website: 'https://www.helsinki.fi/en/programmes/bachelor/bachelor-programme-science', type: 'Public Research University', appDeadlines: '17 Jan', appOpening: '3 Jan', duration: '3 Years', degree: 'Bachelor of Social Sciences', structure: 'Students can choose a study track in Economics or Politics, Media and Communication.', specializations: ['Economics', 'Politics', 'Media and Communication'], research: "Bachelor's thesis required.", internships: "Optional, can be integrated.", partners: ['Extensive network of partner universities for exchange.'], admissionReq: 'SAT scores or Finnish matriculation exam.', englishTests: 'SAT acts as proof.', docs: ['Transcripts', 'SAT scores', 'Passport'], appFee: 'None', tuition: 13000, tuitionLocal: '€13,000', scholarships: 'Scholarship Programme (100% tuition waiver + €5,000 grant).', onCampusHousing: 'Available via HOAS, but competitive.', offCampusHousing: '€500 - €800/month. Challenging.', livingExpenses: '€800 - €1,300/month.', visa: '2-year post-study work visa.', careerProspects: 'Good prospects in public sector, research, and media.', employability: 'High within Finland.', alumni: ['Many Finnish presidents and Nobel laureates.'], intlStudents: '10%', culture: 'Traditional, research-intensive, academic atmosphere.', weather: 'Humid continental.', reputation: 'Finland\'s oldest and highest-ranked multidisciplinary university.', pros: ['Top-ranked Finnish university', 'Generous scholarships', '2-year post-study visa'], cons: ['Less industry-focused than business schools', 'Cold, dark winters', 'Housing can be difficult'], reviews: 'Praised for high academic standards and research quality.', rating: 8.8 },
+            { id: 'auckland_arts', name: 'University of Auckland (Arts)', country: 'New Zealand', qsRank: 68, location: 'Auckland, New Zealand', website: 'https://www.auckland.ac.nz/en/study/study-options/find-a-study-option/bachelor-of-arts-ba.html', type: 'Public Research University', appDeadlines: 'Varies', appOpening: 'Open', duration: '3 Years', degree: 'Bachelor of Arts (e.g., Economics, Politics & IR)', structure: 'Flexible BA degree where students can double major in subjects like Economics and Politics and International Relations.', specializations: ['Economics', 'Politics and International Relations', 'Sociology'], research: "Optional dissertation courses.", internships: "Arts Internship Paper available.", partners: ['Various international exchange partners.'], admissionReq: 'University Entrance standard with good grades.', englishTests: 'IELTS: 6.0, TOEFL iBT: 80', docs: ['Transcripts', 'Passport'], appFee: 'None', tuition: 24000, tuitionLocal: 'NZD $35,168', scholarships: 'International Student Excellence Scholarship (up to NZD $10,000).', onCampusHousing: 'Guaranteed for first years.', offCampusHousing: 'NZD $250 - $400/week.', livingExpenses: 'NZD $1,500 - $2,000/month.', visa: '3-year post-study work visa.', careerProspects: 'Good prospects in NZ\'s public and private sectors.', employability: 'Top-ranked in NZ for employability.', alumni: ['N/A'], intlStudents: '29%', culture: 'Largest university in NZ, diverse and multicultural.', weather: 'Subtropical.', reputation: '#1 university in New Zealand.', pros: ['#1 in New Zealand', 'Generous 3-year post-study visa', 'Flexible double major options'], cons: ['High tuition and living costs', 'Geographically isolated', 'Smaller job market than AU/EU'], reviews: 'Positive about the quality of education and lifestyle in Auckland.', rating: 8.5 },
+            { id: 'sydney_arts', name: 'University of Sydney (Arts)', country: 'Australia', qsRank: 18, location: 'Sydney, Australia', website: 'https://www.sydney.edu.au/courses/courses/uc/bachelor-of-arts-and-bachelor-of-advanced-studies-international-and-global-studies.html', type: 'Public Research University (Go8)', appDeadlines: '15 Jan for Sem 1', appOpening: 'Open', duration: '4 Years', degree: 'BA / BAdvStudies (International and Global Studies)', structure: 'Combines a core major in Global Studies with a second major, language study, and overseas experience.', specializations: ['Global Studies', 'Political Economy', 'International Relations'], research: "Advanced coursework and honours available.", internships: "Industry and Community Project Units available.", partners: ['Global network of over 250 exchange partners.'], admissionReq: 'ATAR 95 equivalent (high CBSE/ISC).', englishTests: 'IELTS: 7.0, TOEFL iBT: 96', docs: ['Transcripts', 'English test'], appFee: 'AUD $150', tuition: 37500, tuitionLocal: 'AUD $56,000', scholarships: 'Sydney Scholars India Scholarship Program.', onCampusHousing: 'Available, from AUD $473/week.', offCampusHousing: 'Expensive private market.', livingExpenses: 'AUD $1,800 - $2,800/month.', visa: '2-year visa.', careerProspects: 'Careers in diplomacy, international trade, and NGOs.', employability: 'Ranked 2nd in Australia for employer reputation.', alumni: ['Many Australian Prime Ministers.'], intlStudents: '44%', culture: 'Vibrant, diverse, located in a major global city.', weather: 'Humid subtropical.', reputation: 'Globally renowned for arts and humanities.', pros: ['Top 20 global university', 'Integrated international experience', 'Strong reputation'], cons: ['Very high cost of living', 'High tuition fees'], reviews: 'Praised for its global focus and exchange opportunities.', rating: 9.1 },
+            { id: 'leiden_is', name: 'Leiden University', country: 'Netherlands', qsRank: 126, location: 'The Hague, Netherlands', website: 'https://www.universiteitleiden.nl/en/education/study-programmes/bachelors/international-studies', type: 'Public Research University', appDeadlines: '15 Jan (Selective)', appOpening: '1 Oct', duration: '3 Years', degree: 'BA in International Studies', structure: 'Focuses on a world region (e.g., Europe, East Asia) combined with a discipline (e.g., Culture, History, Economics, Politics).', specializations: ['Area Studies', 'International Relations', 'History'], research: "Final thesis required.", internships: "Optional, but facilitated.", partners: ['Based in The Hague, the city of international peace and justice.'], admissionReq: 'High school diploma with good grades, motivation letter.', englishTests: 'IELTS: 7.0, TOEFL iBT: 100', docs: ['Transcripts', 'CV', 'Motivation Letter'], appFee: '€100', tuition: 12100, tuitionLocal: '€11,500 (non-EU)', scholarships: 'Leiden University Excellence Scholarship (LExS).', onCampusHousing: 'Assistance provided, but housing is very difficult in The Hague.', offCampusHousing: '€500 - €900/month.', livingExpenses: '€900 - €1,400/month.', visa: '1-year orientation year visa.', careerProspects: 'Excellent for careers in diplomacy, international organizations (e.g., UN, EU).', employability: 'High, especially in the international public sector.', alumni: ['King Willem-Alexander of the Netherlands'], intlStudents: '65%+', culture: 'Extremely international, diverse, and focused on global affairs.', weather: 'Temperate maritime.', reputation: 'Top-ranked in the Netherlands for Politics and International Studies.', pros: ['Located in The Hague, city of peace and justice', 'Highly international student body', 'Unique area studies focus'], cons: ['Severe housing shortage', 'Highly selective program'], reviews: 'Students highlight the unique international environment and proximity to global institutions.', rating: 9.0 },
+            { id: 'bologna_econ', name: 'University of Bologna', country: 'Italy', qsRank: 133, location: 'Bologna, Italy', website: 'https://corsi.unibo.it/1cycle/EconomicsFinance', type: 'Public University', appDeadlines: 'Varies by intake (check website)', appOpening: 'Varies', duration: '3 Years', degree: 'BSc in Economics and Finance', structure: 'Strong quantitative focus on economics, finance, and management, taught entirely in English.', specializations: ['Economics', 'Finance'], research: "Final thesis required.", internships: "Mandatory internship.", partners: ['Extensive Erasmus+ network.'], admissionReq: 'High school diploma, SAT/TOLC-E test.', englishTests: 'B2 level English certificate (e.g., IELTS 5.5).', docs: ['Transcripts', 'Test scores', 'Passport'], appFee: '€50', tuition: 4000, tuitionLocal: '€3,912 (non-EU)', scholarships: 'Unibo Action 1 & 2 study grants (need-based).', onCampusHousing: 'Limited, assistance provided.', offCampusHousing: '€300 - €600/month. Competitive.', livingExpenses: '€700 - €1,100/month.', visa: 'Type D National Visa.', careerProspects: 'Strong foundation for careers in banking, finance, and corporate management.', employability: 'High, one of Italy\'s most prestigious universities.', alumni: ['Dante Alighieri', 'Copernicus'], intlStudents: '15%', culture: 'Historic university town with a vibrant, authentic Italian student culture.', weather: 'Humid subtropical.', reputation: 'The oldest university in the Western world, highly respected.', pros: ['Historic prestige', 'Very affordable tuition', 'Vibrant student city'], cons: ['Bureaucratic administration', 'Housing can be competitive'], reviews: 'Praised for its authentic student city atmosphere and academic quality.', rating: 8.8 },
+            { id: 'eth_zurich', name: 'ETH Zurich', country: 'Switzerland', qsRank: 7, location: 'Zurich, Switzerland', website: 'https://gess.ethz.ch/en/studies/ba-public-policy.html', type: 'Public Research University', appDeadlines: 'Nov 1 - Dec 15', appOpening: 'Nov 1', duration: '3 Years', degree: 'BA in Public Policy', structure: 'Interdisciplinary program combining social sciences, economics, and data science. Taught in German and English.', specializations: ['Public Policy', 'Data Science for Policy'], research: "Bachelor's thesis required.", internships: "Strongly encouraged.", partners: ['Top global universities and research institutions.'], admissionReq: 'Swiss Matura or equivalent. Entrance exam may be required for international students.', englishTests: 'C1 English, C1 German required.', docs: ['Transcripts', 'CV', 'Motivation Letter'], appFee: 'CHF 150', tuition: 1600, tuitionLocal: 'CHF 1,460 per year', scholarships: 'Excellence Scholarship & Opportunity Programme (ESOP).', onCampusHousing: 'Limited, assistance provided.', offCampusHousing: 'CHF 700 - 1500/month. Very competitive.', livingExpenses: 'CHF 2,000 - 2,500/month.', visa: 'Type D Visa for study.', careerProspects: 'Excellent for roles in government, international organizations, and policy consulting.', employability: 'Extremely high, top 10 globally.', alumni: ['Albert Einstein'], intlStudents: '40%', culture: 'Highly rigorous, research-intensive, and international.', weather: 'Temperate.', reputation: 'One of the world\'s leading universities for science and technology, with a strong social science department.', pros: ['World #7 university', 'Very low tuition fees', 'Exceptional global reputation'], cons: ['German language proficiency required', 'Extremely high cost of living', 'Highly competitive'], reviews: 'Known for its world-class education and demanding workload.', rating: 9.7 },
+            { id: 'ku_leuven', name: 'KU Leuven', country: 'Belgium', qsRank: 63, location: 'Leuven, Belgium', website: 'https://onderwijsaanbod.kuleuven.be/opleidingen/e/CQ_53702157.htm', type: 'Public Research University', appDeadlines: '1 Feb (non-EEA)', appOpening: '1 Nov', duration: '3 Years', degree: 'Bachelor of Philosophy, Politics and Economics (PPE)', structure: 'Interdisciplinary program taught in English, with a strong focus on analytical and critical thinking.', specializations: ['Philosophy', 'Politics', 'Economics'], research: "Bachelor's thesis required.", internships: "Optional.", partners: ['Extensive Erasmus network.'], admissionReq: 'High school diploma, motivation letter, proof of maths proficiency.', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'Motivation Letter', 'English test'], appFee: '€50', tuition: 4000, tuitionLocal: '€3,900 (non-EEA)', scholarships: 'Limited scholarships available for bachelor students.', onCampusHousing: 'Available, but apply early.', offCampusHousing: '€400 - €700/month.', livingExpenses: '€800 - €1,200/month.', visa: 'Type D Visa.', careerProspects: 'Pathways to postgraduate studies and careers in policy, journalism, and international business.', employability: 'High.', alumni: ['Erasmus'], intlStudents: '17%', culture: 'Historic and vibrant student city, very international.', weather: 'Temperate maritime.', reputation: 'Belgium\'s highest-ranked university, very strong in humanities.', pros: ['Top-ranked university in Belgium', 'Affordable tuition', 'Vibrant student city'], cons: ['Limited scholarship options', 'Housing can be competitive'], reviews: 'Praised for its high academic quality and lively student atmosphere.', rating: 8.9 },
+            { id: 'st_gallen', name: 'University of St. Gallen (HSG)', country: 'Switzerland', qsRank: 443, location: 'St. Gallen, Switzerland', website: 'https://www.unisg.ch/en/studium/bachelor/economics-vWL/', type: 'Public University', appDeadlines: '30 Apr', appOpening: '1 Oct', duration: '3 Years', degree: 'BA in Economics', structure: 'Rigorous, quantitatively-focused economics program. Primarily taught in German, but with an increasing number of English courses.', specializations: ['Economics', 'Econometrics'], research: "Bachelor's thesis required.", internships: "Internship semester is common.", partners: ['Top business schools worldwide.'], admissionReq: 'International high school diploma and entrance exam or high SAT/ACT score.', englishTests: 'Proof of English and German (C1) proficiency required.', docs: ['Transcripts', 'Test scores', 'Language certificates'], appFee: 'CHF 250', tuition: 3500, tuitionLocal: 'CHF 3,329 per semester', scholarships: 'Excellence Scholarships for international students.', onCampusHousing: 'No university-owned dorms, private market.', offCampusHousing: 'CHF 500 - 900/month.', livingExpenses: 'CHF 1,800 - 2,400/month.', visa: 'Type D Visa.', careerProspects: 'Outstanding placement in banking, finance, and consulting in German-speaking Europe.', employability: 'Extremely high, #1 in German-speaking world for business/economics.', alumni: ['Many top executives in DACH region.'], intlStudents: '25%', culture: 'Highly ambitious, professional, and career-focused.', weather: 'Temperate.', reputation: 'A world-leading business and economics university.', pros: ['#1 business school in German-speaking world', 'Exceptional career placement', 'Relatively low tuition'], cons: ['German language proficiency required', 'Very high cost of living', 'Extremely demanding curriculum'], reviews: 'Known for its intense, career-driven environment and unparalleled job prospects in finance.', rating: 9.1 },
+            { id: 'utrecht_ppe', name: 'Utrecht University', country: 'Netherlands', qsRank: 107, location: 'Utrecht, Netherlands', website: 'https://www.uu.nl/bachelors/philosophy-politics-and-economics', type: 'Public Research University', appDeadlines: '15 Jan (Selective)', appOpening: '1 Oct', duration: '3 Years', degree: 'BA in Philosophy, Politics and Economics (PPE) (Honours)', structure: 'Selective, small-scale honours college program with an interdisciplinary focus and a strong emphasis on research skills.', specializations: ['Philosophy', 'Politics', 'Economics'], research: "Bachelor's thesis required.", internships: "Encouraged, space in curriculum.", partners: ['Extensive international exchange network.'], admissionReq: 'High school diploma with excellent grades, motivation letter, interview.', englishTests: 'IELTS: 7.0, TOEFL iBT: 100', docs: ['Transcripts', 'Motivation Letter', 'English test'], appFee: '€100', tuition: 12000, tuitionLocal: '€11,100 (non-EU)', scholarships: 'Utrecht Excellence Scholarship.', onCampusHousing: 'Not guaranteed, assistance through partner organizations.', offCampusHousing: '€400 - €800/month. Very difficult.', livingExpenses: '€900 - €1,400/month.', visa: '1-year orientation year visa.', careerProspects: 'Excellent preparation for top master\'s programs and careers in policy, research, and consulting.', employability: 'High.', alumni: ['12 Nobel Prize laureates.'], intlStudents: '12%', culture: 'Intellectually vibrant, located in a classic Dutch student city.', weather: 'Temperate maritime.', reputation: 'One of the oldest and most prestigious universities in the Netherlands.', pros: ['Prestigious honours college', 'Beautiful student city', 'Strong research focus'], cons: ['Severe housing shortage', 'Highly selective admissions'], reviews: 'Students praise the challenging curriculum and the charming atmosphere of Utrecht.', rating: 9.0 },
+            { id: 'copenhagen', name: 'University of Copenhagen', country: 'Denmark', qsRank: 107, location: 'Copenhagen, Denmark', website: 'https://studies.ku.dk/bachelors/global-development/', type: 'Public Research University', appDeadlines: '15 Mar', appOpening: '1 Feb', duration: '3 Years', degree: 'BSc in Global Development', structure: 'Interdisciplinary program combining social, natural, and health sciences to address global development challenges.', specializations: ['Global Development', 'Policy Analysis'], research: "Bachelor's project required.", internships: "Optional.", partners: ['International network for exchange and research.'], admissionReq: 'High school diploma, specific subject requirements, and high grades.', englishTests: 'IELTS: 6.5, TOEFL iBT: 83', docs: ['Transcripts', 'English test'], appFee: 'DKK 750', tuition: 11000, tuitionLocal: '€10,000 per year (non-EU/EEA)', scholarships: 'Danish government scholarships for non-EU/EEA students.', onCampusHousing: 'Limited, assistance from Housing Foundation.', offCampusHousing: 'DKK 3,500 - 6,000/month. Very competitive.', livingExpenses: 'DKK 8,000 - 10,000/month.', visa: 'Danish student residence permit.', careerProspects: 'Careers in NGOs, international organizations (UN, World Bank), and government aid agencies.', employability: 'High.', alumni: ['Søren Kierkegaard'], intlStudents: '15%', culture: 'Research-driven, collaborative, and focused on sustainability.', weather: 'Oceanic.', reputation: 'Top university in Denmark and the Nordic region.', pros: ['Top-ranked in Scandinavia', 'Strong focus on global issues', 'High quality of life in Copenhagen'], cons: ['Very high cost of living', 'Extremely competitive housing market'], reviews: 'Praised for its research-based teaching and interdisciplinary approach.', rating: 8.9 },
+            { id: 'ucd_ppe', name: 'University College Dublin (PPE)', country: 'Ireland', qsRank: 171, location: 'Dublin, Ireland', website: 'https://www.myucd.ie/courses/philosophy-politics-economics/', type: 'Public Research University', appDeadlines: '15 Jul (direct)', appOpening: '1 Oct', duration: '4 Years', degree: 'BSc in Philosophy, Politics and Economics', structure: 'Flexible program allowing students to specialize in one or two of the three disciplines after a common first year.', specializations: ['Philosophy', 'Politics', 'Economics'], research: "Final year dissertation option.", internships: "Optional internship module.", partners: ['Extensive global exchange network.'], admissionReq: 'CBSE/ISC: 80%+. Maths prerequisite for Economics major.', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'Passport', 'English test'], appFee: '€50', tuition: 23000, tuitionLocal: '€22,400', scholarships: 'Global Excellence Scholarship (50% or 100% waiver).', onCampusHousing: 'Available, but very high demand.', offCampusHousing: '€700 - €1,200/month. Severe housing crisis.', livingExpenses: '€1,200 - €1,800/month.', visa: '1-2 year post-study work visa.', careerProspects: 'Graduates pursue careers in public policy, finance, journalism, and law.', employability: '#1 in Ireland for graduate employability for 5 consecutive years.', alumni: ['James Joyce'], intlStudents: '30%', culture: 'Large, modern campus with diverse student life and many clubs.', weather: 'Temperate maritime.', reputation: 'Ireland\'s largest and most globally engaged university.', pros: ['Top-ranked for employability in Ireland', 'Flexible and prestigious PPE program', 'Generous scholarships'], cons: ['Severe housing crisis', 'High cost of living'], reviews: 'Praised for its modern facilities and strong career focus.', rating: 8.8 },
+            { id: 'padua_psych', name: 'University of Padua', country: 'Italy', qsRank: 236, location: 'Padua, Italy', website: 'https://www.unipd.it/en/educational-offer/first-cycle-degrees/human-and-social-sciences-and-cultural-heritage?tipo=L&scuola=SU&ordinamento=2022&key=PS2573', type: 'Public University', appDeadlines: 'Varies by call (check website)', appOpening: 'Varies', duration: '3 Years', degree: 'BSc in Psychological Science', structure: 'Focuses on the core areas of psychology, including cognitive, social, developmental, and clinical psychology. Taught in English.', specializations: ['Psychology', 'Neuroscience'], research: "Final thesis required.", internships: "Mandatory practical training (tirocinio).", partners: ['Coimbra Group and other international networks.'], admissionReq: 'High school diploma. Admission test required (TOLC-PSI).', englishTests: 'B2 level English certificate.', docs: ['Transcripts', 'Test scores', 'Passport'], appFee: '€30', tuition: 2800, tuitionLocal: '€2,725 (non-EU)', scholarships: 'Padua International Excellence Scholarship (full tuition + living allowance).', onCampusHousing: 'Available via SASSA Service.', offCampusHousing: '€300 - €500/month. Affordable.', livingExpenses: '€600 - €1,000/month.', visa: 'Type D National Visa.', careerProspects: 'Pathway to Master\'s in Psychology (required for professional practice) or roles in HR, research, and social services.', employability: 'Good, especially within Italy.', alumni: ['Galileo Galilei (lecturer)'], intlStudents: '10%', culture: 'Historic, vibrant student city with a strong academic tradition.', weather: 'Humid subtropical.', reputation: 'One of the oldest and most prestigious universities in Italy.', pros: ['Historic and prestigious university', 'Very affordable tuition and living costs', 'Generous full scholarships'], cons: ['Bureaucratic processes', 'Professional psychologist title requires a Master\'s degree'], reviews: 'Students appreciate the city\'s student-centric atmosphere and the university\'s rich history.', rating: 8.7 },
+            { id: 'stockholm_ibp', name: 'Stockholm University', country: 'Sweden', qsRank: 118, location: 'Stockholm, Sweden', website: 'https://www.su.se/english/search-courses-and-programmes/svebu-kandibp-1.621453', type: 'Public University', appDeadlines: '15 Jan', appOpening: 'Mid-Oct', duration: '3 Years', degree: 'BSc in International Business and Politics', structure: 'Interdisciplinary program combining business administration and political science to analyze the interplay between multinational corporations and politics.', specializations: ['International Business', 'Politics'], research: "Bachelor's thesis required.", internships: "Optional internship course.", partners: ['Stockholm School of Economics, various global partners.'], admissionReq: 'High school diploma with specific requirements in Maths and Social Studies.', englishTests: 'IELTS: 6.5, TOEFL iBT: 90', docs: ['Transcripts', 'English test'], appFee: 'SEK 900', tuition: 10000, tuitionLocal: 'SEK 100,000 per year', scholarships: 'Stockholm University Scholarship Scheme for non-EU/EEA students.', onCampusHousing: 'Not guaranteed, very difficult to find.', offCampusHousing: 'SEK 4,000 - 7,000/month. Extremely competitive.', livingExpenses: 'SEK 9,000 - 12,000/month.', visa: 'Residence permit for studies.', careerProspects: 'Careers in international business, government agencies, and consulting.', employability: 'High.', alumni: ['Svante Arrhenius (Nobel laureate)'], intlStudents: '8%', culture: 'Located in a beautiful national city park, with a focus on open-mindedness and research.', weather: 'Humid continental.', reputation: 'A leading university in Scandinavia for social sciences.', pros: ['Top-ranked university in a major capital', 'Unique interdisciplinary program', 'Relatively affordable tuition'], cons: ['Extreme housing crisis in Stockholm', 'Very high cost of living'], reviews: 'Praised for its beautiful campus and high-quality teaching, but the housing situation is a major challenge.', rating: 8.6 },
+            { id: 'kcl_ppe', name: 'King\'s College London', country: 'UK', qsRank: 40, location: 'London, UK', website: 'https://www.kcl.ac.uk/study/undergraduate/courses/philosophy-politics-economics-ba', type: 'Public Research University', appDeadlines: '31 Jan (via UCAS)', appOpening: 'Sep', duration: '3 Years', degree: 'BA in Philosophy, Politics & Economics (PPE)', structure: 'Highly flexible and interdisciplinary program allowing students to choose modules from three of the UK\'s leading departments.', specializations: ['Philosophy', 'Politics', 'Economics'], research: "Dissertation option in final year.", internships: "King's Careers & Employability service supports students in finding internships.", partners: ['Located in the heart of London, close to political, financial, and cultural institutions.'], admissionReq: 'A-levels: A*AA. IB: 35 points. High scores in CBSE/ISC required.', englishTests: 'IELTS: 7.0, TOEFL iBT: 100', docs: ['UCAS application', 'Personal Statement', 'LORs'], appFee: '£28.50 (UCAS)', tuition: 33456, tuitionLocal: '£27,540', scholarships: 'King\'s International Scholarship (merit-based).', onCampusHousing: 'Guaranteed for first-year students (if conditions met).', offCampusHousing: '£800 - £1,500/month. Very expensive.', livingExpenses: '£1,500 - £2,500/month.', visa: 'Student visa, with Graduate Route visa allowing 2 years of post-study work.', careerProspects: 'Exceptional pathways into finance, law, civil service, and journalism.', employability: 'Top 10 in the UK for graduate employability.', alumni: ['Desmond Tutu', 'Virginia Woolf'], intlStudents: '40%', culture: 'Cosmopolitan, ambitious, and intellectually vibrant, located in central London.', weather: 'Temperate oceanic.', reputation: 'A world-leading university with a prestigious reputation in the humanities and social sciences.', pros: ['World top 40 university', 'Prestigious PPE program in London', 'Excellent career prospects'], cons: ['Extremely high tuition fees', 'Very high cost of living', 'Highly competitive admissions'], reviews: 'Students praise the central London location, diverse student body, and academic excellence.', rating: 9.4 }
+        ];
+
+        let rankingsChart, tuitionChart;
+        let currentFilter = 'All';
+        let chatHistory = [];
+
+        const countryColors = {
+            'France': 'rgba(96, 165, 250, 0.8)', // Blue
+            'Italy': 'rgba(52, 211, 153, 0.8)', // Green
+            'Singapore': 'rgba(255, 99, 132, 0.8)',
+            'Australia': 'rgba(251, 146, 60, 0.8)', // Orange
+            'Netherlands': 'rgba(255, 159, 64, 0.8)',
+            'Finland': 'rgba(75, 192, 192, 0.8)',
+            'Ireland': 'rgba(22, 163, 74, 0.8)',
+            'New Zealand': 'rgba(153, 102, 255, 0.8)',
+            'Switzerland': 'rgba(239, 68, 68, 0.8)', // Red
+            'Belgium': 'rgba(250, 204, 21, 0.8)', // Yellow
+            'Sweden': 'rgba(34, 197, 94, 0.8)', // Green
+            'Denmark': 'rgba(192, 132, 252, 0.8)', // Purple
+            'UK': 'rgba(244, 63, 94, 0.8)' // Rose
+        };
+        
+        const countryDarkColors = {
+            'France': 'rgba(147, 197, 253, 0.9)', // Light Blue
+            'Italy': 'rgba(110, 231, 183, 0.9)', // Light Green
+            'Singapore': 'rgba(255, 129, 152, 0.9)',
+            'Australia': 'rgba(252, 165, 165, 0.9)', // Light Orange
+            'Netherlands': 'rgba(255, 179, 94, 0.9)',
+            'Finland': 'rgba(105, 212, 212, 0.9)',
+            'Ireland': 'rgba(52, 193, 104, 0.9)',
+            'New Zealand': 'rgba(173, 132, 255, 0.9)',
+            'Switzerland': 'rgba(252, 165, 165, 0.9)', // Light Red
+            'Belgium': 'rgba(253, 224, 71, 0.9)', // Light Yellow
+            'Sweden': 'rgba(74, 222, 128, 0.9)', // Light Green
+            'Denmark': 'rgba(209, 178, 255, 0.9)', // Light Purple
+            'UK': 'rgba(251, 113, 133, 0.9)' // Light Rose
+        };
+
+        const countryBorderColors = {
+            'France': 'rgba(96, 165, 250, 1)',
+            'Italy': 'rgba(52, 211, 153, 1)',
+            'Singapore': 'rgba(255, 99, 132, 1)',
+            'Australia': 'rgba(251, 146, 60, 1)',
+            'Netherlands': 'rgba(255, 159, 64, 1)',
+            'Finland': 'rgba(75, 192, 192, 1)',
+            'Ireland': 'rgba(22, 163, 74, 1)',
+            'New Zealand': 'rgba(153, 102, 255, 1)',
+            'Switzerland': 'rgba(239, 68, 68, 1)',
+            'Belgium': 'rgba(250, 204, 21, 1)',
+            'Sweden': 'rgba(34, 197, 94, 1)',
+            'Denmark': 'rgba(192, 132, 252, 1)',
+            'UK': 'rgba(244, 63, 94, 1)'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            setupFilters();
+            renderGrid();
+            setupCharts();
+            setupModal();
+            setupAskAiModal();
+        });
+
+        function setupTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+
+            const applyTheme = (isDark) => {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                }
+                if (rankingsChart) {
+                    updateCharts();
+                }
+            };
+
+            const userPrefersDark = localStorage.getItem('theme') === 'dark' || 
+                                    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
+            
+            applyTheme(userPrefersDark);
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                applyTheme(isDark);
+            });
+        }
+
+        function setupFilters() {
+            const countries = ['All', ...new Set(universityData.map(u => u.country))];
+            const filterContainer = document.getElementById('country-filter-buttons');
+            filterContainer.innerHTML = countries.map(country => `
+                <button class="country-filter-btn px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all duration-300" data-country="${country}">
+                    ${country}
+                </button>
+            `).join('');
+            
+            filterContainer.querySelectorAll('.country-filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    currentFilter = button.dataset.country;
+                    updateActiveButton(button);
+                    renderGrid();
+                    updateCharts();
+                });
+            });
+            updateActiveButton(filterContainer.querySelector('[data-country="All"]'));
+        }
+
+        function updateActiveButton(activeButton) {
+            document.querySelectorAll('.country-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-pink-500', 'text-white', 'border-pink-500', 'shadow-md');
+                btn.classList.add('bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-200', 'border-gray-300', 'dark:border-gray-600', 'hover:bg-pink-100', 'dark:hover:bg-gray-600');
+            });
+            activeButton.classList.remove('bg-white', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-200', 'border-gray-300', 'dark:border-gray-600', 'hover:bg-pink-100', 'dark:hover:bg-gray-600');
+            activeButton.classList.add('bg-pink-500', 'text-white', 'border-pink-500', 'shadow-md');
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('university-grid');
+            let filteredData = currentFilter === 'All' ? universityData : universityData.filter(u => u.country === currentFilter);
+            
+            filteredData.sort((a, b) => a.qsRank - b.qsRank);
+
+            grid.innerHTML = filteredData.map(uni => `
+                <div class="university-card rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col" data-id="${uni.id}">
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider" style="color: ${document.documentElement.classList.contains('dark') ? countryDarkColors[uni.country] : countryColors[uni.country]}">${uni.country}</span>
+                            <div class="flex items-center space-x-1 text-pink-500 dark:text-pink-400">
+                                <span class="font-bold text-sm">${uni.rating}</span>
+                                <span class="text-lg">★</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-text-light-primary dark:text-text-dark-primary mb-1">${uni.name}</h3>
+                        <p class="text-sm text-text-light-secondary dark:text-text-dark-secondary mb-4">${uni.location}</p>
+                    </div>
+                    <div class="px-5 py-4 bg-pink-50 dark:bg-slate-700/50 border-t border-pink-100 dark:border-slate-700 rounded-b-xl">
+                        <div class="flex justify-between items-center text-sm">
+                            <div>
+                                <p class="text-text-light-secondary dark:text-text-dark-secondary">QS Rank</p>
+                                <p class="font-bold text-text-light-primary dark:text-text-dark-primary text-lg">#${uni.qsRank}</p>
+                            </div>
+                            <div>
+                                <p class="text-text-light-secondary dark:text-text-dark-secondary">Tuition/yr (USD)</p>
+                                <p class="font-bold text-text-light-primary dark:text-text-dark-primary text-lg">$${uni.tuition.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.university-card').forEach(card => {
+                card.addEventListener('click', () => showModal(card.dataset.id));
+            });
+        }
+        
+        function getChartTickColor() { return document.documentElement.classList.contains('dark') ? 'rgba(226, 232, 240, 0.8)' : 'rgba(75, 85, 99, 0.8)'; }
+        function getChartGridColor() { return document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'; }
+
+        function updateChartColors() {
+            const tickColor = getChartTickColor();
+            const gridColor = getChartGridColor();
+            const isDark = document.documentElement.classList.contains('dark');
+
+            [rankingsChart, tuitionChart].forEach(chart => {
+                if(chart) {
+                    chart.options.scales.x.ticks.color = tickColor;
+                    chart.options.scales.y.ticks.color = tickColor;
+                    chart.options.scales.x.grid.color = gridColor;
+                    chart.options.scales.y.grid.color = gridColor;
+                    chart.options.plugins.tooltip.backgroundColor = isDark ? '#0d1117' : '#1f2937';
+                    chart.data.datasets[0].backgroundColor = getChartData(chart.canvas.id === 'rankingsChart' ? 'qsRank' : 'tuition').datasets[0].backgroundColor;
+                    chart.update();
+                }
+            });
+        }
+
+        function setupCharts() {
+            const rankingsCtx = document.getElementById('rankingsChart').getContext('2d');
+            rankingsChart = new Chart(rankingsCtx, { type: 'bar', data: getChartData('qsRank', false), options: getChartOptions('QS World Ranking', false) });
+            const tuitionCtx = document.getElementById('tuitionChart').getContext('2d');
+            tuitionChart = new Chart(tuitionCtx, { type: 'bar', data: getChartData('tuition', true), options: getChartOptions('Annual Tuition (USD)', true) });
+        }
+        
+        function updateCharts() {
+            const rankingsData = getChartData('qsRank', false);
+            rankingsChart.data.labels = rankingsData.labels;
+            rankingsChart.data.datasets[0].data = rankingsData.datasets[0].data;
+            rankingsChart.options.scales.y.reverse = true;
+            
+            const tuitionData = getChartData('tuition', true);
+            tuitionChart.data.labels = tuitionData.labels;
+            tuitionChart.data.datasets[0].data = tuitionData.datasets[0].data;
+            tuitionChart.options.scales.y.reverse = false;
+
+            updateChartColors();
+        }
+
+        function getChartData(key, isCurrency) {
+            let filteredData = currentFilter === 'All' ? universityData : universityData.filter(u => u.country === currentFilter);
+            filteredData.sort((a, b) => (key === 'qsRank' ? a[key] - b[key] : b[key] - a[key]));
+            const isDark = document.documentElement.classList.contains('dark');
+
+            return {
+                labels: filteredData.map(u => u.name.length > 20 ? u.name.substring(0, 18) + '...' : u.name),
+                datasets: [{
+                    label: key === 'qsRank' ? 'QS Rank' : 'Tuition (USD)',
+                    data: filteredData.map(u => u[key]),
+                    backgroundColor: filteredData.map(u => isDark ? countryDarkColors[u.country] : countryColors[u.country]),
+                    borderColor: filteredData.map(u => countryBorderColors[u.country]),
+                    borderWidth: 1.5,
+                    borderRadius: 5
+                }]
+            };
+        }
+
+        function getChartOptions(label, isCurrency) {
+            const tickColor = getChartTickColor();
+            const gridColor = getChartGridColor();
+            const isDark = document.documentElement.classList.contains('dark');
+            const options = {
+                maintainAspectRatio: false,
+                responsive: true,
+                indexAxis: isCurrency ? 'y' : 'x',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDark ? '#0d1117' : '#1f2937',
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#e2e8f0',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const uniName = context.chart.data.labels[context.dataIndex];
+                                let value = context.raw;
+                                value = isCurrency ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value) : `#${value}`;
+                                return `${uniName}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: tickColor, font: { weight: '500' }, callback: value => isCurrency ? '$' + (value / 1000) + 'k' : value },
+                        grid: { color: gridColor, drawOnChartArea: !isCurrency }
+                    },
+                    y: {
+                        ticks: { color: tickColor, font: { weight: '500' }, autoSkip: false },
+                        grid: { color: gridColor, drawOnChartArea: isCurrency }
+                    }
+                }
+            };
+            if (!isCurrency) {
+                options.scales.y.reverse = true;
+            }
+            return options;
+        }
+
+        function setupModal() {
+            const modal = document.getElementById('university-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+        }
+        
+        function showModal(uniId) {
+            const uni = universityData.find(u => u.id === uniId);
+            if (!uni) return;
+            document.getElementById('modal-university-name').textContent = uni.name;
+            document.getElementById('modal-university-location').textContent = uni.location;
+            const tabs = [ { name: 'Admissions & Academics', icon: '🎓' }, { name: 'Costs & Housing', icon: '💰' }, { name: 'Career & Culture', icon: '📈' }, { name: 'AI Insights', icon: '✨' }, { name: 'Pros & Cons', icon: '⚖️' } ];
+            const tabsContainer = document.getElementById('modal-tabs');
+            tabsContainer.innerHTML = tabs.map((tab, index) => `<button class="modal-tab-btn whitespace-nowrap py-2 px-3.5 text-xs font-medium text-center rounded-full transition-colors ${index === 0 ? 'tab-active' : 'tab-inactive'}" data-tab="${tab.name}"><span class="hidden md:inline">${tab.icon} </span>${tab.name}</button>`).join('');
+            document.querySelectorAll('.modal-tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.modal-tab-btn').forEach(btn => { btn.classList.remove('tab-active'); btn.classList.add('tab-inactive'); });
+                    button.classList.add('tab-active'); button.classList.remove('tab-inactive');
+                    renderModalContent(uni, button.dataset.tab);
+                });
+            });
+            renderModalContent(uni, tabs[0].name);
+            document.getElementById('university-modal').classList.remove('hidden');
+            document.getElementById('university-modal').classList.add('flex');
+        }
+
+        async function callGemini(prompt) {
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = "AIzaSyC5FxVT6RDRAaYugL14Lct9plrJbgx3oMY"; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+            
+            const result = await response.json();
+
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                const text = result.candidates[0].content.parts[0].text;
+                chatHistory.push({ role: "model", parts: [{ text: text }] });
+                return text;
+            }
+            throw new Error("Unexpected API response structure.");
+        }
+
+        async function generateAiInsights(uni, button) {
+            const contentContainer = document.getElementById('ai-insights-content');
+            const loader = document.getElementById('ai-loader');
+            const askAiContainer = document.getElementById('ask-ai-container');
+
+            button.disabled = true;
+            loader.classList.remove('hidden');
+            contentContainer.innerHTML = '';
+            chatHistory = [];
+
+            const prompt = `You are an expert career counselor for aspiring computer science students. Based on the following university profile, generate a concise, bulleted list of potential career paths and job opportunities that a graduate from this program would be well-suited for. Mention specific roles, potential industries, and highlight any unique advantages this university's location or specializations might offer. University Profile: ${uni.name}, located in ${uni.location}, with a ${uni.degree} degree, specializations in ${uni.specializations.join(', ')}, and notable industry partners like ${uni.partners.join(', ')}. It has a strong reputation in ${uni.reputation}.`;
+
+            try {
+                const text = await callGemini(prompt);
+                const formattedText = text.replace(/\*\*/g, '').replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
+                contentContainer.innerHTML = `<ul class="space-y-2">${formattedText}</ul>`;
+                askAiContainer.classList.remove('hidden');
+            } catch (error) {
+                contentContainer.innerHTML = `<p class="text-red-500">Sorry, something went wrong while generating insights. This may be due to a missing API key. Please try again later.</p>`;
+                button.disabled = false;
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+        
+        async function handleFollowUp(uni) {
+            const questionInput = document.getElementById('follow-up-question');
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            const thinkingIndicator = document.getElementById('thinking-indicator');
+            const insightsContainer = document.getElementById('ai-insights-content');
+            const sendBtn = document.getElementById('send-follow-up');
+            const askAiContainer = document.getElementById('ask-ai-container');
+
+            sendBtn.disabled = true;
+            askAiContainer.classList.add('hidden');
+            thinkingIndicator.classList.remove('hidden');
+            
+            const userQuestionHTML = `<div class="mt-4 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><p class="font-semibold text-text-light-primary dark:text-text-dark-primary">You:</p><p class="text-sm text-text-light-secondary dark:text-text-dark-secondary">${question}</p></div>`;
+            insightsContainer.insertAdjacentHTML('beforeend', userQuestionHTML);
+
+            questionInput.value = '';
+
+            try {
+                const prompt = `Based on the previous conversation about ${uni.name}, answer this follow-up question: "${question}"`;
+                const text = await callGemini(prompt);
+                const formattedText = text.replace(/\*\*/g, '').replace(/\*\s/g, '').split('\n').filter(line => line.trim() !== '').map(line => `<li class="flex items-start py-1"><span class="mr-2 text-blue-500">✔</span><span>${line}</span></li>`).join('');
+                const aiResponseHTML = `<div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><p class="font-semibold text-blue-800 dark:text-blue-300">AI Counselor:</p><ul class="space-y-2">${formattedText}</ul></div>`;
+                insightsContainer.insertAdjacentHTML('beforeend', aiResponseHTML);
+            } catch (error) {
+                const errorHTML = `<div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg"><p class="text-red-500">Sorry, there was an error. Please try again.</p></div>`;
+                insightsContainer.insertAdjacentHTML('beforeend', errorHTML);
+            } finally {
+                sendBtn.disabled = false;
+                thinkingIndicator.classList.add('hidden');
+                askAiContainer.classList.remove('hidden');
+                contentContainer.parentElement.parentElement.scrollTop = contentContainer.parentElement.parentElement.scrollHeight;
+            }
+        }
+
+        function renderModalContent(uni, activeTab) {
+            const contentContainer = document.getElementById('modal-content');
+            let content = '';
+            const detailItem = (label, value, isLink = false) => {
+                if (!value || value.length === 0) return '';
+                const displayValue = isLink ? `<a href="${value}" target="_blank" class="text-blue-500 hover:underline break-all">${value}</a>` : Array.isArray(value) ? value.join(', ') : value;
+                return `<div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4"><dt class="text-sm font-medium text-text-light-secondary dark:text-text-dark-secondary">${label}</dt><dd class="mt-1 text-sm text-text-light-primary dark:text-text-dark-primary sm:mt-0 sm:col-span-2">${displayValue}</dd></div>`;
+            };
+            const prosConsItem = (items, isPro) => {
+                const icon = isPro ? '<span class="text-emerald-500 dark:text-emerald-400 mr-2">✔</span>' : '<span class="text-rose-500 dark:text-rose-400 mr-2">✖</span>';
+                return items.map(item => `<li class="flex items-start py-1">${icon}<span>${item}</span></li>`).join('');
+            };
+            switch (activeTab) {
+                case 'Admissions & Academics': content = `<dl class="divide-y divide-border-light dark:divide-border-dark">${detailItem('Degree Awarded', uni.degree)}${detailItem('Program Duration', uni.duration)}${detailItem('Specializations', uni.specializations)}${detailItem('Program Structure', uni.structure)}${detailItem('Admission Requirements', uni.admissionReq)}${detailItem('Application Deadlines', uni.appDeadlines)}${detailItem('English Proficiency Tests', uni.englishTests)}${detailItem('Required Documents', uni.docs)}${detailItem('Research Opportunities', uni.research)}${detailItem('Internship / Co-op', uni.internships)}${detailItem('Official Program Website', uni.website, true)}</dl>`; break;
+                case 'Costs & Housing': content = `<dl class="divide-y divide-border-light dark:divide-border-dark">${detailItem('Annual Tuition (USD)', `$${uni.tuition.toLocaleString()}`)}${detailItem('Annual Tuition (Local)', uni.tuitionLocal)}${detailItem('Application Fee', uni.appFee)}${detailItem('Scholarships', uni.scholarships)}${detailItem('On-Campus Housing', uni.onCampusHousing)}${detailItem('Off-Campus Housing', uni.offCampusHousing)}${detailItem('Avg. Monthly Living Expenses', uni.livingExpenses)}</dl>`; break;
+                case 'Career & Culture': content = `<dl class="divide-y divide-border-light dark:divide-border-dark">${detailItem('Global Reputation (CS)', uni.reputation)}${detailItem('Employability / Satisfaction', uni.employability)}${detailItem('Career Prospects', uni.careerProspects)}${detailItem('Industry Partners', uni.partners)}${detailItem('Notable Alumni', uni.alumni)}${detailItem('Post-Study Work Visa', uni.visa)}${detailItem('Campus Culture', uni.culture)}${detailItem('International Student %', uni.intlStudents)}${detailItem('City Climate', uni.weather)}</dl>`; break;
+                case 'AI Insights':
+                    content = `
+                        <div class="text-center">
+                            <button id="generate-ai-btn" class="ai-button text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                ✨ Generate Career Insights
+                            </button>
+                            <div id="ai-loader" class="loader mx-auto my-4 hidden"></div>
+                            <div id="ai-insights-content" class="mt-4 text-left text-text-light-primary dark:text-text-dark-primary"></div>
+                            <div id="ask-ai-container" class="mt-6 text-left hidden">
+                                <button id="ask-ai-btn" class="w-full text-left font-semibold text-gray-700 dark:text-gray-200 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Ask a follow-up question...</button>
+                                <div id="follow-up-form" class="hidden mt-4">
+                                    <textarea id="follow-up-question" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="e.g., What are the top 3 research labs for AI at this university?"></textarea>
+                                    <button id="send-follow-up" class="mt-2 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Send</button>
+                                </div>
+                            </div>
+                            <div id="thinking-indicator" class="hidden mt-4 flex items-center justify-center space-x-2">
+                                <span class="text-gray-500 dark:text-gray-400">Thinking</span>
+                                <div class="typing-indicator"><span></span><span></span><span></span></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'Pros & Cons': content = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="text-text-light-primary dark:text-text-dark-primary"><h4 class="text-lg font-semibold text-emerald-700 dark:text-emerald-400 mb-2">Pros</h4><ul class="text-sm space-y-1">${prosConsItem(uni.pros, true)}</ul></div><div class="text-text-light-primary dark:text-text-dark-primary"><h4 class="text-lg font-semibold text-rose-700 dark:text-rose-400 mb-2">Cons</h4><ul class="text-sm space-y-1">${prosConsItem(uni.cons, false)}</ul></div></div><div class="mt-6 text-text-light-primary dark:text-text-dark-primary"><h4 class="text-lg font-semibold mb-2">Student Reviews Summary</h4><p class="text-sm bg-gray-100 dark:bg-gray-700/50 p-4 rounded-lg italic">"${uni.reviews}"</p></div>`; break;
+            }
+            contentContainer.innerHTML = content;
+
+            if (activeTab === 'AI Insights') {
+                const generateBtn = document.getElementById('generate-ai-btn');
+                const askAiBtn = document.getElementById('ask-ai-btn');
+                const followUpForm = document.getElementById('follow-up-form');
+                const sendFollowUpBtn = document.getElementById('send-follow-up');
+
+                generateBtn.addEventListener('click', () => generateAiInsights(uni, generateBtn));
+                askAiBtn.addEventListener('click', () => followUpForm.classList.toggle('hidden'));
+                sendFollowUpBtn.addEventListener('click', () => handleFollowUp(uni));
+            }
+        }
+    </script>
+</body>
+</html>
