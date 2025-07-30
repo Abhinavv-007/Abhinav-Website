@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindMate - Your AI Journal</title>
+
+    <!-- 1. Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to use the 'class' strategy for dark mode
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+
+    <!-- 2. React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- 3. Babel to compile JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom animations */
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out forwards;
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.4s ease-out forwards;
+        }
+        /* Basic font styling */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+    </style>
+</head>
+<body class="bg-gradient-to-br from-rose-50 via-purple-50 to-blue-50 dark:from-slate-900 dark:to-gray-900 transition-colors duration-500">
+    
+    <!-- This is where our React app will be rendered -->
+    <div id="root"></div>
+
+    <!-- 4. Our React Application Code -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Helper Functions & Constants ---
+        
+        const API_KEY = "AIzaSyAtHZCIVVnrbRI056Pw1xpdQ8taMNzYZhQ";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+
+        const MOODS = [
+            { emoji: '😊', label: 'Happy' },
+            { emoji: '🙂', label: 'Okay' },
+            { emoji: '😐', label: 'Neutral' },
+            { emoji: '😕', label: 'Confused' },
+            { emoji: '😔', label: 'Sad' },
+            { emoji: '😠', label: 'Angry' },
+        ];
+
+        // --- Components ---
+
+        const Header = ({ theme, setTheme }) => {
+            const toggleTheme = () => {
+                const newTheme = theme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+            };
+
+            useEffect(() => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.setItem('theme', theme);
+            }, [theme]);
+
+            return (
+                <header className="p-4 flex justify-between items-center sticky top-0 z-20 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm">
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+                        Mind<span className="text-teal-500">Mate</span>
+                    </h1>
+                    <button onClick={toggleTheme} className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                        {theme === 'light' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        )}
+                    </button>
+                </header>
+            );
+        };
+
+        const LandingPage = ({ onStart }) => (
+            <div className="flex flex-col items-center justify-center text-center p-8 h-full animate-fade-in">
+                <h2 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-4">Your Safe Space to Reflect.</h2>
+                <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mb-8">MindMate is your private AI companion for journaling. Understand your feelings, discover patterns, and find moments of calm.</p>
+                <button
+                    onClick={onStart}
+                    className="bg-teal-500 text-white font-bold py-3 px-8 rounded-full hover:bg-teal-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-teal-500/30"
+                >
+                    Start Journaling
+                </button>
+            </div>
+        );
+
+        const BreathingBox = () => {
+            const [text, setText] = useState('Breathe In...');
+            useEffect(() => {
+                const breathCycle = () => {
+                    setText('Breathe In...');
+                    setTimeout(() => setText('Hold...'), 4000);
+                    setTimeout(() => setText('Breathe Out...'), 8000);
+                    setTimeout(() => setText('Hold...'), 12000);
+                };
+                breathCycle();
+                const interval = setInterval(breathCycle, 16000);
+                return () => clearInterval(interval);
+            }, []);
+
+            return (
+                <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md shadow-md flex flex-col items-center justify-center text-center">
+                    <div className="relative w-24 h-24 flex items-center justify-center">
+                        <div className="absolute w-full h-full bg-teal-200 dark:bg-teal-700 rounded-full animate-pulse" style={{ animationDuration: '8s' }}></div>
+                        <p className="relative text-slate-700 dark:text-slate-200 font-medium">{text}</p>
+                    </div>
+                    <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">A moment of calm.</p>
+                </div>
+            );
+        };
+
+        const JournalEntry = ({ entry }) => {
+            const { type, text, mood, aiResponse, timestamp } = entry;
+            const date = new Date(timestamp).toLocaleString();
+
+            if (type === 'user') {
+                return (
+                    <div className="flex justify-end mb-4 animate-fade-in-up">
+                        <div className="mr-2 py-3 px-4 bg-teal-500 text-white rounded-2xl rounded-br-none max-w-lg">
+                            <p className="font-bold mb-1">You said: {mood?.emoji}</p>
+                            <p>{text}</p>
+                            <p className="text-xs text-teal-100 mt-2 text-right">{date}</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex justify-start mb-4 animate-fade-in-up">
+                    <div className="ml-2 py-3 px-4 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl rounded-bl-none max-w-lg">
+                        <p className="font-bold text-teal-600 dark:text-teal-400 mb-2">MindMate says:</p>
+                        <p className="mb-2">{aiResponse.empatheticResponse}</p>
+                        <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800/50">
+                            <p className="font-semibold text-sm">Suggested Action:</p>
+                            <p className="text-sm">{aiResponse.suggestion}</p>
+                        </div>
+                         <p className="text-xs text-slate-400 mt-2 text-right">{date}</p>
+                    </div>
+                </div>
+            );
+        };
+
+        const JournalPage = ({ entries, setEntries }) => {
+            const [input, setInput] = useState('');
+            const [selectedMood, setSelectedMood] = useState(null);
+            const [isLoading, setIsLoading] = useState(false);
+            const [mentalHealthScore, setMentalHealthScore] = useState(null);
+            const chatEndRef = useRef(null);
+
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [entries]);
+            
+            useEffect(() => {
+                const lastUserEntry = [...entries].reverse().find(e => e.type === 'user');
+                if (lastUserEntry && lastUserEntry.aiResponse) {
+                    setMentalHealthScore(lastUserEntry.aiResponse.mentalHealthScore);
+                }
+            }, [entries]);
+
+            const handleJournalSubmit = async (e) => {
+                e.preventDefault();
+                if (!input.trim() || !selectedMood) {
+                    alert("Please write something and select a mood.");
+                    return;
+                }
+                setIsLoading(true);
+
+                const userEntry = {
+                    type: 'user',
+                    text: input,
+                    mood: selectedMood,
+                    timestamp: new Date().toISOString(),
+                };
+
+                const prompt = `Analyze the following journal entry and the user's selected mood.
+                User's mood: ${selectedMood.emoji} (${selectedMood.label})
+                Journal entry: "${input}"
+
+                Based on this, provide a JSON object with the following structure:
+                {
+                  "empatheticResponse": "A short, kind, and understanding response to the user's feelings. Address them directly.",
+                  "mentalHealthScore": A number between 1 and 100 representing their current mental state based on the entry (1=very low, 100=very positive).
+                  "suggestion": "A single, simple, actionable self-care suggestion. For example: 'Try some deep breathing for 5 minutes' or 'Consider writing down three things you're grateful for'."
+                }
+                Do not include any other text or markdown formatting. Just the JSON object.`;
+
+                try {
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    };
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
+
+                    const aiEntry = {
+                        type: 'ai',
+                        aiResponse: aiResponse,
+                        timestamp: new Date().toISOString(),
+                    };
+                    
+                    setEntries(prev => [...prev, { ...userEntry, aiResponse }, aiEntry]);
+
+                } catch (error) {
+                    console.error("Error with Gemini API:", error);
+                    alert("Sorry, something went wrong. Could not get a response from the AI.");
+                } finally {
+                    setInput('');
+                    setSelectedMood(null);
+                    setIsLoading(false);
+                }
+            };
+            
+            const exportJournal = () => {
+                let markdownContent = "# MindMate Journal\n\n";
+                entries.forEach(entry => {
+                    if (entry.type === 'user') {
+                        markdownContent += `## Entry: ${new Date(entry.timestamp).toLocaleString()}\n`;
+                        markdownContent += `**Mood:** ${entry.mood.emoji} ${entry.mood.label}\n\n`;
+                        markdownContent += `${entry.text}\n\n`;
+                        markdownContent += `**MindMate's Suggestion:** ${entry.aiResponse.suggestion}\n\n`;
+                        markdownContent += `**Mental Health Score:** ${entry.aiResponse.mentalHealthScore}/100\n\n`;
+                        markdownContent += "---\n\n";
+                    }
+                });
+
+                const blob = new Blob([markdownContent], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'MindMate_Journal.md';
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            return (
+                <div className="p-4 md:p-6 flex flex-col md:flex-row gap-6 h-[calc(100vh-68px)]">
+                    <div className="md:w-1/3 lg:w-1/4 space-y-6 animate-fade-in">
+                        <BreathingBox />
+                        {mentalHealthScore !== null && (
+                            <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md shadow-md text-center">
+                                <h3 className="font-bold text-slate-700 dark:text-slate-200">Your Last Score</h3>
+                                <p className="text-4xl font-bold text-teal-500 my-2">{mentalHealthScore}<span className="text-lg text-slate-400">/100</span></p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">This is a private score based on your last entry to help you track your journey.</p>
+                            </div>
+                        )}
+                        <button onClick={exportJournal} className="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-4 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+                            Export Journal (.md)
+                        </button>
+                    </div>
+                    <div className="md:w-2/3 lg:w-3/4 flex flex-col bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{animationDelay: '200ms'}}>
+                        <div className="flex-grow p-6 overflow-y-auto">
+                            {entries.length === 0 && <p className="text-center text-slate-500">Your journal is empty. Write your first entry below.</p>}
+                            {entries.map((entry, index) => <JournalEntry key={index} entry={entry} />)}
+                            {isLoading && <p className="text-center text-slate-500">MindMate is thinking...</p>}
+                            <div ref={chatEndRef}></div>
+                        </div>
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+                            <form onSubmit={handleJournalSubmit}>
+                                <div className="mb-2">
+                                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">1. How are you feeling?</p>
+                                    <div className="flex justify-around bg-slate-100 dark:bg-slate-900/50 p-2 rounded-lg">
+                                        {MOODS.map(mood => (
+                                            <button
+                                                key={mood.label}
+                                                type="button"
+                                                onClick={() => setSelectedMood(mood)}
+                                                className={`p-2 text-3xl rounded-lg transition-transform duration-200 ${selectedMood?.label === mood.label ? 'bg-teal-200 dark:bg-teal-700 scale-110' : 'hover:scale-110'}`}
+                                            >
+                                                {mood.emoji}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <textarea
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder="What's on your mind?"
+                                        className="w-full p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-slate-800 dark:text-white"
+                                        rows="2"
+                                    />
+                                    <button type="submit" disabled={isLoading} className="bg-teal-500 text-white p-3 rounded-lg hover:bg-teal-600 disabled:bg-slate-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Main App Component ---
+        const App = () => {
+            const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+            const [view, setView] = useState('landing'); // 'landing' or 'journal'
+            const [entries, setEntries] = useState(() => {
+                const savedEntries = localStorage.getItem('mindmate_entries');
+                return savedEntries ? JSON.parse(savedEntries) : [];
+            });
+
+            useEffect(() => {
+                localStorage.setItem('mindmate_entries', JSON.stringify(entries));
+            }, [entries]);
+
+            return (
+                <div className={`min-h-screen flex flex-col font-sans`}>
+                    <Header theme={theme} setTheme={setTheme} />
+                    <main className="flex-grow">
+                        {view === 'landing' && <LandingPage onStart={() => setView('journal')} />}
+                        {view === 'journal' && <JournalPage entries={entries} setEntries={setEntries} />}
+                    </main>
+                </div>
+            );
+        }
+
+        // 5. Render the App to the 'root' div
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
