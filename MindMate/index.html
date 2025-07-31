@@ -59,12 +59,22 @@
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
 
         const MOODS = [
-            { emoji: '😊', label: 'Happy' },
-            { emoji: '🙂', label: 'Okay' },
-            { emoji: '😐', label: 'Neutral' },
-            { emoji: '😕', label: 'Confused' },
-            { emoji: '😔', label: 'Sad' },
-            { emoji: '😠', label: 'Angry' },
+            { emoji: '😊', label: 'Happy', color: 'bg-green-400' },
+            { emoji: '🙂', label: 'Okay', color: 'bg-yellow-400' },
+            { emoji: '😐', label: 'Neutral', color: 'bg-gray-400' },
+            { emoji: '😕', label: 'Confused', color: 'bg-purple-400' },
+            { emoji: '😔', label: 'Sad', color: 'bg-blue-400' },
+            { emoji: '😠', label: 'Angry', color: 'bg-red-400' },
+        ];
+        
+        const AFFIRMATIONS = [
+            "I am capable of handling whatever comes my way.",
+            "I choose to be happy and to love myself today.",
+            "My feelings are valid, and I allow myself to feel them.",
+            "I am resilient and can overcome challenges.",
+            "I am worthy of peace and inner calm.",
+            "I release what I cannot change and do my best with what I can.",
+            "Every day is a new opportunity for growth."
         ];
 
         // --- Components ---
@@ -99,9 +109,15 @@
                 </header>
             );
         };
+        
+        const Footer = () => (
+            <footer className="text-center p-6 mt-auto text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800">
+                <p>Crafted with ❤️ by <a href="https://www.linkedin.com/in/abhinavv007/" target="_blank" rel="noopener noreferrer" className="font-bold text-teal-500 hover:underline">Abhinav</a></p>
+            </footer>
+        );
 
         const LandingPage = ({ onStart }) => (
-            <div className="flex flex-col items-center justify-center text-center p-8 h-full animate-fade-in">
+            <div className="flex flex-col items-center justify-center text-center p-8 flex-grow animate-fade-in">
                 <h2 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-4">Your Safe Space to Reflect.</h2>
                 <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mb-8">MindMate is your private AI companion for journaling. Understand your feelings, discover patterns, and find moments of calm.</p>
                 <button
@@ -110,6 +126,7 @@
                 >
                     Start Journaling
                 </button>
+                <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">🔒 Your data is saved locally on your device. It's 100% private.</p>
             </div>
         );
 
@@ -137,6 +154,53 @@
                 </div>
             );
         };
+        
+        const AffirmationCard = () => {
+            const [affirmation, setAffirmation] = useState('');
+            useEffect(() => {
+                setAffirmation(AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)]);
+            }, []);
+            
+            return (
+                <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md shadow-md text-center">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-2">✨ Daily Affirmation</h3>
+                    <p className="text-slate-600 dark:text-slate-300 italic">"{affirmation}"</p>
+                </div>
+            );
+        };
+        
+        const MoodHistory = ({ entries }) => {
+            const moodCounts = entries.reduce((acc, entry) => {
+                if (entry.type === 'user') {
+                    acc[entry.mood.label] = (acc[entry.mood.label] || 0) + 1;
+                }
+                return acc;
+            }, {});
+            
+            const totalEntries = Object.values(moodCounts).reduce((sum, count) => sum + count, 0);
+            if (totalEntries === 0) return null;
+
+            return (
+                <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md shadow-md">
+                    <h3 className="font-bold text-slate-700 dark:text-slate-200 mb-3 text-center">Your Mood History</h3>
+                    <div className="space-y-2">
+                        {MOODS.map(mood => {
+                            const count = moodCounts[mood.label] || 0;
+                            const percentage = totalEntries > 0 ? (count / totalEntries) * 100 : 0;
+                            return (
+                                <div key={mood.label} className="flex items-center gap-2 text-sm">
+                                    <span className="w-6">{mood.emoji}</span>
+                                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
+                                        <div className={`${mood.color} h-4 rounded-full`} style={{ width: `${percentage}%` }}></div>
+                                    </div>
+                                    <span className="w-8 text-right font-medium text-slate-600 dark:text-slate-300">{count}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
 
         const JournalEntry = ({ entry }) => {
             const { type, text, mood, aiResponse, timestamp } = entry;
@@ -153,16 +217,30 @@
                     </div>
                 );
             }
+            
+            if (type === 'dream') {
+                return (
+                    <div className="flex justify-end mb-4 animate-fade-in-up">
+                        <div className="mr-2 py-3 px-4 bg-purple-500 text-white rounded-2xl rounded-br-none max-w-lg">
+                            <p className="font-bold mb-1">You shared a dream:</p>
+                            <p className="italic">"{text}"</p>
+                            <p className="text-xs text-purple-100 mt-2 text-right">{date}</p>
+                        </div>
+                    </div>
+                );
+            }
 
             return (
                 <div className="flex justify-start mb-4 animate-fade-in-up">
                     <div className="ml-2 py-3 px-4 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl rounded-bl-none max-w-lg">
                         <p className="font-bold text-teal-600 dark:text-teal-400 mb-2">MindMate says:</p>
                         <p className="mb-2">{aiResponse.empatheticResponse}</p>
-                        <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800/50">
-                            <p className="font-semibold text-sm">Suggested Action:</p>
-                            <p className="text-sm">{aiResponse.suggestion}</p>
-                        </div>
+                        {aiResponse.suggestion && (
+                            <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800/50">
+                                <p className="font-semibold text-sm">Suggested Action:</p>
+                                <p className="text-sm">{aiResponse.suggestion}</p>
+                            </div>
+                        )}
                          <p className="text-xs text-slate-400 mt-2 text-right">{date}</p>
                     </div>
                 </div>
@@ -174,6 +252,7 @@
             const [selectedMood, setSelectedMood] = useState(null);
             const [isLoading, setIsLoading] = useState(false);
             const [mentalHealthScore, setMentalHealthScore] = useState(null);
+            const [journalMode, setJournalMode] = useState('mood'); // 'mood' or 'dream'
             const chatEndRef = useRef(null);
 
             useEffect(() => {
@@ -189,30 +268,25 @@
 
             const handleJournalSubmit = async (e) => {
                 e.preventDefault();
-                if (!input.trim() || !selectedMood) {
+                if (!input.trim() || (journalMode === 'mood' && !selectedMood)) {
                     alert("Please write something and select a mood.");
                     return;
                 }
                 setIsLoading(true);
 
+                if (journalMode === 'dream') {
+                    handleDreamInterpretation();
+                    return;
+                }
+
                 const userEntry = {
-                    type: 'user',
-                    text: input,
-                    mood: selectedMood,
-                    timestamp: new Date().toISOString(),
+                    type: 'user', text: input, mood: selectedMood, timestamp: new Date().toISOString(),
                 };
 
                 const prompt = `Analyze the following journal entry and the user's selected mood.
                 User's mood: ${selectedMood.emoji} (${selectedMood.label})
                 Journal entry: "${input}"
-
-                Based on this, provide a JSON object with the following structure:
-                {
-                  "empatheticResponse": "A short, kind, and understanding response to the user's feelings. Address them directly.",
-                  "mentalHealthScore": A number between 1 and 100 representing their current mental state based on the entry (1=very low, 100=very positive).
-                  "suggestion": "A single, simple, actionable self-care suggestion. For example: 'Try some deep breathing for 5 minutes' or 'Consider writing down three things you're grateful for'."
-                }
-                Do not include any other text or markdown formatting. Just the JSON object.`;
+                Provide a JSON object with: "empatheticResponse", "mentalHealthScore" (1-100), and a "suggestion".`;
 
                 try {
                     const payload = {
@@ -220,28 +294,37 @@
                         generationConfig: { responseMimeType: "application/json" }
                     };
                     const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                     });
                     const result = await response.json();
                     const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
-
-                    const aiEntry = {
-                        type: 'ai',
-                        aiResponse: aiResponse,
-                        timestamp: new Date().toISOString(),
-                    };
-                    
+                    const aiEntry = { type: 'ai', aiResponse, timestamp: new Date().toISOString() };
                     setEntries(prev => [...prev, { ...userEntry, aiResponse }, aiEntry]);
-
                 } catch (error) {
                     console.error("Error with Gemini API:", error);
-                    alert("Sorry, something went wrong. Could not get a response from the AI.");
+                    alert("Sorry, something went wrong.");
                 } finally {
-                    setInput('');
-                    setSelectedMood(null);
-                    setIsLoading(false);
+                    setInput(''); setSelectedMood(null); setIsLoading(false);
+                }
+            };
+            
+            const handleDreamInterpretation = async () => {
+                const dreamEntry = { type: 'dream', text: input, timestamp: new Date().toISOString() };
+                const prompt = `A user shared a dream. Provide a short, gentle, and symbolic interpretation. Avoid making definitive claims. Frame it as exploring possibilities. Dream: "${input}"
+                Provide a JSON object with only "empatheticResponse".`;
+                
+                try {
+                    const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+                    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const result = await response.json();
+                    const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
+                    const aiEntry = { type: 'ai', aiResponse, timestamp: new Date().toISOString() };
+                    setEntries(prev => [...prev, dreamEntry, aiEntry]);
+                } catch (error) {
+                    console.error("Dream interpretation error:", error);
+                    alert("Sorry, could not interpret the dream.");
+                } finally {
+                    setInput(''); setIsLoading(false);
                 }
             };
             
@@ -249,40 +332,37 @@
                 let markdownContent = "# MindMate Journal\n\n";
                 entries.forEach(entry => {
                     if (entry.type === 'user') {
-                        markdownContent += `## Entry: ${new Date(entry.timestamp).toLocaleString()}\n`;
-                        markdownContent += `**Mood:** ${entry.mood.emoji} ${entry.mood.label}\n\n`;
-                        markdownContent += `${entry.text}\n\n`;
-                        markdownContent += `**MindMate's Suggestion:** ${entry.aiResponse.suggestion}\n\n`;
-                        markdownContent += `**Mental Health Score:** ${entry.aiResponse.mentalHealthScore}/100\n\n`;
-                        markdownContent += "---\n\n";
+                        markdownContent += `## Entry: ${new Date(entry.timestamp).toLocaleString()}\n**Mood:** ${entry.mood.emoji} ${entry.mood.label}\n\n${entry.text}\n\n**MindMate's Suggestion:** ${entry.aiResponse.suggestion}\n**Mental Health Score:** ${entry.aiResponse.mentalHealthScore}/100\n\n---\n\n`;
+                    } else if (entry.type === 'dream') {
+                        markdownContent += `## Dream: ${new Date(entry.timestamp).toLocaleString()}\n\n*${entry.text}*\n\n---\n\n`;
                     }
                 });
 
                 const blob = new Blob([markdownContent], { type: 'text/markdown' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = 'MindMate_Journal.md';
-                a.click();
+                a.href = url; a.download = 'MindMate_Journal.md'; a.click();
                 URL.revokeObjectURL(url);
             };
 
             return (
-                <div className="p-4 md:p-6 flex flex-col md:flex-row gap-6 h-[calc(100vh-68px)]">
-                    <div className="md:w-1/3 lg:w-1/4 space-y-6 animate-fade-in">
+                <div className="p-4 md:p-6 flex flex-col md:flex-row gap-6 flex-grow">
+                    <div className="md:w-2/5 lg:w-1/3 space-y-6 animate-fade-in">
                         <BreathingBox />
+                        <AffirmationCard />
                         {mentalHealthScore !== null && (
                             <div className="p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md shadow-md text-center">
                                 <h3 className="font-bold text-slate-700 dark:text-slate-200">Your Last Score</h3>
                                 <p className="text-4xl font-bold text-teal-500 my-2">{mentalHealthScore}<span className="text-lg text-slate-400">/100</span></p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">This is a private score based on your last entry to help you track your journey.</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">A private score based on your last entry.</p>
                             </div>
                         )}
+                        <MoodHistory entries={entries} />
                         <button onClick={exportJournal} className="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-3 px-4 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
                             Export Journal (.md)
                         </button>
                     </div>
-                    <div className="md:w-2/3 lg:w-3/4 flex flex-col bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{animationDelay: '200ms'}}>
+                    <div className="md:w-3/5 lg:w-2/3 flex flex-col bg-white/50 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{animationDelay: '200ms'}}>
                         <div className="flex-grow p-6 overflow-y-auto">
                             {entries.length === 0 && <p className="text-center text-slate-500">Your journal is empty. Write your first entry below.</p>}
                             {entries.map((entry, index) => <JournalEntry key={index} entry={entry} />)}
@@ -290,30 +370,25 @@
                             <div ref={chatEndRef}></div>
                         </div>
                         <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+                            <div className="flex gap-2 mb-2">
+                                <button onClick={() => setJournalMode('mood')} className={`w-full text-sm font-semibold p-2 rounded-lg transition-colors ${journalMode === 'mood' ? 'bg-teal-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'}`}>📝 Mood Journal</button>
+                                <button onClick={() => setJournalMode('dream')} className={`w-full text-sm font-semibold p-2 rounded-lg transition-colors ${journalMode === 'dream' ? 'bg-purple-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'}`}>🌙 Interpret a Dream</button>
+                            </div>
                             <form onSubmit={handleJournalSubmit}>
-                                <div className="mb-2">
-                                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">1. How are you feeling?</p>
-                                    <div className="flex justify-around bg-slate-100 dark:bg-slate-900/50 p-2 rounded-lg">
-                                        {MOODS.map(mood => (
-                                            <button
-                                                key={mood.label}
-                                                type="button"
-                                                onClick={() => setSelectedMood(mood)}
-                                                className={`p-2 text-3xl rounded-lg transition-transform duration-200 ${selectedMood?.label === mood.label ? 'bg-teal-200 dark:bg-teal-700 scale-110' : 'hover:scale-110'}`}
-                                            >
-                                                {mood.emoji}
-                                            </button>
-                                        ))}
+                                {journalMode === 'mood' && (
+                                    <div className="mb-2">
+                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">How are you feeling?</p>
+                                        <div className="flex justify-around bg-slate-100 dark:bg-slate-900/50 p-2 rounded-lg">
+                                            {MOODS.map(mood => (
+                                                <button key={mood.label} type="button" onClick={() => setSelectedMood(mood)} className={`p-2 text-3xl rounded-lg transition-transform duration-200 ${selectedMood?.label === mood.label ? 'bg-teal-200 dark:bg-teal-700 scale-110' : 'hover:scale-110'}`}>
+                                                    {mood.emoji}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                                 <div className="flex items-center space-x-2">
-                                    <textarea
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
-                                        placeholder="What's on your mind?"
-                                        className="w-full p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-slate-800 dark:text-white"
-                                        rows="2"
-                                    />
+                                    <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={journalMode === 'mood' ? "What's on your mind?" : "Describe your dream..."} className="w-full p-3 bg-slate-100 dark:bg-slate-900/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-slate-800 dark:text-white dark:placeholder-slate-400" rows="2" />
                                     <button type="submit" disabled={isLoading} className="bg-teal-500 text-white p-3 rounded-lg hover:bg-teal-600 disabled:bg-slate-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                     </button>
@@ -341,10 +416,11 @@
             return (
                 <div className={`min-h-screen flex flex-col font-sans`}>
                     <Header theme={theme} setTheme={setTheme} />
-                    <main className="flex-grow">
+                    <main className="flex-grow flex flex-col">
                         {view === 'landing' && <LandingPage onStart={() => setView('journal')} />}
                         {view === 'journal' && <JournalPage entries={entries} setEntries={setEntries} />}
                     </main>
+                    <Footer />
                 </div>
             );
         }
