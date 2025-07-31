@@ -74,7 +74,9 @@
                 { title: '⚖️ Legal Rights', prompt: 'What are the basic legal rights of a tenant farmer in India?' },
                 { title: '💼 Job Opportunities', prompt: 'What are some government job schemes for people in rural areas?' },
                 { title: '🌦️ Weather Advisory', prompt: `Based on the current date and the location of Bhagalpur, Bihar, India, provide a 3-day weather forecast and a relevant crop advisory for local farmers.`},
-                { title: '🐛 Pest & Disease Help', prompt: 'My tomato plants have yellow leaves with small brown spots. What could be the issue and how can I treat it? Please advise consulting an expert before use.' }
+                { title: '🐛 Pest & Disease Help', prompt: 'My tomato plants have yellow leaves with small brown spots. What could be the issue and how can I treat it? Please advise consulting an expert before use.' },
+                { title: '📄 Document Guide', prompt: 'How do I apply for a Kisan Credit Card? Please list the steps and required documents.' },
+                { title: '🌱 Fertilizer Calculator', prompt: 'I have a 1-acre paddy field. How much Urea and DAP fertilizer should I use? Provide an estimate and advise consulting a local expert.' }
             ],
             'hi-IN': [
                 { title: '🏦 सरकारी योजनाएं', prompt: 'किसानों के लिए लोकप्रिय सरकारी योजनाओं के बारे में बताएं।'},
@@ -82,7 +84,9 @@
                 { title: '⚖️ कानूनी अधिकार', prompt: 'भारत में एक काश्तकार किसान के बुनियादी कानूनी अधिकार क्या हैं?'},
                 { title: '💼 रोजगार के अवसर', prompt: 'ग्रामीण क्षेत्रों में लोगों के लिए कुछ सरकारी रोजगार योजनाएं क्या हैं?'},
                 { title: '🌦️ मौसम सलाह', prompt: `वर्तमान तिथि और भागलपुर, बिहार, भारत के स्थान के आधार पर, स्थानीय किसानों के लिए 3-दिवसीय मौसम पूर्वानुमान और एक प्रासंगिक फसल सलाह प्रदान करें।`},
-                { title: '🐛 कीट एवं रोग सहायता', prompt: 'मेरे टमाटर के पौधों में पीली पत्तियां और छोटे भूरे धब्बे हैं। क्या समस्या हो सकती है और मैं इसका इलाज कैसे कर सकता हूं? कृपया उपयोग से पहले विशेषज्ञ से सलाह लेने की सलाह दें।' }
+                { title: '🐛 कीट एवं रोग सहायता', prompt: 'मेरे टमाटर के पौधों में पीली पत्तियां और छोटे भूरे धब्बे हैं। क्या समस्या हो सकती है और मैं इसका इलाज कैसे कर सकता हूं? कृपया उपयोग से पहले विशेषज्ञ से सलाह लेने की सलाह दें।' },
+                { title: '📄 दस्तावेज़ सहायता', prompt: 'किसान क्रेडिट कार्ड के लिए आवेदन कैसे करें? कृपया चरण और आवश्यक दस्तावेज बताएं।' },
+                { title: '🌱 उर्वरक कैलकुलेटर', prompt: 'मेरे पास 1 एकड़ धान का खेत है। मुझे कितना यूरिया और डीएपी उर्वरक का उपयोग करना चाहिए? एक अनुमान प्रदान करें और स्थानीय विशेषज्ञ से परामर्श करने की सलाह दें।' }
             ],
         };
 
@@ -130,6 +134,12 @@
             </header>
           );
         };
+        
+        const Footer = () => (
+            <footer className="text-center p-6 mt-auto text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800">
+                <p>Built by <a href="https://www.linkedin.com/in/abhinavv007/" target="_blank" rel="noopener noreferrer" className="font-bold text-green-500 hover:underline">Abhinav</a></p>
+            </footer>
+        );
 
         const CategoryCard = ({ title, onClick, delay }) => {
             const emoji = title.split(' ')[0];
@@ -155,7 +165,7 @@
                         <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white animate-fade-in opacity-0" style={{ animationDelay: '100ms' }}>Welcome to GramGPT!</h2>
                         <p className="text-gray-600 dark:text-gray-300 mt-3 max-w-2xl mx-auto animate-fade-in opacity-0" style={{ animationDelay: '200ms' }}>Your friendly AI assistant for rural India. Get instant, reliable information in your own language. Select a category to begin.</p>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                         {currentCategories.map((cat, index) => (
                             <CategoryCard key={cat.title} title={cat.title} onClick={() => onCategorySelect(cat.prompt)} delay={300 + index * 100} />
                         ))}
@@ -462,9 +472,9 @@
             const systemPrompt = `You are "GramGPT", an expert AI assistant for rural India. Your primary goal is to provide clear, concise, and actionable information.
             The user is communicating in ${selectedLanguageName}.
             You MUST respond fluently and accurately in ${selectedLanguageName}.
-            Your knowledge base includes: Indian government schemes, modern agricultural practices, legal rights, job opportunities, and **common pest/disease diagnosis for crops**.
+            Your knowledge base includes: Indian government schemes, modern agricultural practices, legal rights, job opportunities, **common pest/disease diagnosis for crops**, **step-by-step guides for applying for government documents**, and **fertilizer calculation estimates based on crop and area**.
             Keep your answers simple, easy to understand for a non-technical audience, and use bullet points or numbered lists for clarity where possible. Use markdown for formatting, for example **bold** for important terms.
-            When providing pest/disease advice, **always include a disclaimer** to consult local authorities or experts for confirmation.
+            When providing pest/disease advice or fertilizer calculations, **always include a disclaimer** to consult local authorities or experts for confirmation.
             If you don't know an answer, say so honestly in ${selectedLanguageName} and suggest where they might find the information.
             Do not mention that you are a language model. Just be the helpful assistant, GramGPT.`;
 
@@ -528,7 +538,7 @@
                   setLanguage={setLanguage}
                   onHomeClick={handleGoHome}
                 />
-                <main className="flex-grow container mx-auto max-w-5xl w-full flex flex-col">
+                <main className="flex-grow container mx-auto max-w-7xl w-full flex flex-col">
                   {view === 'home' && <HomePage onCategorySelect={handleCategorySelect} language={language} />}
                   {view === 'chat' && (
                       <ChatWindow 
@@ -545,6 +555,7 @@
                       />
                   )}
                 </main>
+                <Footer />
             </div>
           );
         }
