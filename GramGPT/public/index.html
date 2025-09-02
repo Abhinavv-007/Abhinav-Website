@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GramGPT</title>
 
-    <!-- 1. Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Configure Tailwind to use the 'class' strategy for dark mode
@@ -14,11 +13,9 @@
         }
     </script>
 
-    <!-- 2. React Libraries -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    <!-- 3. Babel to compile JSX in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -46,10 +43,8 @@
 </head>
 <body class="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:to-gray-900 transition-colors duration-500">
     
-    <!-- This is where our React app will be rendered -->
     <div id="root"></div>
 
-    <!-- 4. Our React Application Code -->
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
@@ -63,72 +58,73 @@
           'gu-IN': 'ગુજરાતી (Gujarati)',
         };
 
+        // --- FIX 1: ADDED THE "prompt" PROPERTY BACK TO THE CATEGORIES ---
         const CATEGORIES = {
             'en-IN': [
-                { title: '🏦 Government Schemes' },
-                { title: '🌿 Agriculture Help' },
-                { title: '⚖️ Legal Rights' },
-                { title: '💼 Job Opportunities' },
-                { title: '🌦️ Weather Advisory' },
-                { title: '🐛 Pest & Disease Help' },
-                { title: '📄 Document Guide' },
-                { title: '🌱 Fertilizer Calculator' }
+                { title: '🏦 Government Schemes', prompt: 'Tell me about popular government schemes for farmers.' },
+                { title: '🌿 Agriculture Help', prompt: 'Give me some tips for improving crop yield in dry conditions.' },
+                { title: '⚖️ Legal Rights', prompt: 'What are the basic legal rights of a tenant farmer in India?' },
+                { title: '💼 Job Opportunities', prompt: 'What are some government job schemes for people in rural areas?' },
+                { title: '🌦️ Weather Advisory', prompt: `Based on the current date and the location of Bhagalpur, Bihar, India, provide a 3-day weather forecast and a relevant crop advisory for local farmers.`},
+                { title: '🐛 Pest & Disease Help', prompt: 'My tomato plants have yellow leaves with small brown spots. What could be the issue and how can I treat it? Please advise consulting an expert before use.' },
+                { title: '📄 Document Guide', prompt: 'How do I apply for a Kisan Credit Card? Please list the steps and required documents.' },
+                { title: '🌱 Fertilizer Calculator', prompt: 'I have a 1-acre paddy field. How much Urea and DAP fertilizer should I use? Provide an estimate and advise consulting a local expert.' }
             ],
             'hi-IN': [
-                { title: '🏦 सरकारी योजनाएं' },
-                { title: '🌿 कृषि सहायता' },
-                { title: '⚖️ कानूनी अधिकार' },
-                { title: '💼 रोजगार के अवसर' },
-                { title: '🌦️ मौसम सलाह' },
-                { title: '🐛 कीट एवं रोग सहायता' },
-                { title: '📄 दस्तावेज़ सहायता' },
-                { title: '🌱 उर्वरक कैलकुलेटर' }
+                { title: '🏦 सरकारी योजनाएं', prompt: 'किसानों के लिए लोकप्रिय सरकारी योजनाओं के बारे में बताएं।'},
+                { title: '🌿 कृषि सहायता', prompt: 'शुष्क परिस्थितियों में फसल की उपज में सुधार के लिए कुछ सुझाव दें।'},
+                { title: '⚖️ कानूनी अधिकार', prompt: 'भारत में एक काश्तकार किसान के बुनियादी कानूनी अधिकार क्या हैं?'},
+                { title: '💼 रोजगार के अवसर', prompt: 'ग्रामीण क्षेत्रों में लोगों के लिए कुछ सरकारी रोजगार योजनाएं क्या हैं?'},
+                { title: '🌦️ मौसम सलाह', prompt: `वर्तमान तिथि और भागलपुर, बिहार, भारत के स्थान के आधार पर, स्थानीय किसानों के लिए 3-दिवसीय मौसम पूर्वानुमान और एक प्रासंगिक फसल सलाह प्रदान करें।`},
+                { title: '🐛 कीट एवं रोग सहायता', prompt: 'मेरे टमाटर के पौधों में पीली पत्तियां और छोटे भूरे धब्बे हैं। क्या समस्या हो सकती है और मैं इसका इलाज कैसे कर सकता हूं? कृपया उपयोग से पहले विशेषज्ञ से सलाह लेने की सलाह दें।' },
+                { title: '📄 दस्तावेज़ सहायता', prompt: 'किसान क्रेडिट कार्ड के लिए आवेदन कैसे करें? कृपया चरण और आवश्यक दस्तावेज बताएं।' },
+                { title: '🌱 उर्वरक कैलकुलेटर', prompt: 'मेरे पास 1 एकड़ धान का खेत है। मुझे कितना यूरिया और डीएपी उर्वरक का उपयोग करना चाहिए? एक अनुमान प्रदान करें और स्थानीय विशेषज्ञ से परामर्श करने की सलाह दें।' }
             ],
         };
 
         // --- Components ---
 
         const Header = ({ theme, setTheme, language, setLanguage, onHomeClick }) => {
-          const toggleTheme = () => {
-            const newTheme = theme === 'light' ? 'dark' : 'light';
-            setTheme(newTheme);
-            localStorage.setItem('theme', newTheme);
-          };
+            const toggleTheme = () => {
+                const newTheme = theme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            };
 
-          useEffect(() => {
-            const root = document.documentElement;
-            if (theme === 'dark') {
-                root.classList.add('dark');
-            } else {
-                root.classList.remove('dark');
-            }
-          }, [theme]);
+            useEffect(() => {
+                const root = document.documentElement;
+                if (theme === 'dark') {
+                    root.classList.add('dark');
+                } else {
+                    root.classList.remove('dark');
+                }
+            }, [theme]);
 
-          return (
-            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center sticky top-0 z-20 transition-colors duration-300">
-                <h1 onClick={onHomeClick} className="text-2xl font-bold text-gray-800 dark:text-white cursor-pointer select-none transition-transform duration-300 hover:scale-105">
-                    Gram<span className="text-green-500">GPT</span>
-                </h1>
-                <div className="flex items-center space-x-2 sm:space-x-4">
-                    <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm sm:text-base text-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:outline-none transition-all duration-300"
-                    >
-                        {Object.entries(LANGUAGES).map(([code, name]) => (
-                            <option key={code} value={code}>{name}</option>
-                        ))}
-                    </select>
-                    <button onClick={toggleTheme} className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 focus:ring-green-500 transition-all duration-300">
-                        {theme === 'light' ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        )}
-                    </button>
-                </div>
-            </header>
-          );
+            return (
+                <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm p-4 flex justify-between items-center sticky top-0 z-20 transition-colors duration-300">
+                    <h1 onClick={onHomeClick} className="text-2xl font-bold text-gray-800 dark:text-white cursor-pointer select-none transition-transform duration-300 hover:scale-105">
+                        Gram<span className="text-green-500">GPT</span>
+                    </h1>
+                    <div className="flex items-center space-x-2 sm:space-x-4">
+                        <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm sm:text-base text-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:outline-none transition-all duration-300"
+                        >
+                            {Object.entries(LANGUAGES).map(([code, name]) => (
+                                <option key={code} value={code}>{name}</option>
+                            ))}
+                        </select>
+                        <button onClick={toggleTheme} className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 focus:ring-green-500 transition-all duration-300">
+                            {theme === 'light' ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                            )}
+                        </button>
+                    </div>
+                </header>
+            );
         };
         
         const Footer = () => (
@@ -166,7 +162,8 @@
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                         {currentCategories.map((cat, index) => (
-                            <CategoryCard key={cat.title} title={cat.title} onClick={() => onCategorySelect(cat.title)} delay={300 + index * 100} />
+                            // --- FIX 2: CHANGED onClick TO USE cat.prompt INSTEAD OF cat.title ---
+                            <CategoryCard key={cat.title} title={cat.title} onClick={() => onCategorySelect(cat.prompt)} delay={300 + index * 100} />
                         ))}
                     </div>
                 </div>
@@ -184,50 +181,50 @@
         );
 
         const parseSimpleMarkdown = (text = '') => {
-          let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          html = html.replace(/(?<!\*)\*(.*?)\*(?!\*)/g, '<em>$1</em>');
-          return html;
+            let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/(?<!\*)\*(.*?)\*(?!\*)/g, '<em>$1</em>');
+            return html;
         };
 
         const Message = ({ message, onSpeak, onCopy, onSummarize }) => {
-          const isUser = message.role === 'user';
-          const plainTextForSpeechAndCopy = message.text.replace(/\*\*/g, '').replace(/\*/g, '');
+            const isUser = message.role === 'user';
+            const plainTextForSpeechAndCopy = message.text.replace(/\*\*/g, '').replace(/\*/g, '');
 
-          return (
-            <div className={`group flex items-end gap-2 animate-fade-in-up ${isUser ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs md:max-w-md lg:max-w-2xl px-4 py-3 rounded-2xl shadow-md ${isUser ? 'bg-green-400 text-white rounded-br-none' : 'bg-white dark:bg-gray-700/80 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
-                <div
-                  className="whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: parseSimpleMarkdown(message.text) }}
-                />
-              </div>
-              {!isUser && (
-                <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button
-                        onClick={() => onSpeak(plainTextForSpeechAndCopy)}
-                        className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
-                        aria-label="Read message aloud"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.858 17.142a5.001 5.001 0 010-7.072m2.828 9.9a9 9 0 010-12.728M12 12h.01" /></svg>
-                    </button>
-                    <button
-                        onClick={() => onCopy(plainTextForSpeechAndCopy)}
-                        className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
-                        aria-label="Copy message"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                    </button>
-                    <button
-                        onClick={() => onSummarize(message.text)}
-                        className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
-                        aria-label="Summarize message"
-                    >
-                        <span className="font-bold text-xs">✨</span>
-                    </button>
+            return (
+                <div className={`group flex items-end gap-2 animate-fade-in-up ${isUser ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-xs md:max-w-md lg:max-w-2xl px-4 py-3 rounded-2xl shadow-md ${isUser ? 'bg-green-400 text-white rounded-br-none' : 'bg-white dark:bg-gray-700/80 text-gray-800 dark:text-gray-200 rounded-bl-none'}`}>
+                        <div
+                            className="whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: parseSimpleMarkdown(message.text) }}
+                        />
+                    </div>
+                    {!isUser && (
+                        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button
+                                onClick={() => onSpeak(plainTextForSpeechAndCopy)}
+                                className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
+                                aria-label="Read message aloud"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.858 17.142a5.001 5.001 0 010-7.072m2.828 9.9a9 9 0 010-12.728M12 12h.01" /></svg>
+                            </button>
+                            <button
+                                onClick={() => onCopy(plainTextForSpeechAndCopy)}
+                                className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
+                                aria-label="Copy message"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                            <button
+                                onClick={() => onSummarize(message.text)}
+                                className="p-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
+                                aria-label="Summarize message"
+                            >
+                                <span className="font-bold text-xs">✨</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
-              )}
-            </div>
-          );
+            );
         };
         
         const Toast = ({ message, show, onDismiss }) => {
@@ -246,7 +243,6 @@
                 </div>
             );
         };
-
 
         const ChatWindow = ({ messages, onSendMessage, language, onSpeak, isLoading, onClearChat, onCopy, onSummarize, onGetSuggestions, suggestions, showToast }) => {
             const [input, setInput] = useState('');
@@ -393,32 +389,13 @@
                 setToast({ show: false, message: '' });
             };
 
-            const handleCategorySelect = (categoryTitle) => {
+            // --- FIX 3: REVERTED handleCategorySelect TO THE SIMPLER, WORKING VERSION ---
+            const handleCategorySelect = (prompt) => {
                 setView('chat');
-
-                // Extract the plain text topic from the title
-                const topic = categoryTitle.split(' ').slice(1).join(' ');
-
-                // Generate a greeting based on language
-                let greetingText = '';
-                if (language === 'hi-IN') {
-                    greetingText = `नमस्ते! मैं ${topic} के बारे में आपकी मदद कर सकता हूँ। आप क्या जानना चाहेंगे?`;
-                } else {
-                    greetingText = `Hi! I can help you with ${topic}. What would you like to know?`;
-                }
-
-                const initialBotMessage = getInitialMessage();
-                const categoryGreetingMessage = { role: 'model', text: greetingText };
-
-                // Set the chat window with the initial app greeting and the new category-specific one
-                setMessages([initialBotMessage, categoryGreetingMessage]);
-                
-                // Update chat history to provide context to the AI
-                chatHistoryRef.current = [
-                    { role: 'user', parts: [{ text: "Initial Greeting" }] }, 
-                    { role: 'model', parts: [{ text: initialBotMessage.text }] },
-                    { role: 'model', parts: [{ text: `The user has selected the topic: ${topic}. I have greeted them accordingly.` }] }
-                ];
+                // Use a short timeout to make the view transition feel smoother
+                setTimeout(() => {
+                    handleSendMessage(prompt, true);
+                }, 100); 
             };
             
             const handleGoHome = () => {
@@ -433,65 +410,27 @@
             };
 
             const handleCopy = (textToCopy) => {
-                const textArea = document.createElement('textarea');
-                textArea.value = textToCopy;
-                textArea.style.position = 'fixed'; // Avoid scrolling to bottom
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
+                 navigator.clipboard.writeText(textToCopy).then(() => {
                     showToast("Copied to clipboard!");
-                } catch (err) {
-                    console.error('Failed to copy text: ', err);
-                    showToast("Failed to copy.");
-                }
-                document.body.removeChild(textArea);
+                 }).catch(err => {
+                     console.error('Failed to copy text: ', err);
+                     showToast("Failed to copy.");
+                 });
             };
             
-             const callGemini = async (payload) => {
-                const apiKey = ""; // Leave as-is, will be handled by the environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                let response;
-                const maxRetries = 3;
-                let delay = 1000;
-
-                for (let i = 0; i < maxRetries; i++) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (response.ok) {
-                            return await response.json(); // Success!
-                        }
-                        
-                        if (response.status >= 400 && response.status < 500) {
-                             break; 
-                        }
-
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2;
-
-                    } catch (error) {
-                        if (i === maxRetries - 1) {
-                             response = { ok: false, status: 503, json: async () => ({ error: { message: 'Network error or server unreachable after retries.' } }) };
-                             break;
-                        }
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2;
-                    }
-                }
-
+            // --- FIX 4: REPLACED THE BROKEN callGemini WITH THE CORRECT, SECURE ONE ---
+            const callGemini = async (payload) => {
+                const response = await fetch('/api/gemini', { // This calls YOUR secure backend
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            
                 if (!response.ok) {
-                    const errorBody = await response.json().catch(() => ({}));
+                    const errorBody = await response.json();
                     throw new Error(`API Error: ${response.status} - ${errorBody.error?.message || 'Unknown error'}`);
                 }
-                
-                return await response.json();
+                return response.json();
             };
 
             const handleSummarize = async (textToSummarize) => {
@@ -542,12 +481,20 @@
                 }
             };
 
-            const handleSendMessage = async (userInput) => {
+            const handleSendMessage = async (userInput, isFromCategory = false) => {
                 if (isLoading) return;
                 setSuggestions([]);
 
                 const userMessage = { role: 'user', text: userInput };
-                setMessages(prev => [...prev, userMessage]);
+                
+                // If it's from a category, we reset the chat to just the greeting + the user's first prompt
+                const newMessages = isFromCategory ? [messages[0], userMessage] : [...messages, userMessage];
+                if (isFromCategory) {
+                    // Reset history to just the initial greeting context
+                    chatHistoryRef.current = [chatHistoryRef.current[0], chatHistoryRef.current[1]];
+                }
+                
+                setMessages(newMessages);
                 setIsLoading(true);
 
                 const selectedLanguageName = LANGUAGES[language];
@@ -652,4 +599,3 @@
     </script>
 </body>
 </html>
-
