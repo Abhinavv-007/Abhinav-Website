@@ -58,27 +58,27 @@
           'gu-IN': 'ગુજરાતી (Gujarati)',
         };
 
-        // --- FIX 1: ADDED THE "prompt" PROPERTY BACK TO THE CATEGORIES ---
+        // --- CHANGE 1: REMOVED THE UNUSED "prompt" PROPERTY ---
         const CATEGORIES = {
             'en-IN': [
-                { title: '🏦 Government Schemes', prompt: 'Tell me about popular government schemes for farmers.' },
-                { title: '🌿 Agriculture Help', prompt: 'Give me some tips for improving crop yield in dry conditions.' },
-                { title: '⚖️ Legal Rights', prompt: 'What are the basic legal rights of a tenant farmer in India?' },
-                { title: '💼 Job Opportunities', prompt: 'What are some government job schemes for people in rural areas?' },
-                { title: '🌦️ Weather Advisory', prompt: `Based on the current date and the location of Bhagalpur, Bihar, India, provide a 3-day weather forecast and a relevant crop advisory for local farmers.`},
-                { title: '🐛 Pest & Disease Help', prompt: 'My tomato plants have yellow leaves with small brown spots. What could be the issue and how can I treat it? Please advise consulting an expert before use.' },
-                { title: '📄 Document Guide', prompt: 'How do I apply for a Kisan Credit Card? Please list the steps and required documents.' },
-                { title: '🌱 Fertilizer Calculator', prompt: 'I have a 1-acre paddy field. How much Urea and DAP fertilizer should I use? Provide an estimate and advise consulting a local expert.' }
+                { title: '🏦 Government Schemes' },
+                { title: '🌿 Agriculture Help' },
+                { title: '⚖️ Legal Rights' },
+                { title: '💼 Job Opportunities' },
+                { title: '🌦️ Weather Advisory' },
+                { title: '🐛 Pest & Disease Help' },
+                { title: '📄 Document Guide' },
+                { title: '🌱 Fertilizer Calculator' }
             ],
             'hi-IN': [
-                { title: '🏦 सरकारी योजनाएं', prompt: 'किसानों के लिए लोकप्रिय सरकारी योजनाओं के बारे में बताएं।'},
-                { title: '🌿 कृषि सहायता', prompt: 'शुष्क परिस्थितियों में फसल की उपज में सुधार के लिए कुछ सुझाव दें।'},
-                { title: '⚖️ कानूनी अधिकार', prompt: 'भारत में एक काश्तकार किसान के बुनियादी कानूनी अधिकार क्या हैं?'},
-                { title: '💼 रोजगार के अवसर', prompt: 'ग्रामीण क्षेत्रों में लोगों के लिए कुछ सरकारी रोजगार योजनाएं क्या हैं?'},
-                { title: '🌦️ मौसम सलाह', prompt: `वर्तमान तिथि और भागलपुर, बिहार, भारत के स्थान के आधार पर, स्थानीय किसानों के लिए 3-दिवसीय मौसम पूर्वानुमान और एक प्रासंगिक फसल सलाह प्रदान करें।`},
-                { title: '🐛 कीट एवं रोग सहायता', prompt: 'मेरे टमाटर के पौधों में पीली पत्तियां और छोटे भूरे धब्बे हैं। क्या समस्या हो सकती है और मैं इसका इलाज कैसे कर सकता हूं? कृपया उपयोग से पहले विशेषज्ञ से सलाह लेने की सलाह दें।' },
-                { title: '📄 दस्तावेज़ सहायता', prompt: 'किसान क्रेडिट कार्ड के लिए आवेदन कैसे करें? कृपया चरण और आवश्यक दस्तावेज बताएं।' },
-                { title: '🌱 उर्वरक कैलकुलेटर', prompt: 'मेरे पास 1 एकड़ धान का खेत है। मुझे कितना यूरिया और डीएपी उर्वरक का उपयोग करना चाहिए? एक अनुमान प्रदान करें और स्थानीय विशेषज्ञ से परामर्श करने की सलाह दें।' }
+                { title: '🏦 सरकारी योजनाएं' },
+                { title: '🌿 कृषि सहायता' },
+                { title: '⚖️ कानूनी अधिकार' },
+                { title: '💼 रोजगार के अवसर' },
+                { title: '🌦️ मौसम सलाह' },
+                { title: '🐛 कीट एवं रोग सहायता' },
+                { title: '📄 दस्तावेज़ सहायता' },
+                { title: '🌱 उर्वरक कैलकुलेटर' }
             ],
         };
 
@@ -162,8 +162,8 @@
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                         {currentCategories.map((cat, index) => (
-                            // --- FIX 2: CHANGED onClick TO USE cat.prompt INSTEAD OF cat.title ---
-                            <CategoryCard key={cat.title} title={cat.title} onClick={() => onCategorySelect(cat.prompt)} delay={300 + index * 100} />
+                             // --- CHANGE 2: onClick NOW SENDS THE cat.title ---
+                            <CategoryCard key={cat.title} title={cat.title} onClick={() => onCategorySelect(cat.title)} delay={300 + index * 100} />
                         ))}
                     </div>
                 </div>
@@ -389,13 +389,34 @@
                 setToast({ show: false, message: '' });
             };
 
-            // --- FIX 3: REVERTED handleCategorySelect TO THE SIMPLER, WORKING VERSION ---
-            const handleCategorySelect = (prompt) => {
+            // --- CHANGE 3: THE NEW, SMARTER handleCategorySelect FUNCTION ---
+            const handleCategorySelect = (categoryTitle) => {
                 setView('chat');
-                // Use a short timeout to make the view transition feel smoother
-                setTimeout(() => {
-                    handleSendMessage(prompt, true);
-                }, 100); 
+
+                // Extract the plain text topic from the title (e.g., "🏦 Government Schemes" -> "Government Schemes")
+                const topic = categoryTitle.split(' ').slice(1).join(' ');
+
+                // Generate a greeting based on language
+                let greetingText = '';
+                if (language === 'hi-IN') {
+                    greetingText = `नमस्ते! मैं ${topic} के बारे में आपकी मदद कर सकता हूँ। आप क्या जानना चाहेंगे?`;
+                } else {
+                    greetingText = `Hi! I can help you with ${topic}. What would you like to know?`;
+                }
+
+                const initialBotMessage = getInitialMessage();
+                const categoryGreetingMessage = { role: 'model', text: greetingText };
+
+                // Set the chat window with the initial app greeting and the new category-specific one
+                setMessages([initialBotMessage, categoryGreetingMessage]);
+                
+                // Update chat history to provide context to the AI for the user's NEXT message
+                chatHistoryRef.current = [
+                    { role: 'user', parts: [{ text: "Initial Greeting" }] }, 
+                    { role: 'model', parts: [{ text: initialBotMessage.text }] },
+                    // This next part is like a secret instruction to the AI
+                    { role: 'model', parts: [{ text: `The user has selected the topic: ${topic}. I have greeted them accordingly and will now wait for their question.` }] }
+                ];
             };
             
             const handleGoHome = () => {
@@ -418,9 +439,8 @@
                  });
             };
             
-            // --- FIX 4: REPLACED THE BROKEN callGemini WITH THE CORRECT, SECURE ONE ---
             const callGemini = async (payload) => {
-                const response = await fetch('/api/gemini', { // This calls YOUR secure backend
+                const response = await fetch('/api/gemini', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -487,14 +507,7 @@
 
                 const userMessage = { role: 'user', text: userInput };
                 
-                // If it's from a category, we reset the chat to just the greeting + the user's first prompt
-                const newMessages = isFromCategory ? [messages[0], userMessage] : [...messages, userMessage];
-                if (isFromCategory) {
-                    // Reset history to just the initial greeting context
-                    chatHistoryRef.current = [chatHistoryRef.current[0], chatHistoryRef.current[1]];
-                }
-                
-                setMessages(newMessages);
+                setMessages(prev => [...prev, userMessage]);
                 setIsLoading(true);
 
                 const selectedLanguageName = LANGUAGES[language];
