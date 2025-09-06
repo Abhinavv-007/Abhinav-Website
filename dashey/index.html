@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind CSS for class-based dark mode.
+        // This must come AFTER the main tailwind script.
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script>
+        // Set theme on initial load to prevent flashing
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-icon, .tab-button, button, a {
+            transition: all 0.2s ease-in-out;
+        }
+        .sidebar-icon.active, .sidebar-icon:hover {
+            background-color: #eef2ff; /* indigo-100 */
+            color: #4338ca; /* indigo-700 */
+        }
+        .dark .sidebar-icon.active, .dark .sidebar-icon:hover {
+            background-color: #3730a3; /* indigo-800 */
+            color: #e0e7ff; /* indigo-200 */
+        }
+        .tab-button.active {
+            border-bottom-color: #4f46e5; /* indigo-600 */
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .dark .tab-button.active {
+            border-bottom-color: #818cf8; /* indigo-400 */
+            color: #818cf8;
+        }
+        .tab-button {
+             border-bottom: 2px solid transparent;
+        }
+        .view-animate {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .interactive-element:active {
+            transform: scale(0.97);
+        }
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #4b5563; /* gray-600 */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-link:hover {
+            color: #1f2937; /* gray-800 */
+        }
+        .dark .footer-link {
+            color: #9ca3af; /* gray-400 */
+        }
+        .dark .footer-link:hover {
+            color: #f9fafb; /* gray-50 */
+        }
+        /* Hide scrollbar for webkit browsers */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-20 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex-col items-center py-6 hidden sm:flex">
+            <div class="p-2 bg-indigo-600 text-white rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 2H8.5a1.5 1.5 0 0 0-1.5 1.5v17A1.5 1.5 0 0 0 8.5 22h7a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 15.5 2z"></path><path d="M8 6h8"></path><path d="M8 10h8"></path><path d="M8 14h4"></path></svg>
+            </div>
+            <nav class="flex flex-col items-center space-y-4 mt-12 flex-grow">
+                <a href="#" data-view="dashboard" class="sidebar-icon p-3 rounded-lg active interactive-element">
+                    <i data-feather="grid"></i>
+                </a>
+                <a href="#" data-view="projects" class="sidebar-icon p-3 rounded-lg interactive-element">
+                    <i data-feather="file-text"></i>
+                </a>
+                 <a href="#" data-view="messages" class="sidebar-icon p-3 rounded-lg interactive-element">
+                    <i data-feather="message-square"></i>
+                </a>
+                <a href="#" data-view="settings" class="sidebar-icon p-3 rounded-lg interactive-element">
+                    <i data-feather="settings"></i>
+                </a>
+            </nav>
+            <div class="mt-auto">
+                <img src="https://placehold.co/40x40/6366f1/ffffff?text=A" alt="Abhinav's profile picture" class="w-10 h-10 rounded-full">
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto flex flex-col no-scrollbar">
+            <div class="flex-grow pb-16 sm:pb-0">
+                <!-- Dashboard View -->
+                <div id="dashboard-view" class="p-4 sm:p-8 lg:p-10">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Hey, Abhinav!</h1>
+                            <p class="text-gray-500 dark:text-gray-400 mt-1">140 Overall project requests</p>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4 md:mt-0 w-full md:w-auto">
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700">
+                                <h3 class="font-bold text-2xl text-indigo-600 dark:text-indigo-400">132</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">In progress</p>
+                            </div>
+                             <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700">
+                                <h3 class="font-bold text-2xl text-green-600 dark:text-green-400">45</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Accepted</p>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700 col-span-2 sm:col-span-1">
+                                <h3 class="font-bold text-2xl text-blue-600 dark:text-blue-400">80</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Finalized Quotes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-8">
+                        <div class="xl:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl border dark:border-gray-700">
+                            <h2 class="text-xl font-semibold dark:text-white mb-4">Projects</h2>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="text-sm text-gray-500 dark:text-gray-400">
+                                        <tr>
+                                            <th class="py-2 font-medium">Client</th>
+                                            <th class="py-2 font-medium hidden md:table-cell">Manager</th>
+                                            <th class="py-2 font-medium hidden lg:table-cell">Date</th>
+                                            <th class="py-2 font-medium text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-project-list">
+                                        <!-- Project rows will be injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border dark:border-gray-700">
+                                <h2 class="text-xl font-semibold dark:text-white mb-4">Today's requests</h2>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium">Jared</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">1349 Commonwealth, MA</p>
+                                        </div>
+                                        <i data-feather="chevron-right" class="text-gray-400"></i>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium">Ricardo</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">3124 Filmore Avenue, NY</p>
+                                        </div>
+                                        <i data-feather="chevron-right" class="text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border dark:border-gray-700">
+                                <h2 class="text-xl font-semibold dark:text-white mb-4">Active projects Status</h2>
+                                <div class="relative w-full h-48 mx-auto">
+                                    <canvas id="activeProjectsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects View -->
+                <div id="projects-view" class="p-4 sm:p-8 lg:p-10 hidden">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1">140 total requests</p>
+                    <div class="flex flex-col sm:flex-row justify-between items-center mt-6">
+                        <div class="flex space-x-2 sm:space-x-6 border-b dark:border-gray-700 overflow-x-auto no-scrollbar">
+                            <button class="tab-button py-2 px-1 text-gray-500 dark:text-gray-400 active interactive-element whitespace-nowrap">All</button>
+                            <button class="tab-button py-2 px-1 text-gray-500 dark:text-gray-400 interactive-element whitespace-nowrap">In progress</button>
+                            <button class="tab-button py-2 px-1 text-gray-500 dark:text-gray-400 interactive-element whitespace-nowrap">New</button>
+                            <button class="tab-button py-2 px-1 text-gray-500 dark:text-gray-400 interactive-element whitespace-nowrap">Archived</button>
+                        </div>
+                        <div class="flex items-center space-x-2 mt-4 sm:mt-0 w-full sm:w-auto">
+                             <div class="relative flex-grow">
+                                <i data-feather="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                                <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 w-full border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <button class="p-2.5 border dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 interactive-element">
+                                <i data-feather="sliders" class="w-5 h-5"></i>
+                            </button>
+                            <button class="p-2.5 border dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 interactive-element">
+                                <i data-feather="download" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                     <div class="mt-6 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl overflow-hidden">
+                         <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-500 dark:text-gray-400">
+                                    <tr>
+                                        <th class="p-4 font-medium"><input type="checkbox" class="bg-transparent"></th>
+                                        <th class="p-4 font-medium">Client</th>
+                                        <th class="p-4 font-medium hidden sm:table-cell">Manager</th>
+                                        <th class="p-4 font-medium hidden md:table-cell">Due Date</th>
+                                        <th class="p-4 font-medium">Status</th>
+                                        <th class="p-4 font-medium hidden lg:table-cell">Email</th>
+                                        <th class="p-4 font-medium text-right hidden sm:table-cell">Quote</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="full-project-list">
+                                    <!-- Full project list rows will be injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                     </div>
+                </div>
+                
+                <!-- Project Detail View -->
+                <div id="project-detail-view" class="p-4 sm:p-8 lg:p-10 hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <button id="back-to-projects" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md interactive-element">
+                                <i data-feather="arrow-left"></i>
+                            </button>
+                            <div>
+                                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white" id="detail-project-address"></h1>
+                                <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400" id="detail-project-location"></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 border dark:border-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 interactive-element">Overview</button>
+                            <button class="px-4 py-2 border border-indigo-600 dark:border-indigo-500 rounded-lg text-sm font-semibold bg-indigo-600 dark:bg-indigo-500 text-white interactive-element">Invoice</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                        <!-- Left Column -->
+                        <div class="lg:col-span-1 space-y-6">
+                            <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                                <h2 class="text-lg font-semibold dark:text-white">Overview</h2>
+                                <div class="flex items-center space-x-4 mt-4">
+                                    <img id="detail-client-img" src="https://placehold.co/48x48/c7d2fe/4338ca?text=K" alt="Client profile picture" class="w-12 h-12 rounded-full">
+                                    <div>
+                                        <p class="font-semibold text-lg" id="detail-client-name"></p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Client</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 space-y-2 text-sm">
+                                    <p class="flex items-center"><i data-feather="phone" class="w-4 h-4 mr-2 text-gray-400"></i>+1 (555) 123-4567</p>
+                                    <p class="flex items-center"><i data-feather="mail" class="w-4 h-4 mr-2 text-gray-400"></i><span id="detail-client-email"></span></p>
+                                </div>
+                                <button class="mt-6 w-full py-2.5 bg-indigo-600 text-white rounded-lg font-semibold text-sm hover:bg-indigo-700 dark:hover:bg-indigo-500 interactive-element">Chat</button>
+                                <select class="mt-4 w-full p-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-sm">
+                                    <option>Select project status</option>
+                                    <option selected>In Progress</option>
+                                    <option>Completed</option>
+                                    <option>On Hold</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 py-2 border border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 rounded-lg font-semibold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/50 interactive-element">Deposit on Stripe</button>
+                                <button class="flex-1 py-2 bg-green-500 text-white rounded-lg font-semibold text-sm hover:bg-green-600 dark:hover:bg-green-400 interactive-element">Convert Into Project</button>
+                            </div>
+                        </div>
+                        <!-- Right Column -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                                    <h3 class="font-semibold text-gray-500 dark:text-gray-400">Project summary</h3>
+                                    <div class="mt-4 flex justify-between items-center bg-blue-50 dark:bg-blue-900/50 p-4 rounded-xl">
+                                        <div class="text-center">
+                                            <i data-feather="home" class="w-6 h-6 mx-auto text-blue-600 dark:text-blue-400"></i>
+                                            <p class="text-xs mt-1">Townhouse</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-bold text-lg">2006</p>
+                                            <p class="text-xs">Square feet</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="font-bold text-lg">150</p>
+                                            <p class="text-xs">Items</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                                    <h3 class="font-semibold text-gray-500 dark:text-gray-400">Total price</h3>
+                                    <div class="mt-4 flex justify-between items-start">
+                                        <div>
+                                            <p class="text-xs text-gray-400">Quote amount</p>
+                                            <p class="text-2xl sm:text-3xl font-bold" id="detail-quote-amount">$14,440</p>
+                                        </div>
+                                         <div>
+                                            <p class="text-xs text-gray-400">Price</p>
+                                            <p class="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400" id="detail-price">$10,000</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                                <div class="flex justify-between items-center">
+                                    <h2 class="text-lg font-semibold dark:text-white">Last actions</h2>
+                                    <i data-feather="chevron-right" class="text-gray-400"></i>
+                                </div>
+                                <div class="mt-4 space-y-4 text-sm">
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400 rounded-full mr-4"><i data-feather="check"></i></div>
+                                        <p class="flex-grow">Tasks 3,4,5 complete</p>
+                                        <p class="text-gray-400 text-xs text-right whitespace-nowrap">6 Oct 2024, 5:20 PM</p>
+                                    </div>
+                                     <div class="flex items-center">
+                                        <div class="p-2 bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400 rounded-full mr-4"><i data-feather="check"></i></div>
+                                        <p class="flex-grow">Tasks 1 and 2 complete</p>
+                                        <p class="text-gray-400 text-xs text-right whitespace-nowrap">6 Oct 2024, 5:10 PM</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="p-2 bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400 rounded-full mr-4"><i data-feather="check"></i></div>
+                                        <p class="flex-grow">Questionnaire done</p>
+                                        <p class="text-gray-400 text-xs text-right whitespace-nowrap">1 Oct 2024, 4:45 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages View -->
+                <div id="messages-view" class="p-4 sm:p-8 lg:p-10 hidden h-full flex flex-col">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Messages</h1>
+                     <div class="flex-grow mt-6 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl flex relative overflow-hidden">
+                        <!-- Contact List -->
+                        <div id="contact-list" class="w-full sm:w-1/3 border-r dark:border-gray-700 flex flex-col transition-transform duration-300 ease-in-out">
+                            <div class="p-4 border-b dark:border-gray-700">
+                                <input type="text" placeholder="Search messages" class="w-full pl-4 pr-4 py-2 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                            </div>
+                            <div class="flex-grow overflow-y-auto">
+                                <!-- Message items here -->
+                                <div class="contact-item p-4 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer border-b dark:border-gray-700">
+                                    <img src="https://placehold.co/40x40/d1d5db/1f2937?text=E" class="w-10 h-10 rounded-full">
+                                    <div>
+                                        <p class="font-semibold">Emily Williams</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Sounds good! I'll get that over to you...</p>
+                                    </div>
+                                </div>
+                                <div class="contact-item p-4 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer border-b dark:border-gray-700 bg-indigo-50 dark:bg-indigo-900/50">
+                                    <img src="https://placehold.co/40x40/fca5a5/7f1d1d?text=D" class="w-10 h-10 rounded-full">
+                                    <div>
+                                        <p class="font-semibold">David Miller</p>
+                                        <p class="text-sm text-indigo-600 dark:text-indigo-300 font-medium">Please see the attached invoice.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chat Window -->
+                        <div id="chat-window" class="w-full sm:w-2/3 flex flex-col absolute sm:relative top-0 left-0 h-full bg-white dark:bg-gray-800 transform translate-x-full sm:translate-x-0 transition-transform duration-300 ease-in-out">
+                           <div class="p-4 border-b dark:border-gray-700 flex items-center space-x-3">
+                                <button id="back-to-contacts-btn" class="p-2 -ml-2 sm:hidden"><i data-feather="arrow-left"></i></button>
+                                <img src="https://placehold.co/40x40/fca5a5/7f1d1d?text=D" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-semibold">David Miller</p>
+                                    <p class="text-sm text-green-500">Online</p>
+                                </div>
+                           </div>
+                           <div id="messages-container" class="flex-grow p-6 overflow-y-auto space-y-4">
+                                <!-- Chat messages -->
+                                <div class="flex justify-start">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg max-w-md">
+                                        <p>Hey Abhinav, I had a question about the latest quote.</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <div class="bg-indigo-600 text-white p-3 rounded-lg max-w-md">
+                                        <p>Hi David, of course. How can I help?</p>
+                                    </div>
+                                </div>
+                                 <div class="flex justify-start">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg max-w-md">
+                                        <p>Please see the attached invoice.</p>
+                                    </div>
+                                </div>
+                           </div>
+                           <div class="p-4 border-t dark:border-gray-700 flex items-center space-x-2">
+                                <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex-shrink-0"><i data-feather="paperclip"></i></button>
+                                <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 min-w-0 pl-4 pr-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-full focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                                <button id="send-button" class="p-3 bg-indigo-600 text-white rounded-full interactive-element flex-shrink-0"><i data-feather="send"></i></button>
+                           </div>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="settings-view" class="p-4 sm:p-8 lg:p-10 hidden">
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                    <div class="mt-8 max-w-4xl mx-auto space-y-8">
+                        <!-- Profile Settings -->
+                        <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                            <h2 class="text-xl font-semibold">Profile</h2>
+                            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mt-6">
+                                <img src="https://placehold.co/80x80/6366f1/ffffff?text=A" alt="Abhinav's profile picture" class="w-20 h-20 rounded-full">
+                                <div class="w-full space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" for="name">Name</label>
+                                        <input type="text" id="name" value="Abhinav" class="w-full px-3 py-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" for="email">Email</label>
+                                        <input type="email" id="email" value="abhinav@example.com" class="w-full px-3 py-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-right">
+                                <button class="w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg text-sm interactive-element">Save Changes</button>
+                            </div>
+                        </div>
+
+                        <!-- Appearance Settings -->
+                         <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                            <h2 class="text-xl font-semibold">Appearance</h2>
+                            <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                                <div>
+                                    <h3 class="font-medium">Theme</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark mode.</p>
+                                </div>
+                                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                                    <i data-feather="sun"></i>
+                                    <label for="theme-toggle" class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                    <i data-feather="moon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <footer class="text-center p-4 text-sm shrink-0">
+                 <a href="https://www.linkedin.com/in/abhnv07/" target="_blank" rel="noopener noreferrer" class="footer-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    <span>Made by Abhinav</span>
+                </a>
+            </footer>
+        </main>
+        <!-- Mobile Nav -->
+         <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around py-2">
+            <a href="#" data-view="dashboard" class="sidebar-icon p-3 rounded-lg active interactive-element">
+                <i data-feather="grid"></i>
+            </a>
+            <a href="#" data-view="projects" class="sidebar-icon p-3 rounded-lg interactive-element">
+                <i data-feather="file-text"></i>
+            </a>
+            <a href="#" data-view="messages" class="sidebar-icon p-3 rounded-lg interactive-element">
+                <i data-feather="message-square"></i>
+            </a>
+            <a href="#" data-view="settings" class="sidebar-icon p-3 rounded-lg interactive-element">
+                <i data-feather="settings"></i>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // --- RANDOM DATA GENERATORS ---
+        const firstNames = ['John', 'Jane', 'Alex', 'Emily', 'Chris', 'Katie', 'Michael', 'Sarah', 'David', 'Laura'];
+        const lastNames = ['Smith', 'Doe', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez'];
+        const streets = ['Main St', 'Highland Ave', 'Maple St', 'Oak Ave', 'Pine St', 'Cedar Ln', 'Elm St', 'Washington Blvd', 'Lake Rd', 'Park Ave'];
+        const cities = ['Springfield', 'Fairview', 'Riverside', 'Madison', 'Greenville', 'Franklin', 'Clinton', 'Bristol', 'Georgetown', 'Salem'];
+        const states = ['CA', 'TX', 'FL', 'NY', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI'];
+        const managers = ['Ashley L.', 'Richard K.', 'Kate D.', 'Mike B.', 'Samantha G.'];
+        const statuses = [
+            { name: 'Awaiting scan', color: 'yellow' },
+            { name: 'Due next week', color: 'green' },
+            { name: 'Final quote sent', color: 'blue' },
+            { name: 'In progress', color: 'indigo' },
+            { name: 'Scheduling', color: 'purple' },
+        ];
+
+        const getRandomElement = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        function generateRandomProjects(count) {
+            const generatedProjects = [];
+            for (let i = 1; i <= count; i++) {
+                const clientFirstName = getRandomElement(firstNames);
+                const clientLastName = getRandomElement(lastNames);
+                const status = getRandomElement(statuses);
+                
+                generatedProjects.push({
+                    id: i,
+                    client: `${clientFirstName} ${clientLastName}`,
+                    address: `${getRandomNumber(100, 9999)} ${getRandomElement(streets)}`,
+                    location: `${getRandomElement(cities)}, ${getRandomElement(states)}`,
+                    manager: getRandomElement(managers),
+                    date: `${getRandomNumber(1, 28)} ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][getRandomNumber(0, 11)]} ${getRandomNumber(2023, 2024)}`,
+                    status: status.name,
+                    statusColor: status.color,
+                    email: `${clientFirstName.toLowerCase()}.${clientLastName.toLowerCase()}@example.com`,
+                    quote: getRandomNumber(5000, 25000),
+                    price: getRandomNumber(4000, 20000),
+                });
+            }
+            return generatedProjects;
+        }
+
+        const projects = generateRandomProjects(15);
+
+        const statusColors = {
+            yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
+            green: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+            blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+            indigo: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300',
+            purple: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
+        };
+
+        // --- DOM ELEMENTS ---
+        const allViews = document.querySelectorAll('[id$="-view"]');
+        const sidebarLinks = document.querySelectorAll('.sidebar-icon');
+        const backToProjectsBtn = document.getElementById('back-to-projects');
+        const themeToggle = document.getElementById('theme-toggle');
+        const dashboardProjectList = document.getElementById('dashboard-project-list');
+        const fullProjectList = document.getElementById('full-project-list');
+        
+        // Chat elements
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const messagesContainer = document.getElementById('messages-container');
+        const contactList = document.getElementById('contact-list');
+        const chatWindow = document.getElementById('chat-window');
+        const backToContactsBtn = document.getElementById('back-to-contacts-btn');
+        const contactItems = document.querySelectorAll('.contact-item');
+
+
+        // --- FUNCTIONS ---
+
+        function renderDashboardProjects() {
+            dashboardProjectList.innerHTML = '';
+            projects.slice(0, 4).forEach(p => {
+                const row = `
+                    <tr class="border-b dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer interactive-element" data-project-id="${p.id}">
+                        <td class="py-3 px-2">
+                            <p class="font-semibold">${p.client}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${p.address}</p>
+                        </td>
+                        <td class="py-3 px-2 hidden md:table-cell">${p.manager}</td>
+                        <td class="py-3 px-2 hidden lg:table-cell">${p.date}</td>
+                        <td class="py-3 px-2 text-right">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColors[p.statusColor]}">${p.status}</span>
+                        </td>
+                    </tr>
+                `;
+                dashboardProjectList.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        
+        function renderFullProjects() {
+            fullProjectList.innerHTML = '';
+            projects.forEach(p => {
+                const row = `
+                     <tr class="border-t dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer interactive-element" data-project-id="${p.id}">
+                        <td class="p-4"><input type="checkbox" class="bg-transparent rounded border-gray-300 dark:border-gray-600"></td>
+                        <td class="p-4">
+                            <p class="font-semibold">${p.client}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${p.address}</p>
+                        </td>
+                        <td class="p-4 hidden sm:table-cell">${p.manager}</td>
+                        <td class="p-4 hidden md:table-cell">${p.date}</td>
+                        <td class="p-4">
+                             <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColors[p.statusColor]}">${p.status}</span>
+                        </td>
+                        <td class="p-4 hidden lg:table-cell">${p.email}</td>
+                        <td class="p-4 text-right font-semibold hidden sm:table-cell">$${p.quote.toLocaleString()}</td>
+                    </tr>
+                `;
+                fullProjectList.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function renderProjectDetail(project) {
+            document.getElementById('detail-project-address').textContent = project.address;
+            document.getElementById('detail-project-location').textContent = project.location;
+            document.getElementById('detail-client-name').textContent = project.client;
+            document.getElementById('detail-client-email').textContent = project.email;
+            document.getElementById('detail-quote-amount').textContent = `$${project.quote.toLocaleString()}`;
+            document.getElementById('detail-price').textContent = `$${project.price.toLocaleString()}`;
+            const clientInitial = project.client.charAt(0);
+            document.getElementById('detail-client-img').src = `https://placehold.co/48x48/c7d2fe/4338ca?text=${clientInitial}`;
+            document.getElementById('detail-client-img').alt = `${project.client}'s profile picture`;
+        }
+
+        function switchView(viewName) {
+            allViews.forEach(view => view.classList.add('hidden'));
+            const targetView = document.getElementById(`${viewName}-view`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                targetView.classList.add('view-animate');
+            }
+
+            sidebarLinks.forEach(link => {
+                let isActive = link.dataset.view === viewName;
+                if (viewName === 'project-detail' && link.dataset.view === 'projects') {
+                    isActive = true;
+                }
+                link.classList.toggle('active', isActive);
+            });
+        }
+        
+        function handleThemeToggle() {
+            const isDark = themeToggle.checked;
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
+            if (window.activeProjectsChart) {
+                window.activeProjectsChart.destroy();
+            }
+            renderChart();
+        }
+        
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (text === '') return;
+
+            const messageHtml = `
+                <div class="flex justify-end">
+                    <div class="bg-indigo-600 text-white p-3 rounded-lg max-w-md">
+                        <p>${text}</p>
+                    </div>
+                </div>`;
+            
+            messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+            chatInput.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+
+        function setupEventListeners() {
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const viewName = e.currentTarget.dataset.view;
+                    if (viewName) {
+                        switchView(viewName);
+                    }
+                });
+            });
+
+            document.body.addEventListener('click', (e) => {
+                const projectRow = e.target.closest('tr[data-project-id]');
+                if (projectRow) {
+                    const projectId = parseInt(projectRow.dataset.projectId);
+                    const project = projects.find(p => p.id === projectId);
+                    if (project) {
+                        renderProjectDetail(project);
+                        switchView('project-detail');
+                    }
+                }
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                     e.currentTarget.classList.add('active');
+                });
+            });
+
+            backToProjectsBtn.addEventListener('click', () => {
+                switchView('projects');
+            });
+            
+            themeToggle.addEventListener('change', handleThemeToggle);
+            
+            // Chat listeners
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            contactItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    chatWindow.classList.remove('translate-x-full');
+                });
+            });
+
+            backToContactsBtn.addEventListener('click', () => {
+                chatWindow.classList.add('translate-x-full');
+            });
+        }
+
+        function renderChart() {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#d1d5db' : '#4b5563';
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            const ctx = document.getElementById('activeProjectsChart').getContext('2d');
+            window.activeProjectsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Accepted', 'Finalized', 'Due'],
+                    datasets: [{
+                        label: 'Project Count',
+                        data: [45, 80, 25],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(245, 158, 11, 0.7)'
+                        ],
+                        borderColor: [
+                            '#10b981',
+                            '#3b82f6',
+                            '#f59e0b'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: gridColor, drawBorder: false },
+                            ticks: { color: textColor, font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { weight: '600' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    }
+                }
+            });
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                themeToggle.checked = true;
+            } else {
+                themeToggle.checked = false;
+            }
+
+            feather.replace();
+            renderDashboardProjects();
+            renderFullProjects();
+            renderChart();
+            setupEventListeners();
+        });
+
+    </script>
+</body>
+</html>
+
