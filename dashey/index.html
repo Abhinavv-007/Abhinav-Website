@@ -6,10 +6,18 @@
     <title>Project Management Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Configure Tailwind CSS for class-based dark mode.
-        // This must come AFTER the main tailwind script.
+        // Configure Tailwind CSS with custom theme colors and for class-based dark mode.
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-blue': '#2782d9',
+                        'custom-black': '#2c2c2c',
+                        'custom-white': '#fafafa',
+                    }
+                }
+            }
         }
     </script>
     <script>
@@ -32,22 +40,36 @@
         .sidebar-icon, .tab-button, button, a {
             transition: all 0.2s ease-in-out;
         }
+        /* Custom styles using CSS variables for easier color management */
+        :root {
+            --brand-color: #2782d9;
+            --brand-color-hover: #1f6ab0;
+            --text-light: #2c2c2c;
+            --bg-light: #fafafa;
+            --text-dark: #fafafa;
+            --bg-dark: #2c2c2c;
+            --card-bg-light: #ffffff;
+            --card-bg-dark: #3a3a3a;
+            --border-light: #e5e7eb;
+            --border-dark: #4a4a4a;
+        }
+
         .sidebar-icon.active, .sidebar-icon:hover {
-            background-color: #eef2ff; /* indigo-100 */
-            color: #4338ca; /* indigo-700 */
+            background-color: rgba(39, 130, 217, 0.1);
+            color: var(--brand-color);
         }
         .dark .sidebar-icon.active, .dark .sidebar-icon:hover {
-            background-color: #3730a3; /* indigo-800 */
-            color: #e0e7ff; /* indigo-200 */
+            background-color: rgba(39, 130, 217, 0.2);
+            color: #5ab1ff;
         }
         .tab-button.active {
-            border-bottom-color: #4f46e5; /* indigo-600 */
-            color: #4f46e5;
+            border-bottom-color: var(--brand-color);
+            color: var(--brand-color);
             font-weight: 600;
         }
         .dark .tab-button.active {
-            border-bottom-color: #818cf8; /* indigo-400 */
-            color: #818cf8;
+            border-bottom-color: #5ab1ff;
+            color: #5ab1ff;
         }
         .tab-button {
              border-bottom: 2px solid transparent;
@@ -71,13 +93,13 @@
             transition: color 0.2s ease;
         }
         .footer-link:hover {
-            color: #1f2937; /* gray-800 */
+            color: var(--text-light);
         }
         .dark .footer-link {
             color: #9ca3af; /* gray-400 */
         }
         .dark .footer-link:hover {
-            color: #f9fafb; /* gray-50 */
+            color: var(--text-dark);
         }
         /* Hide scrollbar for webkit browsers */
         .no-scrollbar::-webkit-scrollbar {
@@ -88,14 +110,19 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+        /* Custom toggle switch for availability */
+        .availability-toggle:checked + .dot {
+            transform: translateX(100%);
+            background-color: var(--brand-color);
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+<body class="bg-custom-white text-custom-black dark:bg-custom-black dark:text-custom-white">
 
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-20 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex-col items-center py-6 hidden sm:flex">
-            <div class="p-2 bg-indigo-600 text-white rounded-lg">
+        <aside class="w-20 bg-white dark:bg-[#3a3a3a] border-r border-gray-200 dark:border-gray-700 flex-col items-center py-6 hidden sm:flex">
+            <div class="p-2 bg-custom-blue text-white rounded-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 2H8.5a1.5 1.5 0 0 0-1.5 1.5v17A1.5 1.5 0 0 0 8.5 22h7a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 15.5 2z"></path><path d="M8 6h8"></path><path d="M8 10h8"></path><path d="M8 14h4"></path></svg>
             </div>
             <nav class="flex flex-col items-center space-y-4 mt-12 flex-grow">
@@ -105,6 +132,9 @@
                 <a href="#" data-view="projects" class="sidebar-icon p-3 rounded-lg interactive-element">
                     <i data-feather="file-text"></i>
                 </a>
+                <a href="#" data-view="availability" class="sidebar-icon p-3 rounded-lg interactive-element">
+                    <i data-feather="calendar"></i>
+                </a>
                  <a href="#" data-view="messages" class="sidebar-icon p-3 rounded-lg interactive-element">
                     <i data-feather="message-square"></i>
                 </a>
@@ -113,7 +143,7 @@
                 </a>
             </nav>
             <div class="mt-auto">
-                <img src="https://placehold.co/40x40/6366f1/ffffff?text=A" alt="Abhinav's profile picture" class="w-10 h-10 rounded-full">
+                <img src="https://placehold.co/40x40/2782d9/ffffff?text=A" alt="Abhinav's profile picture" class="w-10 h-10 rounded-full">
             </div>
         </aside>
 
@@ -124,19 +154,19 @@
                 <div id="dashboard-view" class="p-4 sm:p-8 lg:p-10">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
-                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Hey, Abhinav!</h1>
+                            <h1 class="text-3xl font-bold text-custom-black dark:text-custom-white">Hey, Abhinav!</h1>
                             <p class="text-gray-500 dark:text-gray-400 mt-1">140 Overall project requests</p>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4 md:mt-0 w-full md:w-auto">
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700">
-                                <h3 class="font-bold text-2xl text-indigo-600 dark:text-indigo-400">132</h3>
+                            <div class="bg-white dark:bg-[#3a3a3a] p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                                <h3 class="font-bold text-2xl text-custom-blue dark:text-[#5ab1ff]">132</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">In progress</p>
                             </div>
-                             <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700">
+                             <div class="bg-white dark:bg-[#3a3a3a] p-4 rounded-xl border border-gray-200 dark:border-gray-700">
                                 <h3 class="font-bold text-2xl text-green-600 dark:text-green-400">45</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Accepted</p>
                             </div>
-                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-700 col-span-2 sm:col-span-1">
+                            <div class="bg-white dark:bg-[#3a3a3a] p-4 rounded-xl border border-gray-200 dark:border-gray-700 col-span-2 sm:col-span-1">
                                 <h3 class="font-bold text-2xl text-blue-600 dark:text-blue-400">80</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Finalized Quotes</p>
                             </div>
@@ -144,7 +174,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-8">
-                        <div class="xl:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl border dark:border-gray-700">
+                        <div class="xl:col-span-2 bg-white dark:bg-[#3a3a3a] p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
                             <h2 class="text-xl font-semibold dark:text-white mb-4">Projects</h2>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left">
@@ -163,7 +193,7 @@
                             </div>
                         </div>
                         <div class="space-y-8">
-                            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border dark:border-gray-700">
+                            <div class="bg-white dark:bg-[#3a3a3a] p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
                                 <h2 class="text-xl font-semibold dark:text-white mb-4">Today's requests</h2>
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between">
@@ -182,7 +212,7 @@
                                     </div>
                                 </div>
                             </div>
-                             <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border dark:border-gray-700">
+                             <div class="bg-white dark:bg-[#3a3a3a] p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
                                 <h2 class="text-xl font-semibold dark:text-white mb-4">Active projects Status</h2>
                                 <div class="relative w-full h-48 mx-auto">
                                     <canvas id="activeProjectsChart"></canvas>
@@ -194,7 +224,7 @@
 
                 <!-- Projects View -->
                 <div id="projects-view" class="p-4 sm:p-8 lg:p-10 hidden">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
+                    <h1 class="text-3xl font-bold text-custom-black dark:text-custom-white">Projects</h1>
                     <p class="text-gray-500 dark:text-gray-400 mt-1">140 total requests</p>
                     <div class="flex flex-col sm:flex-row justify-between items-center mt-6">
                         <div class="flex space-x-2 sm:space-x-6 border-b dark:border-gray-700 overflow-x-auto no-scrollbar">
@@ -206,7 +236,7 @@
                         <div class="flex items-center space-x-2 mt-4 sm:mt-0 w-full sm:w-auto">
                              <div class="relative flex-grow">
                                 <i data-feather="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                                <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 w-full border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 w-full border dark:border-gray-600 bg-white dark:bg-[#3a3a3a] rounded-lg focus:ring-2 focus:ring-custom-blue focus:outline-none">
                             </div>
                             <button class="p-2.5 border dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 interactive-element">
                                 <i data-feather="sliders" class="w-5 h-5"></i>
@@ -216,10 +246,10 @@
                             </button>
                         </div>
                     </div>
-                     <div class="mt-6 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl overflow-hidden">
-                         <div class="overflow-x-auto">
+                     <div class="mt-6 bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
+                       <div class="overflow-x-auto">
                             <table class="w-full text-left">
-                                <thead class="bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-500 dark:text-gray-400">
+                                <thead class="bg-gray-50 dark:bg-black/20 text-sm text-gray-500 dark:text-gray-400">
                                     <tr>
                                         <th class="p-4 font-medium"><input type="checkbox" class="bg-transparent"></th>
                                         <th class="p-4 font-medium">Client</th>
@@ -238,6 +268,28 @@
                      </div>
                 </div>
                 
+                <!-- Availability Setup View -->
+                <div id="availability-view" class="p-4 sm:p-8 lg:p-10 hidden">
+                    <h1 class="text-3xl font-bold text-custom-black dark:text-custom-white">Availability Setup</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1">Set your weekly hours when clients can book appointments.</p>
+
+                    <div class="mt-8 max-w-7xl mx-auto bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b dark:border-gray-700 gap-4">
+                            <div>
+                                <h2 class="text-lg font-semibold">Weekly Hours</h2>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Define your available time slots for each day.</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="copy-hours-btn" class="px-4 py-2 border dark:border-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 interactive-element">Copy Monday to All</button>
+                                <button class="w-full sm:w-auto px-6 py-2 bg-custom-blue text-white font-semibold rounded-lg text-sm interactive-element">Save Changes</button>
+                            </div>
+                        </div>
+                        <div id="availability-grid" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6">
+                           <!-- Schedule grid will be generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Project Detail View -->
                 <div id="project-detail-view" class="p-4 sm:p-8 lg:p-10 hidden">
                     <div class="flex flex-wrap items-center justify-between gap-4">
@@ -246,20 +298,20 @@
                                 <i data-feather="arrow-left"></i>
                             </button>
                             <div>
-                                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white" id="detail-project-address"></h1>
+                                <h1 class="text-xl sm:text-2xl font-bold text-custom-black dark:text-custom-white" id="detail-project-address"></h1>
                                 <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400" id="detail-project-location"></p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button class="px-4 py-2 border dark:border-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 interactive-element">Overview</button>
-                            <button class="px-4 py-2 border border-indigo-600 dark:border-indigo-500 rounded-lg text-sm font-semibold bg-indigo-600 dark:bg-indigo-500 text-white interactive-element">Invoice</button>
+                            <button class="px-4 py-2 border border-custom-blue dark:border-[#5ab1ff] rounded-lg text-sm font-semibold bg-custom-blue dark:bg-[#5ab1ff] text-white interactive-element">Invoice</button>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
                         <!-- Left Column -->
                         <div class="lg:col-span-1 space-y-6">
-                            <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                            <div class="bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                                 <h2 class="text-lg font-semibold dark:text-white">Overview</h2>
                                 <div class="flex items-center space-x-4 mt-4">
                                     <img id="detail-client-img" src="https://placehold.co/48x48/c7d2fe/4338ca?text=K" alt="Client profile picture" class="w-12 h-12 rounded-full">
@@ -272,8 +324,8 @@
                                     <p class="flex items-center"><i data-feather="phone" class="w-4 h-4 mr-2 text-gray-400"></i>+1 (555) 123-4567</p>
                                     <p class="flex items-center"><i data-feather="mail" class="w-4 h-4 mr-2 text-gray-400"></i><span id="detail-client-email"></span></p>
                                 </div>
-                                <button class="mt-6 w-full py-2.5 bg-indigo-600 text-white rounded-lg font-semibold text-sm hover:bg-indigo-700 dark:hover:bg-indigo-500 interactive-element">Chat</button>
-                                <select class="mt-4 w-full p-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-sm">
+                                <button class="mt-6 w-full py-2.5 bg-custom-blue text-white rounded-lg font-semibold text-sm hover:bg-custom-blue/90 interactive-element">Chat</button>
+                                <select class="mt-4 w-full p-2 border dark:border-gray-600 bg-white dark:bg-[#3a3a3a] rounded-lg text-sm">
                                     <option>Select project status</option>
                                     <option selected>In Progress</option>
                                     <option>Completed</option>
@@ -281,14 +333,14 @@
                                 </select>
                             </div>
                             <div class="flex space-x-2">
-                                <button class="flex-1 py-2 border border-indigo-600 dark:border-indigo-500 text-indigo-600 dark:text-indigo-400 rounded-lg font-semibold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/50 interactive-element">Deposit on Stripe</button>
+                                <button class="flex-1 py-2 border border-custom-blue dark:border-[#5ab1ff] text-custom-blue dark:text-[#5ab1ff] rounded-lg font-semibold text-sm hover:bg-custom-blue/10 interactive-element">Deposit on Stripe</button>
                                 <button class="flex-1 py-2 bg-green-500 text-white rounded-lg font-semibold text-sm hover:bg-green-600 dark:hover:bg-green-400 interactive-element">Convert Into Project</button>
                             </div>
                         </div>
                         <!-- Right Column -->
                         <div class="lg:col-span-2 space-y-6">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                                <div class="bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                                     <h3 class="font-semibold text-gray-500 dark:text-gray-400">Project summary</h3>
                                     <div class="mt-4 flex justify-between items-center bg-blue-50 dark:bg-blue-900/50 p-4 rounded-xl">
                                         <div class="text-center">
@@ -305,7 +357,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                                <div class="bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                                     <h3 class="font-semibold text-gray-500 dark:text-gray-400">Total price</h3>
                                     <div class="mt-4 flex justify-between items-start">
                                         <div>
@@ -319,7 +371,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                            <div class="bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                                 <div class="flex justify-between items-center">
                                     <h2 class="text-lg font-semibold dark:text-white">Last actions</h2>
                                     <i data-feather="chevron-right" class="text-gray-400"></i>
@@ -348,33 +400,33 @@
 
                 <!-- Messages View -->
                 <div id="messages-view" class="p-4 sm:p-8 lg:p-10 hidden h-full flex flex-col">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Messages</h1>
-                     <div class="flex-grow mt-6 bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl flex relative overflow-hidden">
+                    <h1 class="text-3xl font-bold text-custom-black dark:text-custom-white">Messages</h1>
+                     <div class="flex-grow mt-6 bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl flex relative overflow-hidden">
                         <!-- Contact List -->
                         <div id="contact-list" class="w-full sm:w-1/3 border-r dark:border-gray-700 flex flex-col transition-transform duration-300 ease-in-out">
                             <div class="p-4 border-b dark:border-gray-700">
-                                <input type="text" placeholder="Search messages" class="w-full pl-4 pr-4 py-2 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
+                                <input type="text" placeholder="Search messages" class="w-full pl-4 pr-4 py-2 border dark:border-gray-600 bg-gray-50 dark:bg-[#2c2c2c] rounded-lg focus:ring-2 focus:ring-custom-blue focus:outline-none text-sm">
                             </div>
                             <div class="flex-grow overflow-y-auto">
                                 <!-- Message items here -->
-                                <div class="contact-item p-4 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer border-b dark:border-gray-700">
+                                <div class="contact-item p-4 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-black/20 cursor-pointer border-b dark:border-gray-700">
                                     <img src="https://placehold.co/40x40/d1d5db/1f2937?text=E" class="w-10 h-10 rounded-full">
                                     <div>
                                         <p class="font-semibold">Emily Williams</p>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Sounds good! I'll get that over to you...</p>
                                     </div>
                                 </div>
-                                <div class="contact-item p-4 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer border-b dark:border-gray-700 bg-indigo-50 dark:bg-indigo-900/50">
+                                <div class="contact-item p-4 flex items-center space-x-3 hover:bg-gray-50 dark:hover:bg-black/20 cursor-pointer border-b dark:border-gray-700 bg-custom-blue/10 dark:bg-custom-blue/20">
                                     <img src="https://placehold.co/40x40/fca5a5/7f1d1d?text=D" class="w-10 h-10 rounded-full">
                                     <div>
                                         <p class="font-semibold">David Miller</p>
-                                        <p class="text-sm text-indigo-600 dark:text-indigo-300 font-medium">Please see the attached invoice.</p>
+                                        <p class="text-sm text-custom-blue dark:text-[#5ab1ff] font-medium">Please see the attached invoice.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- Chat Window -->
-                        <div id="chat-window" class="w-full sm:w-2/3 flex flex-col absolute sm:relative top-0 left-0 h-full bg-white dark:bg-gray-800 transform translate-x-full sm:translate-x-0 transition-transform duration-300 ease-in-out">
+                        <div id="chat-window" class="w-full sm:w-2/3 flex flex-col absolute sm:relative top-0 left-0 h-full bg-white dark:bg-[#3a3a3a] transform translate-x-full sm:translate-x-0 transition-transform duration-300 ease-in-out">
                            <div class="p-4 border-b dark:border-gray-700 flex items-center space-x-3">
                                 <button id="back-to-contacts-btn" class="p-2 -ml-2 sm:hidden"><i data-feather="arrow-left"></i></button>
                                 <img src="https://placehold.co/40x40/fca5a5/7f1d1d?text=D" class="w-10 h-10 rounded-full">
@@ -391,7 +443,7 @@
                                     </div>
                                 </div>
                                 <div class="flex justify-end">
-                                    <div class="bg-indigo-600 text-white p-3 rounded-lg max-w-md">
+                                    <div class="bg-custom-blue text-white p-3 rounded-lg max-w-md">
                                         <p>Hi David, of course. How can I help?</p>
                                     </div>
                                 </div>
@@ -403,8 +455,8 @@
                            </div>
                            <div class="p-4 border-t dark:border-gray-700 flex items-center space-x-2">
                                 <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex-shrink-0"><i data-feather="paperclip"></i></button>
-                                <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 min-w-0 pl-4 pr-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-full focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
-                                <button id="send-button" class="p-3 bg-indigo-600 text-white rounded-full interactive-element flex-shrink-0"><i data-feather="send"></i></button>
+                                <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 min-w-0 pl-4 pr-4 py-2 border dark:border-gray-600 bg-white dark:bg-[#3a3a3a] rounded-full focus:ring-2 focus:ring-custom-blue focus:outline-none text-sm">
+                                <button id="send-button" class="p-3 bg-custom-blue text-white rounded-full interactive-element flex-shrink-0"><i data-feather="send"></i></button>
                            </div>
                         </div>
                      </div>
@@ -412,31 +464,31 @@
 
                 <!-- Settings View -->
                 <div id="settings-view" class="p-4 sm:p-8 lg:p-10 hidden">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                    <h1 class="text-3xl font-bold text-custom-black dark:text-custom-white">Settings</h1>
                     <div class="mt-8 max-w-4xl mx-auto space-y-8">
                         <!-- Profile Settings -->
-                        <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                        <div class="bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                             <h2 class="text-xl font-semibold">Profile</h2>
                             <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mt-6">
-                                <img src="https://placehold.co/80x80/6366f1/ffffff?text=A" alt="Abhinav's profile picture" class="w-20 h-20 rounded-full">
+                                <img src="https://placehold.co/80x80/2782d9/ffffff?text=A" alt="Abhinav's profile picture" class="w-20 h-20 rounded-full">
                                 <div class="w-full space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium mb-1" for="name">Name</label>
-                                        <input type="text" id="name" value="Abhinav" class="w-full px-3 py-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-sm">
+                                        <input type="text" id="name" value="Abhinav" class="w-full px-3 py-2 border dark:border-gray-600 bg-white dark:bg-[#3a3a3a] rounded-lg text-sm">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium mb-1" for="email">Email</label>
-                                        <input type="email" id="email" value="abhinav@example.com" class="w-full px-3 py-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg text-sm">
+                                        <input type="email" id="email" value="abhinav@example.com" class="w-full px-3 py-2 border dark:border-gray-600 bg-white dark:bg-[#3a3a3a] rounded-lg text-sm">
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-4 text-right">
-                                <button class="w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg text-sm interactive-element">Save Changes</button>
+                                <button class="w-full sm:w-auto px-6 py-2 bg-custom-blue text-white font-semibold rounded-lg text-sm interactive-element">Save Changes</button>
                             </div>
                         </div>
 
                         <!-- Appearance Settings -->
-                         <div class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-2xl p-6">
+                         <div class="bg-white dark:bg-[#3a3a3a] border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                             <h2 class="text-xl font-semibold">Appearance</h2>
                             <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between">
                                 <div>
@@ -447,7 +499,7 @@
                                     <i data-feather="sun"></i>
                                     <label for="theme-toggle" class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
-                                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-custom-blue"></div>
                                     </label>
                                     <i data-feather="moon"></i>
                                 </div>
@@ -465,12 +517,15 @@
             </footer>
         </main>
         <!-- Mobile Nav -->
-         <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex justify-around py-2">
+         <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#3a3a3a] border-t border-gray-200 dark:border-gray-700 flex justify-around py-2">
             <a href="#" data-view="dashboard" class="sidebar-icon p-3 rounded-lg active interactive-element">
                 <i data-feather="grid"></i>
             </a>
             <a href="#" data-view="projects" class="sidebar-icon p-3 rounded-lg interactive-element">
                 <i data-feather="file-text"></i>
+            </a>
+            <a href="#" data-view="availability" class="sidebar-icon p-3 rounded-lg interactive-element">
+                <i data-feather="calendar"></i>
             </a>
             <a href="#" data-view="messages" class="sidebar-icon p-3 rounded-lg interactive-element">
                 <i data-feather="message-square"></i>
@@ -513,7 +568,7 @@
                     address: `${getRandomNumber(100, 9999)} ${getRandomElement(streets)}`,
                     location: `${getRandomElement(cities)}, ${getRandomElement(states)}`,
                     manager: getRandomElement(managers),
-                    date: `${getRandomNumber(1, 28)} ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][getRandomNumber(0, 11)]} ${getRandomNumber(2023, 2024)}`,
+                    date: `${getRandomNumber(1, 28)} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][getRandomNumber(0, 11)]} ${getRandomNumber(2023, 2024)}`,
                     status: status.name,
                     statusColor: status.color,
                     email: `${clientFirstName.toLowerCase()}.${clientLastName.toLowerCase()}@example.com`,
@@ -530,7 +585,7 @@
             yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
             green: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
             blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-            indigo: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300',
+            indigo: 'bg-indigo-100 text-indigo-800 dark:bg-custom-blue/20 dark:text-[#5ab1ff]',
             purple: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
         };
 
@@ -541,6 +596,7 @@
         const themeToggle = document.getElementById('theme-toggle');
         const dashboardProjectList = document.getElementById('dashboard-project-list');
         const fullProjectList = document.getElementById('full-project-list');
+        const availabilityGrid = document.getElementById('availability-grid');
         
         // Chat elements
         const chatInput = document.getElementById('chat-input');
@@ -558,7 +614,7 @@
             dashboardProjectList.innerHTML = '';
             projects.slice(0, 4).forEach(p => {
                 const row = `
-                    <tr class="border-b dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer interactive-element" data-project-id="${p.id}">
+                    <tr class="border-b dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-black/20 cursor-pointer interactive-element" data-project-id="${p.id}">
                         <td class="py-3 px-2">
                             <p class="font-semibold">${p.client}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">${p.address}</p>
@@ -578,7 +634,7 @@
             fullProjectList.innerHTML = '';
             projects.forEach(p => {
                 const row = `
-                     <tr class="border-t dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer interactive-element" data-project-id="${p.id}">
+                     <tr class="border-t dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-black/20 cursor-pointer interactive-element" data-project-id="${p.id}">
                         <td class="p-4"><input type="checkbox" class="bg-transparent rounded border-gray-300 dark:border-gray-600"></td>
                         <td class="p-4">
                             <p class="font-semibold">${p.client}</p>
@@ -605,9 +661,39 @@
             document.getElementById('detail-quote-amount').textContent = `$${project.quote.toLocaleString()}`;
             document.getElementById('detail-price').textContent = `$${project.price.toLocaleString()}`;
             const clientInitial = project.client.charAt(0);
-            document.getElementById('detail-client-img').src = `https://placehold.co/48x48/c7d2fe/4338ca?text=${clientInitial}`;
+            document.getElementById('detail-client-img').src = `https://placehold.co/48x48/2782d9/ffffff?text=${clientInitial}`;
             document.getElementById('detail-client-img').alt = `${project.client}'s profile picture`;
         }
+        
+        function renderAvailabilityGrid() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            let gridHtml = '';
+
+            days.forEach(day => {
+                const isWeekend = day === 'Saturday' || day === 'Sunday';
+                const dayAbbr = day.substring(0, 3);
+                gridHtml += `
+                    <div class="day-card relative bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border dark:border-gray-700/50 transition-opacity duration-300 ${isWeekend ? 'opacity-60' : ''}">
+                        <div class="flex items-center justify-between mb-4">
+                            <label for="day-${dayAbbr}" class="font-bold text-custom-black dark:text-custom-white">${day}</label>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="day-${dayAbbr}" class="sr-only peer day-toggle" data-day="${dayAbbr}" ${!isWeekend ? 'checked' : ''}>
+                                <div class="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-custom-blue"></div>
+                            </label>
+                        </div>
+                        <div class="time-inputs space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="time" value="09:00" class="time-input w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-1.5 text-sm focus:ring-custom-blue focus:border-custom-blue" data-day="${dayAbbr}" ${isWeekend ? 'disabled' : ''}>
+                                <span class="text-gray-500">-</span>
+                                <input type="time" value="17:00" class="time-input w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-1.5 text-sm focus:ring-custom-blue focus:border-custom-blue" data-day="${dayAbbr}" ${isWeekend ? 'disabled' : ''}>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            availabilityGrid.innerHTML = gridHtml;
+        }
+
 
         function switchView(viewName) {
             allViews.forEach(view => view.classList.add('hidden'));
@@ -647,7 +733,7 @@
 
             const messageHtml = `
                 <div class="flex justify-end">
-                    <div class="bg-indigo-600 text-white p-3 rounded-lg max-w-md">
+                    <div class="bg-custom-blue text-white p-3 rounded-lg max-w-md">
                         <p>${text}</p>
                     </div>
                 </div>`;
@@ -712,12 +798,54 @@
             backToContactsBtn.addEventListener('click', () => {
                 chatWindow.classList.add('translate-x-full');
             });
+
+            // Availability listeners
+            const copyHoursBtn = document.getElementById('copy-hours-btn');
+
+            availabilityGrid.addEventListener('change', (e) => {
+                if (e.target.classList.contains('day-toggle')) {
+                    const dayCard = e.target.closest('.day-card');
+                    const timeInputs = dayCard.querySelectorAll('.time-input');
+                    if (e.target.checked) {
+                        dayCard.classList.remove('opacity-60');
+                        timeInputs.forEach(input => input.disabled = false);
+                    } else {
+                        dayCard.classList.add('opacity-60');
+                        timeInputs.forEach(input => input.disabled = true);
+                    }
+                }
+            });
+
+            if (copyHoursBtn) {
+                copyHoursBtn.addEventListener('click', () => {
+                    const mondayInputs = document.querySelectorAll('.time-input[data-day="Mon"]');
+                    if (mondayInputs.length < 2) return;
+
+                    const start_time = mondayInputs[0].value;
+                    const end_time = mondayInputs[1].value;
+
+                    document.querySelectorAll('.day-toggle').forEach(toggle => {
+                        if (toggle.dataset.day !== 'Mon') {
+                             const day = toggle.dataset.day;
+                             if (day !== 'Sun' && day !== 'Sat') {
+                                toggle.checked = true;
+                                const dayCard = toggle.closest('.day-card');
+                                dayCard.classList.remove('opacity-60');
+                                const timeInputs = dayCard.querySelectorAll('.time-input');
+                                timeInputs.forEach(input => input.disabled = false);
+                                timeInputs[0].value = start_time;
+                                timeInputs[1].value = end_time;
+                             }
+                        }
+                    });
+                });
+            }
         }
 
         function renderChart() {
             const isDarkMode = document.documentElement.classList.contains('dark');
-            const textColor = isDarkMode ? '#d1d5db' : '#4b5563';
-            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const textColor = isDarkMode ? '#fafafa' : '#2c2c2c';
+            const gridColor = isDarkMode ? 'rgba(250, 250, 250, 0.1)' : 'rgba(44, 44, 44, 0.1)';
             
             const ctx = document.getElementById('activeProjectsChart').getContext('2d');
             window.activeProjectsChart = new Chart(ctx, {
@@ -729,12 +857,12 @@
                         data: [45, 80, 25],
                         backgroundColor: [
                             'rgba(16, 185, 129, 0.7)',
-                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(39, 130, 217, 0.7)',
                             'rgba(245, 158, 11, 0.7)'
                         ],
                         borderColor: [
                             '#10b981',
-                            '#3b82f6',
+                            '#2782d9',
                             '#f59e0b'
                         ],
                         borderWidth: 2,
@@ -775,6 +903,7 @@
             feather.replace();
             renderDashboardProjects();
             renderFullProjects();
+            renderAvailabilityGrid();
             renderChart();
             setupEventListeners();
         });
