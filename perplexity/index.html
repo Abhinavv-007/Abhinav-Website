@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perplexity Partner Program - Earnings Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes floatReverse {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 60px rgba(236, 72, 153, 0.6); }
+        }
+
+        @keyframes slideInFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotateReverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        @keyframes neonGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(139, 92, 246, 0.8),
+                             0 0 20px rgba(139, 92, 246, 0.6),
+                             0 0 30px rgba(139, 92, 246, 0.4),
+                             0 0 40px rgba(139, 92, 246, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(236, 72, 153, 0.8),
+                             0 0 30px rgba(236, 72, 153, 0.6),
+                             0 0 40px rgba(236, 72, 153, 0.4),
+                             0 0 50px rgba(236, 72, 153, 0.2);
+            }
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 50%;
+            animation: particleFloat 15s infinite;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.8);
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        .orb1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(139, 92, 246, 0.4);
+            top: 10%;
+            left: 10%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(236, 72, 153, 0.4);
+            bottom: 10%;
+            right: 10%;
+            animation: floatReverse 25s ease-in-out infinite;
+        }
+
+        .orb3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(59, 130, 246, 0.4);
+            top: 50%;
+            left: 50%;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(15, 15, 25, 0.85);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6),
+                        0 0 1px rgba(139, 92, 246, 0.5),
+                        inset 0 0 100px rgba(139, 92, 246, 0.05);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            position: relative;
+            z-index: 2;
+            animation: fadeInScale 1s ease-out;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 50%, #1a0b2e 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.05) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            animation: neonGlow 3s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        header h1 i {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            background-size: 200% 200%;
+            padding: 35px;
+            border-radius: 20px;
+            color: white;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideInFromLeft 0.6s ease-out;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transition: all 0.5s ease;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .stat-card:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 25px 60px rgba(139, 92, 246, 0.5),
+                        0 0 60px rgba(236, 72, 153, 0.4);
+            border-color: rgba(139, 92, 246, 0.9);
+        }
+
+        .stat-card:hover::before {
+            top: -50%;
+            left: -50%;
+        }
+
+        .stat-card-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            opacity: 0.7;
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card .value {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            animation: countUp 1s ease-out;
+        }
+
+        .stat-card .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 1), rgba(236, 72, 153, 1));
+            border-radius: 10px;
+            animation: fillProgress 2s ease-out;
+        }
+
+        @keyframes fillProgress {
+            from { width: 0; }
+        }
+
+        .stat-card:nth-child(1) {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.3) 100%);
+            border-color: rgba(16, 185, 129, 0.5);
+            animation-delay: 0.1s;
+        }
+
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.3) 100%);
+            border-color: rgba(59, 130, 246, 0.5);
+            animation-delay: 0.2s;
+        }
+
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(219, 39, 119, 0.3) 100%);
+            border-color: rgba(236, 72, 153, 0.5);
+            animation-delay: 0.3s;
+        }
+
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.3) 100%);
+            border-color: rgba(245, 158, 11, 0.5);
+            animation-delay: 0.4s;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            animation: slideInFromBottom 0.8s ease-out;
+        }
+
+        .section-title {
+            font-size: 2em;
+            margin-bottom: 25px;
+            color: #fff;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, rgba(139, 92, 246, 1), rgba(236, 72, 153, 1)) 1;
+            padding-bottom: 15px;
+            animation: slideInFromLeft 0.6s ease-out;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .referral-box {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #8b5cf6;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            animation: slideInFromRight 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .referral-box:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .referral-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .referral-box .link {
+            font-size: 1.4em;
+            color: #a78bfa;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .referral-box .link:hover {
+            color: #c4b5fd;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
+        }
+
+        .referral-box .status {
+            display: inline-block;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-left: 15px;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .payout-table {
+            background: rgba(20, 20, 35, 0.6);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            animation: slideInFromBottom 0.8s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .payout-table:hover {
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%);
+            position: relative;
+        }
+
+        thead::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            color: #fff;
+            position: relative;
+        }
+
+        th i {
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        tbody tr::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), transparent);
+            transition: width 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(139, 92, 246, 0.15);
+            transform: scale(1.01);
+        }
+
+        tbody tr:hover::before {
+            width: 100%;
+        }
+
+        tbody tr:hover td {
+            color: #fff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.85em;
+            font-weight: 600;
+            animation: bounceIn 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            transform: scale(1.1);
+        }
+
+        .badge.pending {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        }
+
+        .badge.paid {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.sent {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.3));
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .earnings-log {
+            margin-top: 30px;
+        }
+
+        .search-filter {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            animation: slideInFromTop 0.6s ease-out;
+        }
+
+        .search-filter input,
+        .search-filter select {
+            padding: 15px 25px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: rgba(20, 20, 35, 0.6);
+            color: #e0e0e0;
+        }
+
+        .search-filter input:focus,
+        .search-filter select:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
+            transform: scale(1.02);
+            background: rgba(20, 20, 35, 0.8);
+        }
+
+        .search-filter input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .earnings-amount {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 1.15em;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover .earnings-amount {
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+            transform: scale(1.1);
+            display: inline-block;
+        }
+
+        .timestamp {
+            color: #a0a0b0;
+            font-size: 0.95em;
+        }
+
+        .customer-name {
+            font-weight: 500;
+            color: #d0d0e0;
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover .customer-name {
+            color: #8b5cf6;
+        }
+
+        .scroll-table {
+            overflow-x: auto;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(20, 20, 35, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            text-align: center;
+            transition: all 0.4s ease;
+            animation: bounceIn 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2), transparent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .summary-card:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            border-color: #8b5cf6;
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.5);
+        }
+
+        .summary-card .label {
+            color: #a0a0b0;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-card .amount {
+            font-size: 2em;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover .amount {
+            text-shadow: 0 0 20px rgba(139, 92, 246, 1);
+            transform: scale(1.1);
+        }
+
+        .payout-note {
+            background: rgba(236, 72, 153, 0.1);
+            border-left: 4px solid #ec4899;
+            padding: 15px 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #d0d0e0;
+            animation: slideInFromLeft 0.6s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .payout-note:hover {
+            background: rgba(236, 72, 153, 0.15);
+            transform: translateX(5px);
+        }
+
+        .payout-note strong {
+            color: #f472b6;
+        }
+
+        .payout-note i {
+            margin-right: 8px;
+            color: #f472b6;
+        }
+
+        /* Loading animation */
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899, #3b82f6);
+            background-size: 200% 100%;
+            animation: loadingSlide 2s ease-in-out;
+            z-index: 9999;
+        }
+
+        @keyframes loadingSlide {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: rgba(139, 92, 246, 0.9);
+            color: #fff;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Stats mini chart */
+        .mini-chart {
+            width: 100%;
+            height: 40px;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-bar {
+            display: inline-block;
+            width: 3%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.8));
+            margin: 0 1px;
+            border-radius: 2px;
+            animation: chartGrow 1.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .chart-bar:hover {
+            background: linear-gradient(to top, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 1));
+            transform: scaleY(1.2);
+        }
+
+        @keyframes chartGrow {
+            from {
+                transform: scaleY(0);
+            }
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 12px;
+            }
+
+            .stat-card .value {
+                font-size: 2.2em;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(20, 20, 35, 0.6);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+        }
+
+        /* Glowing border effect */
+        @keyframes borderGlow {
+            0%, 100% {
+                border-color: rgba(139, 92, 246, 0.3);
+            }
+            50% {
+                border-color: rgba(139, 92, 246, 0.8);
+            }
+        }
+
+        .container {
+            animation: fadeInScale 1s ease-out, borderGlow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Bar -->
+    <div class="loading-bar"></div>
+
+    <!-- Floating Orbs -->
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-rocket"></i> Perplexity Partner Program</h1>
+            <p>Complete Earnings Report & Analytics Dashboard</p>
+        </header>
+
+        <div class="content">
+            <!-- Dashboard Overview -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Dashboard Overview</h2>
+                <div class="referral-box">
+                    <strong><i class="fas fa-link"></i> Referral Link:</strong> 
+                    <span class="link tooltip">pplx.ai/abhnv07
+                        <span class="tooltiptext">Click to copy</span>
+                    </span>
+                    <span class="status"><i class="fas fa-ban"></i> Deactivated</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <h3>Total Earnings</h3>
+                        <div class="value">$1,763</div>
+                        <p>All-Time Revenue</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 88%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-mouse-pointer"></i></div>
+                        <h3>Total Clicks</h3>
+                        <div class="value">201</div>
+                        <p>Link Visits</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 67%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+                        <h3>Total Leads</h3>
+                        <div class="value">145</div>
+                        <p>Conversions</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 72%;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-percentage"></i></div>
+                        <h3>Conversion Rate</h3>
+                        <div class="value">72.1%</div>
+                        <p>Clicks to Leads</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 72%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payout History -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-money-bill-wave"></i> Payout History</h2>
+                <div class="payout-table scroll-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                                <th><i class="fas fa-calendar"></i> Date Range</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="earnings-amount">$10.00</td>
+                                <td>Oct 22 - Oct 31, 2025</td>
+                                <td><span class="badge sent"><i class="fas fa-paper-plane"></i> Sent</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="payout-note">
+                    <i class="fas fa-exclamation-circle"></i><strong>Note:</strong> One duplicate reference has been excluded from the records. This is a single $10 payout.
+                </div>
+            </div>
+
+            <!-- Earnings Summary -->
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-chart-pie"></i> Earnings Breakdown</h2>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="label"><i class="fas fa-clock"></i> Pending Amount</div>
+                        <div class="amount">$1,753</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label"><i class="fas fa-check-circle"></i> Paid Out</div>
+                        <div class="amount">$10</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label"><i class="fas fa-calculator"></i> Average/Lead</div>
+                        <div class="amount">$12.16</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label"><i class="fas fa-user-check"></i> Total Leads</div>
+                        <div class="amount">142</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Earnings Log -->
+            <div class="section earnings-log">
+                <h2 class="section-title"><i class="fas fa-list-alt"></i> Detailed Earnings Log (142 Entries)</h2>
+                
+                <div class="search-filter">
+                    <input type="text" id="searchInput" placeholder="🔍 Search by customer, country, or amount...">
+                    <select id="countryFilter">
+                        <option value="">🌍 All Countries</option>
+                        <option value="United States">🇺🇸 United States</option>
+                        <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                        <option value="Germany">🇩🇪 Germany</option>
+                        <option value="Belgium">🇧🇪 Belgium</option>
+                        <option value="Australia">🇦🇺 Australia</option>
+                        <option value="Netherlands">🇳🇱 Netherlands</option>
+                        <option value="Other">🌐 Other</option>
+                    </select>
+                    <select id="amountFilter">
+                        <option value="">💰 All Amounts</option>
+                        <option value="20">$20.00</option>
+                        <option value="15">$15.00</option>
+                        <option value="10">$10.00</option>
+                        <option value="5">$5.00</option>
+                        <option value="3">$3.00</option>
+                        <option value="2">$2.00</option>
+                        <option value="1">$1.00</option>
+                    </select>
+                </div>
+
+                <div class="payout-table scroll-table">
+                    <table id="earningsTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar-alt"></i> Date</th>
+                                <th><i class="fas fa-user"></i> Customer</th>
+                                <th><i class="fas fa-globe"></i> Country</th>
+                                <th><i class="fas fa-dollar-sign"></i> Earnings</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td><span class="timestamp">Oct 27, 2:55 PM</span></td>
+                                <td class="customer-name">Casual Sapphire Barnacle</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$1.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 27, 9:52 AM</span></td>
+                                <td class="customer-name">Hostile Coffee Muskox</td>
+                                <td>🇮🇹 Italy</td>
+                                <td class="earnings-amount">$1.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 27, 9:39 AM</span></td>
+                                <td class="customer-name">Alright Coffee Gull</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$1.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 27, 12:17 AM</span></td>
+                                <td class="customer-name">Complicated Coffee Manatee</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 11:52 PM</span></td>
+                                <td class="customer-name">Horrible Teal Ant</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 11:44 PM</span></td>
+                                <td class="customer-name">Orthodox Amethyst Pheasant</td>
+                                <td>🇮🇹 Italy</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 11:28 PM</span></td>
+                                <td class="customer-name">Given Bronze Gamefowl</td>
+                                <td>🇵🇱 Poland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 7:56 PM</span></td>
+                                <td class="customer-name">Zygomorphic Rose Cattle</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 6:53 PM</span></td>
+                                <td class="customer-name">Vast Aquamarine Sailfish</td>
+                                <td>🇮🇳 India</td>
+                                <td class="earnings-amount">$3.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 5:42 PM</span></td>
+                                <td class="customer-name">Biological Fuchsia Gayal</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 5:18 PM</span></td>
+                                <td class="customer-name">Operational Black Primate</td>
+                                <td>🇮🇪 Ireland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 5:11 PM</span></td>
+                                <td class="customer-name">Early Purple Wombat</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 4:32 PM</span></td>
+                                <td class="customer-name">Confidential Scarlet Clam</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 4:19 PM</span></td>
+                                <td class="customer-name">Bizarre Black Dog</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 4:14 PM</span></td>
+                                <td class="customer-name">Decisive White Landfowl</td>
+                                <td>🇫🇷 France</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 2:58 PM</span></td>
+                                <td class="customer-name">Symbolic Black Ox</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 2:14 PM</span></td>
+                                <td class="customer-name">Isolated Gray Crawdad</td>
+                                <td>🇮🇹 Italy</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 1:50 PM</span></td>
+                                <td class="customer-name">Stale Lavender Meerkat</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 12:45 PM</span></td>
+                                <td class="customer-name">Embarrassed Apricot Harrier</td>
+                                <td>🇵🇱 Poland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 12:06 PM</span></td>
+                                <td class="customer-name">Grateful Fuchsia Gamefowl</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 11:07 AM</span></td>
+                                <td class="customer-name">Zippy Harlequin Landfowl</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 11:00 AM</span></td>
+                                <td class="customer-name">Bare Lime Wildebeest</td>
+                                <td>🇮🇪 Ireland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 10:53 AM</span></td>
+                                <td class="customer-name">Dull Blue Fox</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 26, 9:50 AM</span></td>
+                                <td class="customer-name">Governing Harlequin Ptarmigan</td>
+                                <td>🇭🇰 Hong Kong</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 8:45 PM</span></td>
+                                <td class="customer-name">Spiritual Harlequin Damselfly</td>
+                                <td>🇵🇱 Poland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 8:07 PM</span></td>
+                                <td class="customer-name">Equivalent Purple Mule</td>
+                                <td>🇵🇱 Poland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 7:47 PM</span></td>
+                                <td class="customer-name">Conscious Copper Smelt</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 6:45 PM</span></td>
+                                <td class="customer-name">Illegal Chocolate Basilisk</td>
+                                <td>🇷🇴 Romania</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 2:15 PM</span></td>
+                                <td class="customer-name">Due Violet Eagle</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 2:00 PM</span></td>
+                                <td class="customer-name">Peculiar Amaranth Eel</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 1:12 PM</span></td>
+                                <td class="customer-name">Scornful Aqua Catfish</td>
+                                <td>🇷🇴 Romania</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 12:28 PM</span></td>
+                                <td class="customer-name">Genetic Yellow Quelea</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 11:44 AM</span></td>
+                                <td class="customer-name">Natural Copper Penguin</td>
+                                <td>🇸🇬 Singapore</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 10:19 AM</span></td>
+                                <td class="customer-name">Elderly Sapphire Jaguar</td>
+                                <td>🇯🇵 Japan</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 10:00 AM</span></td>
+                                <td class="customer-name">Clumsy Brown Cricket</td>
+                                <td>🇰🇷 South Korea</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 9:10 AM</span></td>
+                                <td class="customer-name">Splendid Silver Heron</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 8:48 AM</span></td>
+                                <td class="customer-name">Christian Plum Koi</td>
+                                <td>🇲🇾 Malaysia</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 8:27 AM</span></td>
+                                <td class="customer-name">Guilty Coffee Haddock</td>
+                                <td>🇭🇰 Hong Kong</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 12:46 AM</span></td>
+                                <td class="customer-name">Past Scarlet Badger</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 25, 12:37 AM</span></td>
+                                <td class="customer-name">Middle Beige Jackal</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 10:20 PM</span></td>
+                                <td class="customer-name">Chemical Emerald Wren</td>
+                                <td>🇭🇰 Hong Kong</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 9:35 PM</span></td>
+                                <td class="customer-name">Tasteless Rose Pike</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 9:05 PM</span></td>
+                                <td class="customer-name">Consistent Rose Limpet</td>
+                                <td>🇧🇪 Belgium</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 8:36 PM</span></td>
+                                <td class="customer-name">Grim Apricot Slug</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 4:19 PM</span></td>
+                                <td class="customer-name">Vague Ivory Asp</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 3:57 PM</span></td>
+                                <td class="customer-name">Elaborate Sapphire Bass</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 3:43 PM</span></td>
+                                <td class="customer-name">Central Yellow Hoverfly</td>
+                                <td>🇸🇬 Singapore</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 2:43 PM</span></td>
+                                <td class="customer-name">Functional Coral Weasel</td>
+                                <td>🇫🇮 Finland</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 2:14 PM</span></td>
+                                <td class="customer-name">Dependent Harlequin Bear</td>
+                                <td>🇪🇸 Spain</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 1:36 PM</span></td>
+                                <td class="customer-name">Coastal Crimson Guppy</td>
+                                <td>🇪🇸 Spain</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 12:48 PM</span></td>
+                                <td class="customer-name">Sure Red Dormouse</td>
+                                <td>🇰🇷 South Korea</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 11:51 AM</span></td>
+                                <td class="customer-name">Smart Lime Clam</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 10:24 AM</span></td>
+                                <td class="customer-name">Spectacular Amaranth Canid</td>
+                                <td>🇷🇴 Romania</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 9:53 AM</span></td>
+                                <td class="customer-name">Sticky Olive Seahorse</td>
+                                <td>🇯🇵 Japan</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 24, 12:01 AM</span></td>
+                                <td class="customer-name">Ambitious Gray Bovid</td>
+                                <td>🇮🇳 India</td>
+                                <td class="earnings-amount">$3.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 11:20 PM</span></td>
+                                <td class="customer-name">Minimum Rose Heron</td>
+                                <td>🇬🇧 United Kingdom</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 10:24 PM</span></td>
+                                <td class="customer-name">Rapid Tan Carp</td>
+                                <td>🇸🇬 Singapore</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 9:02 PM</span></td>
+                                <td class="customer-name">Front Brown Yak</td>
+                                <td>🇩🇪 Germany</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 8:33 PM</span></td>
+                                <td class="customer-name">Wee Salmon Tyrannosaurus</td>
+                                <td>🇭🇰 Hong Kong</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 8:02 PM</span></td>
+                                <td class="customer-name">Involved Indigo Ant</td>
+                                <td>🇰🇷 South Korea</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 6:18 PM</span></td>
+                                <td class="customer-name">Forthcoming Ivory Quail</td>
+                                <td>🇦🇪 United Arab Emirates</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 5:43 PM</span></td>
+                                <td class="customer-name">Shaggy Violet Cicada</td>
+                                <td>🇮🇪 Ireland</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 3:11 PM</span></td>
+                                <td class="customer-name">Skinny Violet Cattle</td>
+                                <td>🇫🇷 France</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 2:53 PM</span></td>
+                                <td class="customer-name">Following Apricot Herring</td>
+                                <td>🇮🇳 India</td>
+                                <td class="earnings-amount">$3.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 2:41 PM</span></td>
+                                <td class="customer-name">Tremendous Emerald Quail</td>
+                                <td>🇲🇾 Malaysia</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 2:20 PM</span></td>
+                                <td class="customer-name">Geographical Maroon Wolf</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 12:32 PM</span></td>
+                                <td class="customer-name">Splendid Copper Unicorn</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 11:18 AM</span></td>
+                                <td class="customer-name">Liquid Copper Leopon</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 11:05 AM</span></td>
+                                <td class="customer-name">Strict Fuchsia Capybara</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 23, 10:53 AM</span></td>
+                                <td class="customer-name">Live Coral Viper</td>
+                                <td>🇦🇺 Australia</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 6:49 PM</span></td>
+                                <td class="customer-name">Secure Maroon Pike</td>
+                                <td>🇦🇪 United Arab Emirates</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 6:37 PM</span></td>
+                                <td class="customer-name">Human Olive Worm</td>
+                                <td>🇬🇧 United Kingdom</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 4:14 PM</span></td>
+                                <td class="customer-name">Sacred Beige Rhinoceros</td>
+                                <td>🇦🇪 United Arab Emirates</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 3:16 PM</span></td>
+                                <td class="customer-name">Sad Salmon Cheetah</td>
+                                <td>🇦🇪 United Arab Emirates</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 2:18 PM</span></td>
+                                <td class="customer-name">Human Blush Warbler</td>
+                                <td>🇦🇪 United Arab Emirates</td>
+                                <td class="earnings-amount">$5.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 11:10 AM</span></td>
+                                <td class="customer-name">Wispy Pink Moth</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 10:28 AM</span></td>
+                                <td class="customer-name">Disastrous Amethyst Rook</td>
+                                <td>🇮🇳 India</td>
+                                <td class="earnings-amount">$2.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 22, 10:05 AM</span></td>
+                                <td class="customer-name">Tender Azure Cockroach</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 8:54 PM</span></td>
+                                <td class="customer-name">Nutty Aqua Cattle</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 8:01 PM</span></td>
+                                <td class="customer-name">Regional Plum Thrush</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 4:15 PM</span></td>
+                                <td class="customer-name">Concrete Teal Locust</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 4:00 PM</span></td>
+                                <td class="customer-name">Unemployed Crimson Limpet</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 3:38 PM</span></td>
+                                <td class="customer-name">Fun Azure Falcon</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 2:24 PM</span></td>
+                                <td class="customer-name">Arrogant Emerald Panther</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 1:34 PM</span></td>
+                                <td class="customer-name">Dark Aquamarine Carp</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 1:12 PM</span></td>
+                                <td class="customer-name">Brilliant Azure Planarian</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 12:47 PM</span></td>
+                                <td class="customer-name">Yelling Sapphire Ermine</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 12:38 PM</span></td>
+                                <td class="customer-name">Atomic Bronze Centipede</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 11:40 AM</span></td>
+                                <td class="customer-name">Military Purple Cobra</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 21, 10:53 AM</span></td>
+                                <td class="customer-name">Little Blue Dragon</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 11:36 PM</span></td>
+                                <td class="customer-name">International Tan Takin</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 6:03 PM</span></td>
+                                <td class="customer-name">Mammoth Yellow Egret</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 5:21 PM</span></td>
+                                <td class="customer-name">Moral Black Chicken</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 4:43 PM</span></td>
+                                <td class="customer-name">Stormy Apricot Sparrow</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 4:19 PM</span></td>
+                                <td class="customer-name">Endless Black Hamster</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 11:36 AM</span></td>
+                                <td class="customer-name">Sleepy Crimson Pigeon</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 20, 11:05 AM</span></td>
+                                <td class="customer-name">Rapid Harlequin Goose</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 11:23 PM</span></td>
+                                <td class="customer-name">Sticky Pink Skunk</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 10:46 PM</span></td>
+                                <td class="customer-name">Passive Sapphire Boar</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 10:29 PM</span></td>
+                                <td class="customer-name">Inappropriate Sapphire Minnow</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 9:17 PM</span></td>
+                                <td class="customer-name">Fair Brown Urial</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 4:46 PM</span></td>
+                                <td class="customer-name">Standard Aquamarine Mollusk</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 4:18 PM</span></td>
+                                <td class="customer-name">Yappiest Apricot Chinchilla</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 3:23 PM</span></td>
+                                <td class="customer-name">Yearning Ivory Beetle</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 12:57 PM</span></td>
+                                <td class="customer-name">Moderate Copper Landfowl</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 11:58 AM</span></td>
+                                <td class="customer-name">Characteristic Blush Cod</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 11:31 AM</span></td>
+                                <td class="customer-name">Favourite White Finch</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 10:55 AM</span></td>
+                                <td class="customer-name">Used Amber Eel</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 10:04 AM</span></td>
+                                <td class="customer-name">Delicate Ivory Tiglon</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 19, 9:35 AM</span></td>
+                                <td class="customer-name">Constitutional White Chimp</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$20.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 10:52 PM</span></td>
+                                <td class="customer-name">Novel Bronze Asp</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 7:16 PM</span></td>
+                                <td class="customer-name">Agricultural Blush Swan</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 6:41 PM</span></td>
+                                <td class="customer-name">Splendid Blue Skunk</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 5:52 PM</span></td>
+                                <td class="customer-name">Mass Tomato Snail</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 5:15 PM</span></td>
+                                <td class="customer-name">Uninterested Pink Boa</td>
+                                <td>🇯🇵 Japan</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 3:47 PM</span></td>
+                                <td class="customer-name">Ugly Coffee Pheasant</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 1:18 PM</span></td>
+                                <td class="customer-name">Classical Fuchsia Rhinoceros</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 11:51 AM</span></td>
+                                <td class="customer-name">Respective Turquoise Weasel</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 18, 11:16 AM</span></td>
+                                <td class="customer-name">Yodelling Amaranth Kiwi</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 10:21 PM</span></td>
+                                <td class="customer-name">Planned Amethyst Dove</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 7:09 PM</span></td>
+                                <td class="customer-name">Potential Magenta Opossum</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 3:38 PM</span></td>
+                                <td class="customer-name">Communist Amethyst Bat</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 2:40 PM</span></td>
+                                <td class="customer-name">Technological Fuchsia Stoat</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 2:04 PM</span></td>
+                                <td class="customer-name">Different Salmon Planarian</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 11:34 AM</span></td>
+                                <td class="customer-name">Resident Tan Cardinal</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 11:06 AM</span></td>
+                                <td class="customer-name">Steady Crimson Mackerel</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 10:43 AM</span></td>
+                                <td class="customer-name">Detailed Emerald Ant</td>
+                                <td>🇷🇴 Romania</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 17, 10:14 AM</span></td>
+                                <td class="customer-name">Daily Orange Snake</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 16, 8:45 PM</span></td>
+                                <td class="customer-name">Ministerial Bronze Bug</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 16, 7:57 PM</span></td>
+                                <td class="customer-name">Successful Jade Ape</td>
+                                <td>🇨🇦 Canada</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 16, 1:51 PM</span></td>
+                                <td class="customer-name">Likely Tan Viper</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 16, 12:16 PM</span></td>
+                                <td class="customer-name">Kind Chocolate Raven</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 16, 11:13 AM</span></td>
+                                <td class="customer-name">Real Cyan Asp</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 16, 10:08 AM</span></td>
+                                <td class="customer-name">Electrical Gray Woodpecker</td>
+                                <td>🇳🇱 Netherlands</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 15, 11:04 PM</span></td>
+                                <td class="customer-name">Psychiatric Lime Centipede</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 15, 9:52 PM</span></td>
+                                <td class="customer-name">Grumpy Gold Guineafowl</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 15, 2:34 PM</span></td>
+                                <td class="customer-name">Nosy Amethyst Hawk</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 15, 2:03 PM</span></td>
+                                <td class="customer-name">Formidable Cyan Sole</td>
+                                <td>🇸🇬 Singapore</td>
+                                <td class="earnings-amount">$10.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 15, 1:24 PM</span></td>
+                                <td class="customer-name">Chubby Olive Starfish</td>
+                                <td>🇺🇸 United States</td>
+                                <td class="earnings-amount">$15.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 14, 3:17 PM</span></td>
+                                <td class="customer-name">Organisational Chocolate Panda</td>
+                                <td>🇮🇳 India</td>
+                                <td class="earnings-amount">$2.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="timestamp">Oct 14, 2:28 PM</span></td>
+                                <td class="customer-name">Fuzzy Blue Angelfish</td>
+                                <td>🇮🇳 India</td>
+                                <td class="earnings-amount">$2.00</td>
+                                <td><span class="badge pending"><i class="fas fa-hourglass-half"></i> Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Create particle background
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 80;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                
+                // Random colors between purple and pink
+                const colors = [
+                    'rgba(139, 92, 246, 0.6)',
+                    'rgba(236, 72, 153, 0.6)',
+                    'rgba(167, 139, 250, 0.6)',
+                    'rgba(244, 114, 182, 0.6)',
+                    'rgba(59, 130, 246, 0.6)'
+                ];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Animate numbers counting up
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                
+                if (element.textContent.includes('$')) {
+                    element.textContent = '$' + Math.floor(progress * (end - start) + start).toLocaleString();
+                } else if (element.textContent.includes('%')) {
+                    element.textContent = (progress * (end - start) + start).toFixed(1) + '%';
+                } else {
+                    element.textContent = Math.floor(progress * (end - start) + start).toLocaleString();
+                }
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Trigger number animations on page load
+        window.addEventListener('load', () => {
+            const statValues = document.querySelectorAll('.stat-card .value');
+            statValues.forEach((value, index) => {
+                setTimeout(() => {
+                    const text = value.textContent;
+                    if (text.includes('$')) {
+                        const num = parseInt(text.replace(/[$,]/g, ''));
+                        animateValue(value, 0, num, 2000);
+                    } else if (text.includes('%')) {
+                        const num = parseFloat(text.replace('%', ''));
+                        animateValue(value, 0, num, 2000);
+                    } else {
+                        const num = parseInt(text.replace(/,/g, ''));
+                        animateValue(value, 0, num, 2000);
+                    }
+                }, index * 200);
+            });
+
+            // Remove loading bar after animation
+            setTimeout(() => {
+                const loadingBar = document.querySelector('.loading-bar');
+                if (loadingBar) {
+                    loadingBar.style.opacity = '0';
+                    setTimeout(() => loadingBar.remove(), 300);
+                }
+            }, 2000);
+        });
+
+        // Search and Filter Functionality
+        const searchInput = document.getElementById('searchInput');
+        const countryFilter = document.getElementById('countryFilter');
+        const amountFilter = document.getElementById('amountFilter');
+        const tableBody = document.getElementById('tableBody');
+        const rows = tableBody.getElementsByTagName('tr');
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCountry = countryFilter.value;
+            const selectedAmount = amountFilter.value;
+
+            for (let row of rows) {
+                const customer = row.cells[1].textContent.toLowerCase();
+                const country = row.cells[2].textContent;
+                const amount = row.cells[3].textContent.replace('$', '').replace('.00', '');
+
+                const matchesSearch = customer.includes(searchTerm) || 
+                                    country.toLowerCase().includes(searchTerm) ||
+                                    amount.includes(searchTerm);
+                const matchesCountry = !selectedCountry || country.includes(selectedCountry);
+                const matchesAmount = !selectedAmount || amount === selectedAmount;
+
+                if (matchesSearch && matchesCountry && matchesAmount) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+
+        searchInput.addEventListener('keyup', filterTable);
+        countryFilter.addEventListener('change', filterTable);
+        amountFilter.addEventListener('change', filterTable);
+
+        // Add staggered animation to table rows
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateX(0)';
+                    }, index * 30);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all table rows
+        Array.from(rows).forEach((row) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(-20px)';
+            row.style.transition = 'all 0.5s ease';
+            observer.observe(row);
+        });
+
+        // Copy referral link functionality
+        document.querySelector('.referral-box .link').addEventListener('click', function() {
+            const text = this.textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const tooltip = this.querySelector('.tooltiptext');
+                const originalText = tooltip.textContent;
+                tooltip.textContent = 'Copied!';
+                setTimeout(() => {
+                    tooltip.textContent = originalText;
+                }, 2000);
+            });
+        });
+
+        // Add ripple effect to stat cards
+        document.querySelectorAll('.stat-card, .summary-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                ripple.style.pointerEvents = 'none';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body>
+</html>
