@@ -782,10 +782,10 @@
                 setToast({ show: false, message: '' });
             };
 
+            // 
+            // THIS IS THE CORRECT, SINGLE FUNCTION
+            //
             const handleCategorySelect = (categoryTitle) => {
-                setView('chat');
-
-const handleCategorySelect = (categoryTitle) => {
                 setView('chat');
 
                 // Extract the plain text topic
@@ -816,6 +816,7 @@ const handleCategorySelect = (categoryTitle) => {
                     { role: 'model', parts: [{ text: categoryGreetingMessage.text }] }
                 ];
             };
+            
             const handleGoHome = () => {
                  setView('home');
             };
