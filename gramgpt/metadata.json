@@ -1,0 +1,7 @@
+{
+  "name": "GramGPT",
+  "description": "An intelligent AI assistant for rural India, providing instant, reliable information in multiple local languages on topics like government schemes, agriculture, legal rights, and job opportunities.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
