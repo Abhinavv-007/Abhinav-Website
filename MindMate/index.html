@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindMate - Your AI Mental Wellness Companion</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fade-in 0.6s ease-out forwards',
+                        'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+                        'slide-in-right': 'slide-in-right 0.4s ease-out forwards',
+                        'scale-in': 'scale-in 0.3s ease-out forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        'fade-in': {
+                            from: { opacity: '0', transform: 'translateY(10px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'fade-in-up': {
+                            from: { opacity: '0', transform: 'translateY(20px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'slide-in-right': {
+                            from: { opacity: '0', transform: 'translateX(30px)' },
+                            to: { opacity: '1', transform: 'translateX(0)' },
+                        },
+                        'scale-in': {
+                            from: { opacity: '0', transform: 'scale(0.9)' },
+                            to: { opacity: '1', transform: 'scale(1)' },
+                        },
+                        'gradient': {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'glow': {
+                            from: { boxShadow: '0 0 20px rgba(20, 184, 166, 0.3)' },
+                            to: { boxShadow: '0 0 30px rgba(20, 184, 166, 0.6), 0 0 40px rgba(20, 184, 166, 0.3)' },
+                        },
+                    },
+                    backgroundSize: {
+                        '200%': '200% 200%',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+        
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* User request: Zoom out to 85% */
+        html {
+            zoom: 0.85;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+            border-radius: 10px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #475569, #334155);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass-effect {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dark .gradient-text {
+            background: linear-gradient(135deg, #4fd1c5 0%, #81e6d9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            top: 50%;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-4px);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            animation: slide-in-right 0.3s ease-out;
+        }
+
+        .mood-button {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mood-button:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .mood-button.selected {
+            animation: glow 1.5s ease-in-out infinite;
+        }
+
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .shine:hover::before {
+            left: 100%;
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(0.95);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.05);
+            }
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-500">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // ========== CONSTANTS ==========
+        const MOODS = [
+            { emoji: '😊', label: 'Happy', color: 'bg-emerald-400', chartColor: '#34d399', glow: 'rgba(52, 211, 153, 0.5)' },
+            { emoji: '🙂', label: 'Okay', color: 'bg-amber-400', chartColor: '#fbbf24', glow: 'rgba(251, 191, 36, 0.5)' },
+            { emoji: '😐', label: 'Neutral', color: 'bg-slate-400', chartColor: '#94a3b8', glow: 'rgba(148, 163, 184, 0.5)' },
+            { emoji: '😕', label: 'Confused', color: 'bg-violet-400', chartColor: '#a78bfa', glow: 'rgba(167, 139, 250, 0.5)' },
+            { emoji: '😔', label: 'Sad', color: 'bg-blue-400', chartColor: '#60a5fa', glow: 'rgba(96, 165, 250, 0.5)' },
+            { emoji: '😠', label: 'Angry', color: 'bg-rose-400', chartColor: '#fb7185', glow: 'rgba(251, 113, 133, 0.5)' },
+        ];
+        
+        const DEFAULT_AFFIRMATIONS = [
+            "I am capable of handling whatever comes my way.",
+            "I choose to be happy and to love myself today.",
+            "My feelings are valid, and I allow myself to feel them.",
+            "I am resilient and can overcome challenges.",
+            "I am worthy of peace and inner calm.",
+            "Every day is a new opportunity for growth.",
+            "I trust in my journey and embrace the process.",
+        ];
+
+        // ========== ICONS ==========
+        const SunIcon = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="4" strokeWidth="2"/>
+                <path strokeWidth="2" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+        );
+
+        const MoonIcon = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        );
+
+        const SendIcon = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="m22 2-7 20-4-9-9-4Z"/>
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M22 2 11 13"/>
+            </svg>
+        );
+
+        const SparklesIcon = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
+            </svg>
+        );
+
+        const ChartIcon = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+        );
+
+        const DownloadIcon = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+        );
+
+        const EditIcon = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+        );
+
+        const TrashIcon = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        );
+
+        // ========== TOAST NOTIFICATION ==========
+        const Toast = ({ message, type = 'success', onClose }) => {
+            useEffect(() => {
+                const timer = setTimeout(onClose, 3000);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+
+            const bgColor = type === 'success' ? 'bg-emerald-500' : 'bg-rose-500';
+
+            return (
+                <div className={`toast ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3`}>
+                    <SparklesIcon />
+                    <span className="font-medium">{message}</span>
+                </div>
+            );
+        };
+
+        // ========== HEADER ==========
+        const Header = ({ theme, setTheme }) => {
+            const toggleTheme = () => {
+                const newTheme = theme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+            };
+
+            useEffect(() => {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.setItem('theme', theme);
+            }, [theme]);
+
+            return (
+                <header className="sticky top-0 z-50 glass-effect">
+                    <div className="max-w-7xl mx-auto px-6 py-4 relative flex justify-center items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg">
+                                <span className="text-2xl">🧠</span>
+                            </div>
+                            <h1 className="text-2xl font-bold">
+                                Mind<span className="gradient-text">Mate</span>
+                            </h1>
+                        </div>
+                        <button 
+                            onClick={toggleTheme} 
+                            className="absolute right-6 top-1/2 -translate-y-1/2 p-3 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-300/50 dark:hover:bg-slate-700/50 transition-all duration-300 hover:scale-110"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+                        </button>
+                    </div>
+                </header>
+            );
+        };
+
+        // ========== FOOTER ==========
+        const Footer = () => (
+            <footer className="text-center py-6 glass-effect">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                    Crafted with <span className="text-rose-500 animate-pulse">❤️</span> by{' '}
+                    <a 
+                        href="https://www.linkedin.com/in/abhnv07/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="font-semibold text-teal-600 dark:text-teal-400 hover:underline"
+                    >
+                        Abhinav
+                    </a>
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-500">Your data is safe and stored locally 🔒</p>
+            </footer>
+        );
+
+        // ========== LANDING PAGE ==========
+        const LandingPage = ({ onStart }) => (
+            <div className="relative flex flex-col items-center justify-center text-center px-8 py-20 flex-grow overflow-hidden">
+                {/* Floating orbs */}
+                <div className="floating-orb orb-1"></div>
+                <div className="floating-orb orb-2"></div>
+                <div className="floating-orb orb-3"></div>
+
+                <div className="relative z-10 max-w-4xl animate-fade-in">
+                    <div className="mb-8 inline-block">
+                        <div className="text-7xl mb-4 animate-float">🧠</div>
+                    </div>
+                    
+                    <h2 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                        Your Safe Space to{' '}
+                        <span className="gradient-text">Reflect</span>
+                    </h2>
+                    
+                    <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+                        MindMate is your private AI companion for journaling. 
+                        Understand your feelings, discover patterns, and find moments of calm.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                        <button
+                            onClick={onStart}
+                            className="group relative px-8 py-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-bold rounded-2xl shadow-2xl shadow-teal-500/50 hover:shadow-teal-500/70 transition-all duration-300 transform hover:scale-105 shine overflow-hidden"
+                        >
+                            <span className="relative z-10 flex items-center gap-2">
+                                <SparklesIcon />
+                                Start Your Journey
+                            </span>
+                        </button>
+                        
+                        <button
+                            onClick={onStart}
+                            className="px-8 py-4 glass-effect text-slate-700 dark:text-slate-200 font-semibold rounded-2xl hover:bg-white/90 dark:hover:bg-slate-800/90 transition-all duration-300"
+                        >
+                            Learn More
+                        </button>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                        {[
+                            { icon: '🔒', title: '100% Private', desc: 'Your data stays on your device' },
+                            { icon: '🤖', title: 'AI-Powered', desc: 'Intelligent mood analysis' },
+                            { icon: '📊', title: 'Track Progress', desc: 'Visual insights & trends' },
+                        ].map((feature, i) => (
+                            <div key={i} className="glass-effect p-6 rounded-2xl hover-lift card-hover" style={{animationDelay: `${i * 100}ms`}}>
+                                <div className="text-4xl mb-3">{feature.icon}</div>
+                                <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
+                                <p className="text-sm text-slate-600 dark:text-slate-400">{feature.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+
+        // ========== STAT CARD ==========
+        const StatCard = ({ title, value, icon, color = 'teal', trend }) => (
+            <div className="glass-effect p-6 rounded-2xl hover-lift card-hover group">
+                <div className="flex items-start justify-between mb-3">
+                    <div className={`p-3 rounded-xl bg-gradient-to-br from-${color}-400 to-${color}-500 text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                        {icon}
+                    </div>
+                    {trend && (
+                        <span className="text-xs font-semibold text-emerald-500 flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
+                            </svg>
+                            {trend}
+                        </span>
+                    )}
+                </div>
+                <p className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent mb-1">
+                    {value}
+                </p>
+                <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400">{title}</h3>
+            </div>
+        );
+
+        // ========== AFFIRMATION CARD ==========
+        const AffirmationCard = ({ affirmations, openAffirmationModal }) => {
+            const [affirmation, setAffirmation] = useState('');
+            
+            useEffect(() => {
+                const today = new Date().toDateString();
+                const lastDate = localStorage.getItem('affirmationDate');
+                let dailyAffirmation;
+
+                if (today !== lastDate) {
+                    dailyAffirmation = affirmations[Math.floor(Math.random() * affirmations.length)];
+                    localStorage.setItem('dailyAffirmation', dailyAffirmation);
+                    localStorage.setItem('affirmationDate', today);
+                } else {
+                    dailyAffirmation = localStorage.getItem('dailyAffirmation') || affirmations[0];
+                }
+                setAffirmation(dailyAffirmation);
+            }, [affirmations]);
+            
+            return (
+                <div className="glass-effect p-6 rounded-2xl relative group hover-lift card-hover">
+                    <button 
+                        onClick={openAffirmationModal} 
+                        className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+                        aria-label="Edit affirmations"
+                    >
+                        <EditIcon/>
+                    </button>
+                    <div className="flex items-center gap-2 mb-3">
+                        <SparklesIcon />
+                        <h3 className="font-bold text-lg">Daily Affirmation</h3>
+                    </div>
+                    <p className="text-slate-700 dark:text-slate-300 italic leading-relaxed">
+                        "{affirmation}"
+                    </p>
+                </div>
+            );
+        };
+
+        // ========== MOOD CHART ==========
+        const MoodHistoryChart = ({ entries, theme }) => {
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (chartRef.current && entries.length > 0) {
+                    const ctx = chartRef.current.getContext('2d');
+                    
+                    const moodCounts = MOODS.reduce((acc, mood) => {
+                        acc[mood.label] = 0;
+                        return acc;
+                    }, {});
+                    
+                    entries.forEach(entry => {
+                        if (entry.type === 'user' && entry.mood) {
+                            // Ensure mood label exists in our list before incrementing
+                            if (moodCounts.hasOwnProperty(entry.mood.label)) {
+                                moodCounts[entry.mood.label]++;
+                            }
+                        }
+                    });
+
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                    }
+
+                    chartInstance.current = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: MOODS.map(m => `${m.emoji} ${m.label}`),
+                            datasets: [{
+                                data: MOODS.map(m => moodCounts[m.label]),
+                                backgroundColor: MOODS.map(m => m.chartColor),
+                                borderWidth: 3,
+                                borderColor: theme === 'dark' ? '#0f172a' : '#ffffff',
+                                hoverOffset: 12,
+                                hoverBorderWidth: 4,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: theme === 'dark' ? '#cbd5e1' : '#475569',
+                                        padding: 16,
+                                        font: { family: "'Inter', sans-serif", size: 12, weight: '500' },
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+                                    titleColor: theme === 'dark' ? '#f1f5f9' : '#0f172a',
+                                    bodyColor: theme === 'dark' ? '#cbd5e1' : '#475569',
+                                    borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
+                                    borderWidth: 1,
+                                    padding: 12,
+                                    cornerRadius: 8,
+                                    titleFont: { size: 14, weight: '600' },
+                                    bodyFont: { size: 13 },
+                                }
+                            },
+                            cutout: '65%',
+                        }
+                    });
+                }
+
+                return () => {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                    }
+                };
+            }, [entries, theme]);
+            
+            if(entries.filter(e => e.type === 'user' && e.mood).length === 0) return (
+                <div className="glass-effect p-8 rounded-2xl text-center">
+                    <div className="text-5xl mb-4 opacity-50">📊</div>
+                    <h3 className="font-bold text-lg mb-2">Mood Distribution</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Log your first mood to see your chart!
+                    </p>
+                </div>
+            );
+
+            return (
+                <div className="glass-effect p-6 rounded-2xl card-hover">
+                    <div className="flex items-center gap-2 mb-4">
+                        <ChartIcon />
+                        <h3 className="font-bold text-lg">Mood Distribution</h3>
+                    </div>
+                    <div style={{height: '280px'}}>
+                        <canvas ref={chartRef}></canvas>
+                    </div>
+                </div>
+            );
+        };
+
+        // ========== JOURNAL ENTRY ==========
+        const JournalEntry = ({ entry }) => {
+            const { type, text, mood, aiResponse, timestamp } = entry;
+            const date = new Date(timestamp).toLocaleString([], { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            if (type === 'user') {
+                return (
+                    <div className="flex justify-end mb-6 animate-fade-in-up group">
+                        <div className="max-w-lg">
+                            <div className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white rounded-3xl rounded-br-md px-6 py-4 shadow-xl shadow-teal-500/20 group-hover:shadow-2xl group-hover:shadow-teal-500/30 transition-all">
+                                {mood && (
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="text-2xl">{mood?.emoji}</span>
+                                        <span className="font-semibold text-sm opacity-90">{mood?.label}</span>
+                                    </div>
+                                )}
+                                <p className="leading-relaxed">{text}</p>
+                                <p className="text-xs text-teal-100 mt-3 text-right opacity-75">{date}</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            if (type === 'dream') {
+                return (
+                    <div className="flex justify-end mb-6 animate-fade-in-up group">
+                        <div className="max-w-lg">
+                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-3xl rounded-br-md px-6 py-4 shadow-xl shadow-purple-500/20 group-hover:shadow-2xl group-hover:shadow-purple-500/30 transition-all">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-2xl">🌙</span>
+                                    <span className="font-semibold text-sm opacity-90">Dream Journal</span>
+                                </div>
+                                <p className="leading-relaxed italic">"{text}"</p>
+                                <p className="text-xs text-purple-100 mt-3 text-right opacity-75">{date}</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            if (type === 'ai_intro') {
+                return (
+                    <div className="flex justify-start mb-6 animate-fade-in-up">
+                        <div className="max-w-lg">
+                            <div className="glass-effect rounded-3xl rounded-bl-md px-6 py-4 shadow-lg">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center">
+                                        <span className="text-xs">🤖</span>
+                                    </div>
+                                    <span className="font-semibold text-sm gradient-text">MindMate</span>
+                                </div>
+                                <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{text}</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex justify-start mb-6 animate-fade-in-up group">
+                    <div className="max-w-lg">
+                        <div className="glass-effect rounded-3xl rounded-bl-md px-6 py-4 shadow-lg group-hover:shadow-xl transition-all">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center">
+                                    <span className="text-xs">🤖</span>
+                                </div>
+                                <span className="font-semibold text-sm gradient-text">MindMate</span>
+                            </div>
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3">
+                                {/* Updated to show new conversational fields */}
+                                {aiResponse.greeting && <span className="block mb-2">{aiResponse.greeting}</span>}
+                                {aiResponse.mainReply && <span className="block mb-2">{aiResponse.mainReply}</span>}
+                                {aiResponse.empatheticResponse && <span className="block mb-2">{aiResponse.empatheticResponse}</span>} {/* Fallback for dream */}
+                                {aiResponse.closingThought && <span className="block">{aiResponse.closingThought}</span>}
+                            </p>
+                            
+                            {/* Updated to check for 'solution' (mood) or 'reflectionPrompt' (dream) */}
+                            {(aiResponse.suggestion || aiResponse.solution || aiResponse.reflectionPrompt) && (
+                                <div className="p-4 mt-3 rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border border-teal-200 dark:border-teal-800">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-lg">💡</span>
+                                        <div>
+                                            <p className="font-semibold text-sm text-teal-900 dark:text-teal-100 mb-1">
+                                                {/* Dynamically set title */}
+                                                {aiResponse.solution ? "A MindMate Solution" : (aiResponse.reflectionPrompt ? "A Reflection Prompt" : "Suggested Action")}
+                                            </p>
+                                            <p className="text-sm text-teal-800 dark:text-teal-200">
+                                                {/* Show the correct text */}
+                                                {aiResponse.solution || aiResponse.reflectionPrompt || aiResponse.suggestion}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <p className="text-xs text-slate-400 mt-3 text-right">{date}</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ========== JOURNAL PAGE ==========
+        const JournalPage = ({ entries, setEntries, affirmations, setAffirmations, theme, apiKey }) => {
+            const [input, setInput] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [journalMode, setJournalMode] = useState('mood');
+            const [isAffirmationModalOpen, setAffirmationModalOpen] = useState(false);
+            const [toast, setToast] = useState(null);
+            const chatEndRef = useRef(null);
+
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [entries]);
+            
+            useEffect(() => {
+                if(entries.length === 0) {
+                    setEntries([{ 
+                        type: 'ai_intro', 
+                        text: 'Welcome to your safe space. How are you feeling today? Share your thoughts with me, and let\'s explore them together. 💚', 
+                        timestamp: new Date().toISOString() 
+                    }]);
+                }
+            }, []);
+
+            const showToast = (message, type = 'success') => {
+                setToast({ message, type });
+            };
+
+            const handleJournalSubmit = async (e) => {
+                e.preventDefault();
+                if (isLoading || !input.trim()) return;
+                
+                setIsLoading(true);
+
+                if (journalMode === 'dream') {
+                    await handleDreamInterpretation();
+                    return;
+                }
+
+                const userEntryPartial = {
+                    type: 'user',
+                    text: input,
+                    timestamp: new Date().toISOString(),
+                };
+
+                const allMoods = MOODS.map(m => `(${m.emoji} ${m.label})`).join(', ');
+
+                const prompt = `You are MindMate, a compassionate AI mental health companion. Your goal is to provide insightful, supportive, and actionable replies. Analyze this journal entry:
+                
+Entry: "${input}"
+
+First, select the *one* most fitting mood from this list: ${allMoods}.
+                
+Then, provide a JSON response with:
+1. "inferredMood": An object with the "emoji" and "label" of the mood you selected.
+2. "mentalHealthScore": A score from 1-100 based on the sentiment.
+3. "greeting": "A short, warm greeting (e.g., 'Thanks for sharing this with me.')"
+4. "mainReply": "Your main analysis (2-3 sentences). Reflect on their feelings, validate them, and offer a gentle insight about their entry."
+5. "solution": "A concrete, actionable solution or coping strategy they can try. Be specific. (e.g., 'Here's a small solution you could try: ...')."
+6. "closingThought": "A final, supportive closing remark (1-2 sentences). (e.g., 'Remember to be kind to yourself. You're taking a positive step.')"`;
+
+                // Use the user-provided API key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                try {
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    };
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorBody = await response.json();
+                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody.error?.message || 'Unknown error'}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (!result.candidates || !result.candidates[0].content || !result.candidates[0].content.parts[0].text) {
+                        throw new Error("Invalid response structure from API.");
+                    }
+
+                    const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
+                    
+                    // FIXED: Create two separate entries.
+                    // 1. The User Entry (with stats data)
+                    const userEntry = {
+                        ...userEntryPartial,
+                        mood: aiResponse.inferredMood, // Get mood from AI
+                        aiResponse: { // Store stats data for the stats hook
+                            mentalHealthScore: aiResponse.mentalHealthScore
+                        }
+                    };
+                    
+                    // 2. The AI Entry (with conversational text)
+                    const aiEntry = {
+                        type: 'ai',
+                        aiResponse: {
+                            greeting: aiResponse.greeting,
+                            mainReply: aiResponse.mainReply,
+                            solution: aiResponse.solution,
+                            closingThought: aiResponse.closingThought
+                        },
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    setEntries(prev => [...prev, userEntry, aiEntry]); // Add both entries
+                    showToast('Entry saved successfully! 🎉');
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    let errorMessage = "Connection issue. Please try again.";
+                    if (error.message.includes("API Error")) {
+                        errorMessage = "API Key might be invalid or quota exceeded. Please check.";
+                    } else if (error.message.includes("Invalid response")) {
+                        errorMessage = "AI response was unclear. Please try again.";
+                    }
+
+                    const errorEntry = {
+                        ...userEntryPartial,
+                        mood: null, // No mood could be inferred
+                        aiResponse: { // This is the user entry's aiResponse, for stats
+                            mentalHealthScore: null
+                        }
+                    };
+                    // Create a separate AI error bubble
+                    const aiErrorEntry = {
+                        type: 'ai',
+                        aiResponse: {
+                            greeting: "Oh no!",
+                            mainReply: `I seem to be having a little trouble connecting right now. ${errorMessage}`,
+                            closingThought: "Please try again in a moment."
+                        },
+                        timestamp: new Date().toISOString()
+                    }
+                    setEntries(prev => [...prev, errorEntry, aiErrorEntry]);
+                    showToast(errorMessage, 'error');
+                } finally {
+                    setInput('');
+                    setIsLoading(false);
+                }
+            };
+            
+            const handleDreamInterpretation = async () => {
+                const dreamEntry = {
+                    type: 'dream',
+                    text: input,
+                    timestamp: new Date().toISOString()
+                };
+
+                const prompt = `You are MindMate, a gentle and insightful dream interpreter. Your goal is to provide a thoughtful and supportive interpretation. A user shared this dream:
+
+"${input}"
+
+Provide a JSON response with:
+1. "greeting": "A short, gentle greeting (e.g., 'That's a fascinating dream.')"
+2. "mainReply": "Your main interpretation (2-3 sentences). Focus on common symbols and possible *open-ended* meanings. Don't be definitive."
+3. "reflectionPrompt": "A specific reflective question or journaling prompt based on the dream, to help them explore it further."
+4. "closingThought": "A final, supportive closing remark (1-2 sentences). (e.g., 'Dreams are a window into our thoughts. Taking time to reflect is a great step.')"`;
+
+                // Use the user-provided API key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                try {
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    };
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorBody = await response.json();
+                        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody.error?.message || 'Unknown error'}`);
+                    }
+                    
+                    const result = await response.json();
+
+                    if (!result.candidates || !result.candidates[0].content || !result.candidates[0].content.parts[0].text) {
+                        throw new Error("Invalid response structure from API.");
+                    }
+                    
+                    const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
+                    
+                    // Rename reflectionPrompt to 'solution' internally for the suggestion box to read it
+                    // No, wait, I fixed the suggestion box. It now checks for 'reflectionPrompt'
+                    
+                    setEntries(prev => [...prev, dreamEntry, { type: 'ai', aiResponse, timestamp: new Date().toISOString() }]);
+                    showToast('Dream interpretation complete! 🌙');
+                } catch (error) {
+                    console.error("Error:", error);
+                    let errorMessage = "Connection issue. Please try again.";
+                    if (error.message.includes("API Error")) {
+                        errorMessage = "API Key might be invalid or quota exceeded. Please check.";
+                    }
+
+                    const errorEntry = {
+                        type: 'ai',
+                        aiResponse: {
+                            greeting: "Apologies!",
+                            mainReply: "I'm having trouble interpreting dreams right now. Your subconscious is mysterious, and I'll be ready to explore it with you soon.",
+                            reflectionPrompt: "Why not try again in a moment?",
+                            closingThought: ""
+                        },
+                        timestamp: new Date().toISOString()
+                    };
+                    setEntries(prev => [...prev, dreamEntry, errorEntry]);
+                    showToast(errorMessage, 'error');
+                } finally {
+                    setInput('');
+                    setIsLoading(false);
+                }
+            };
+
+            // Analytics
+            const { streak, lastScore, weeklyInsight, totalEntries } = useMemo(() => {
+                const userEntries = entries.filter(e => e.type === 'user' && e.mood); // Ensure mood exists
+                if (userEntries.length === 0) {
+                    return {
+                        streak: 0,
+                        lastScore: null,
+                        weeklyInsight: "Start journaling to unlock insights about your emotional patterns.",
+                        totalEntries: 0
+                    };
+                }
+                
+                // Streak calculation
+                let currentStreak = 0;
+                const uniqueDays = [...new Set(userEntries.map(e => new Date(e.timestamp).toDateString()))];
+                uniqueDays.sort((a,b) => new Date(b) - new Date(a));
+                
+                if (uniqueDays.length > 0) {
+                    const today = new Date();
+                    const yesterday = new Date();
+                    yesterday.setDate(today.getDate() - 1);
+                    
+                    if (new Date(uniqueDays[0]).toDateString() === today.toDateString() || 
+                        new Date(uniqueDays[0]).toDateString() === yesterday.toDateString()) {
+                        currentStreak = 1;
+                        for (let i = 0; i < uniqueDays.length - 1; i++) {
+                            const day1 = new Date(uniqueDays[i]);
+                            const day2 = new Date(uniqueDays[i+1]);
+                            const diffDays = Math.ceil((day1 - day2) / (1000 * 60 * 60 * 24));
+                            if (diffDays === 1) currentStreak++;
+                            else break;
+                        }
+                    }
+                }
+                
+                // Last score
+                const lastUserEntry = [...userEntries].reverse().find(e => e.aiResponse?.mentalHealthScore);
+                const score = lastUserEntry?.aiResponse?.mentalHealthScore || null;
+
+                // Weekly insight
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                const recentEntries = userEntries.filter(e => new Date(e.timestamp) > oneWeekAgo);
+                
+                let insight = "Not enough data from this week yet.";
+                if (recentEntries.length >= 3) {
+                    const moodCounts = recentEntries.reduce((acc, entry) => {
+                        // Ensure mood exists before counting
+                        if (entry.mood && entry.mood.label) {
+                            acc[entry.mood.label] = (acc[entry.mood.label] || 0) + 1;
+                        }
+                        return acc;
+                    }, {});
+
+                    // Check if moodCounts has any keys
+                    if(Object.keys(moodCounts).length > 0) {
+                        const mostFrequentMood = Object.keys(moodCounts).reduce((a, b) => 
+                            moodCounts[a] > moodCounts[b] ? a : b
+                        );
+                        const moodEmoji = MOODS.find(m => m.label === mostFrequentMood)?.emoji;
+                        insight = `This week, your most frequent mood has been ${moodEmoji} ${mostFrequentMood}. ${
+                            mostFrequentMood === 'Happy' ? 'Keep up the positive energy!' :
+                            mostFrequentMood === 'Sad' ? 'Remember, it\'s okay to feel this way. Be kind to yourself.' :
+                            'Every emotion is valid. You\'re doing great by journaling.'
+                        }`;
+                    } else {
+                        insight = "Keep journaling to see your weekly mood trends!";
+                    }
+                }
+
+                return { 
+                    streak: currentStreak, 
+                    lastScore: score, 
+                    weeklyInsight: insight,
+                    totalEntries: userEntries.length 
+                };
+            }, [entries]);
+
+            const handleExport = (format) => {
+                let content = "";
+                let filename = "";
+                let mimeType = "";
+
+                if (format === 'md') {
+                    content = "# 🧠 MindMate Journal Export\n\n";
+                    content += `*Generated on ${new Date().toLocaleString()}*\n\n---\n\n`;
+                    
+                    entries.forEach(entry => {
+                        if (entry.type === 'user') {
+                            content += `## ${new Date(entry.timestamp).toLocaleString()}\n\n`;
+                            if (entry.mood) {
+                                content += `**Mood:** ${entry.mood.emoji} ${entry.mood.label}\n\n`;
+                            }
+                            content += `### Your Entry\n${entry.text}\n\n`;
+                            if (entry.aiResponse) {
+                                content += `### MindMate's Response\n${entry.aiResponse.empatheticResponse}\n\n`;
+                                if (entry.aiResponse.suggestion) {
+                                    content += `**💡 Suggestion:** ${entry.aiResponse.suggestion}\n\n`;
+                                }
+                            }
+                            content += `---\n\n`;
+                        } else if (entry.type === 'dream') {
+                            content += `## 🌙 Dream - ${new Date(entry.timestamp).toLocaleString()}\n\n`;
+                            content += `*${entry.text}*\n\n`;
+                            if (entry.aiResponse) {
+                                content += `### MindMate's Interpretation\n${entry.aiResponse.empatheticResponse}\n\n`;
+                                if (entry.aiResponse.suggestion) {
+                                    content += `**💡 Prompt:** ${entry.aiResponse.suggestion}\n\n`;
+                                }
+                            }
+                            content += `---\n\n`;
+                        }
+                    });
+                    
+                    filename = `MindMate_Journal_${new Date().toISOString().split('T')[0]}.md`;
+                    mimeType = "text/markdown";
+                } else if (format === 'txt') {
+                    content = "========================================\n";
+                    content += "        MindMate Journal Export\n";
+                    content += `      ${new Date().toLocaleString()}\n`;
+                    content += "========================================\n\n";
+                    
+                    entries.forEach(entry => {
+                        if (entry.type === 'user') {
+                            content += `[${new Date(entry.timestamp).toLocaleString()}]\n`;
+                            if (entry.mood) {
+                                content += `Mood: ${entry.mood.emoji} ${entry.mood.label}\n\n`;
+                            }
+                            content += `You wrote:\n${entry.text}\n\n`;
+                            if (entry.aiResponse) {
+                                content += `MindMate responded:\n${entry.aiResponse.empatheticResponse}\n`;
+                                if (entry.aiResponse.suggestion) {
+                                    content += `\nSuggestion: ${entry.aiResponse.suggestion}\n`;
+                                }
+                            }
+                            content += `\n${'='.repeat(50)}\n\n`;
+                        } else if (entry.type === 'dream') {
+                            content += `[Dream - ${new Date(entry.timestamp).toLocaleString()}]\n`;
+                            content += `${entry.text}\n\n`;
+                             if (entry.aiResponse) {
+                                content += `MindMate's Interpretation:\n${entry.aiResponse.empatheticResponse}\n`;
+                                if (entry.aiResponse.suggestion) {
+                                    content += `\nPrompt: ${entry.aiResponse.suggestion}\n`;
+                                }
+                            }
+                            content += `\n${'='.repeat(50)}\n\n`;
+                        }
+                    });
+                    
+                    filename = `MindMate_Journal_${new Date().toISOString().split('T')[0]}.txt`;
+                    mimeType = "text/plain";
+                }
+
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('Journal exported successfully! 📥');
+            };
+
+            return (
+                <div className="relative flex flex-col lg:flex-row h-full gap-6 p-6 overflow-hidden">
+                    {/* Floating orbs */}
+                    <div className="floating-orb orb-1 opacity-20"></div>
+                    <div className="floating-orb orb-2 opacity-20"></div>
+
+                    {toast && (
+                        <Toast 
+                            message={toast.message} 
+                            type={toast.type} 
+                            onClose={() => setToast(null)} 
+                        />
+                    )}
+
+                    {isAffirmationModalOpen && (
+                        <AffirmationModal 
+                            affirmations={affirmations} 
+                            setAffirmations={setAffirmations} 
+                            closeModal={() => setAffirmationModalOpen(false)} 
+                            showToast={showToast}
+                        />
+                    )}
+
+                    {/* Sidebar */}
+                    <aside className="w-full lg:w-96 flex-shrink-0 space-y-5 animate-fade-in overflow-y-auto custom-scrollbar pb-4">
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <StatCard 
+                                title="Current Streak" 
+                                value={`${streak}`}
+                                icon={<span className="text-2xl">🔥</span>}
+                                color="orange"
+                                trend={streak > 0 ? `${streak} days` : null}
+                            />
+                            <StatCard 
+                                title="Total Entries" 
+                                value={totalEntries}
+                                icon={<span className="text-2xl">📝</span>}
+                                color="blue"
+                            />
+                        </div>
+
+                        {/* Wellness Score */}
+                        {lastScore !== null && (
+                            <div className="glass-effect p-6 rounded-2xl hover-lift card-hover">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="font-bold text-lg">Wellness Score</h3>
+                                    <span className="text-3xl">💖</span>
+                                </div>
+                                <div className="relative pt-1">
+                                    <div className="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span className="text-3xl font-bold gradient-text">{lastScore}</span>
+                                            <span className="text-slate-500 dark:text-slate-400">/100</span>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-hidden h-3 text-xs flex rounded-full bg-slate-200 dark:bg-slate-800">
+                                        <div 
+                                            style={{ width: `${lastScore}%` }} 
+                                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-teal-400 to-cyan-500 transition-all duration-500"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Weekly Insight */}
+                        <div className="glass-effect p-6 rounded-2xl card-hover">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-2xl">🔮</span>
+                                <h3 className="font-bold text-lg">Weekly Insight</h3>
+                            </div>
+                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {weeklyInsight}
+                            </p>
+                        </div>
+
+                        {/* Affirmation */}
+                        <AffirmationCard 
+                            affirmations={affirmations} 
+                            openAffirmationModal={() => setAffirmationModalOpen(true)} 
+                        />
+
+                        {/* Mood Chart */}
+                        <MoodHistoryChart entries={entries} theme={theme} />
+
+                        {/* Export Options */}
+                        <div className="glass-effect p-6 rounded-2xl">
+                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                <DownloadIcon />
+                                Export Journal
+                            </h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button 
+                                    onClick={() => handleExport('md')}
+                                    className="px-4 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-xl font-medium transition-all hover:scale-105 flex items-center justify-center gap-2"
+                                >
+                                    <DownloadIcon />
+                                    .MD
+                                </button>
+                                <button 
+                                    onClick={() => handleExport('txt')}
+                                    className="px-4 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-xl font-medium transition-all hover:scale-105 flex items-center justify-center gap-2"
+                                >
+                                    <DownloadIcon />
+                                    .TXT
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Chat Area */}
+                    <main className="flex-1 flex flex-col glass-effect rounded-3xl shadow-2xl overflow-hidden animate-scale-in" style={{animationDelay: '100ms'}}>
+                        {/* Messages */}
+                        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+                            {entries.map((entry, index) => (
+                                <JournalEntry key={index} entry={entry} />
+                            ))}
+                            
+                            {isLoading && (
+                                <div className="flex justify-start mb-6">
+                                    <div className="glass-effect rounded-3xl rounded-bl-md px-6 py-4 shadow-lg">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div ref={chatEndRef}></div>
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="border-t border-slate-200/50 dark:border-slate-700/50 p-6 bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl">
+                            {/* Mode Toggle */}
+                            <div className="flex gap-3 mb-4">
+                                <button 
+                                    onClick={() => setJournalMode('mood')}
+                                    className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+                                        journalMode === 'mood' 
+                                        ? 'bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30' 
+                                        : 'glass-effect hover:bg-white/50 dark:hover:bg-slate-800/50'
+                                    }`}
+                                >
+                                    📝 Mood Journal
+                                </button>
+                                <button 
+                                    onClick={() => setJournalMode('dream')}
+                                    className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all ${
+                                        journalMode === 'dream' 
+                                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30' 
+                                        : 'glass-effect hover:bg-white/50 dark:hover:bg-slate-800/50'
+                                    }`}
+                                >
+                                    🌙 Dream Journal
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleJournalSubmit}>
+                                {/* User Request: Removed Mood Selector */}
+
+                                {/* Input */}
+                                <div className="flex items-end gap-3">
+                                    <div className="flex-1">
+                                        <textarea 
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            placeholder={journalMode === 'mood' ? "What's on your mind? Share your thoughts..." : "Describe your dream in detail..."}
+                                            className="w-full p-4 glass-effect rounded-2xl resize-none focus:ring-2 focus:ring-teal-500 transition-all text-slate-700 dark:text-slate-200 placeholder-slate-400"
+                                            rows="3"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                    <button 
+                                        type="submit"
+                                        // User Request: Update disabled check
+                                        disabled={isLoading || !input.trim()}
+                                        className="p-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-2xl hover:shadow-lg hover:shadow-teal-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95"
+                                    >
+                                        <SendIcon />
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // ========== AFFIRMATION MODAL ==========
+        const AffirmationModal = ({ affirmations, setAffirmations, closeModal, showToast }) => {
+            const [newAffirmation, setNewAffirmation] = useState('');
+
+            const addAffirmation = (e) => {
+                e.preventDefault();
+                if (newAffirmation.trim() && !affirmations.includes(newAffirmation.trim())) {
+                    setAffirmations([...affirmations, newAffirmation.trim()]);
+                    setNewAffirmation('');
+                    showToast('Affirmation added! ✨');
+                }
+            };
+            
+            const removeAffirmation = (affirmationToRemove) => {
+                if (affirmations.length > 1) {
+                    setAffirmations(affirmations.filter(a => a !== affirmationToRemove));
+                    showToast('Affirmation removed');
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+                    <div className="glass-effect rounded-3xl shadow-2xl w-full max-w-lg p-8 animate-scale-in">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                                <SparklesIcon />
+                                Your Affirmations
+                            </h2>
+                            <button 
+                                onClick={closeModal}
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar mb-6">
+                            {affirmations.map((aff, index) => (
+                                <div 
+                                    key={index}
+                                    className="flex items-center justify-between p-4 glass-effect rounded-xl group hover:bg-white/70 dark:hover:bg-slate-800/70 transition-all"
+                                >
+                                    <p className="text-sm flex-1 pr-4">{aff}</p>
+                                    <button 
+                                        onClick={() => removeAffirmation(aff)}
+                                        className="p-2 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                                        disabled={affirmations.length === 1}
+                                    >
+                                        <TrashIcon />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <form onSubmit={addAffirmation} className="flex gap-3">
+                            <input 
+                                type="text"
+                                value={newAffirmation}
+                                onChange={(e) => setNewAffirmation(e.target.value)}
+                                placeholder="Add a new affirmation..."
+                                className="flex-1 p-3 glass-effect rounded-xl focus:ring-2 focus:ring-teal-500 transition-all"
+                            />
+                            <button 
+                                type="submit"
+                                className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-teal-500/50 transition-all"
+                            >
+                                Add
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // ========== API KEY MODAL ==========
+        const ApiKeyModal = ({ setApiKey }) => {
+            const [inputKey, setInputKey] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (inputKey.trim()) {
+                    localStorage.setItem('mindmate_apiKey', inputKey);
+                    setApiKey(inputKey);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+                    <div className="glass-effect rounded-3xl shadow-2xl w-full max-w-md p-8 animate-scale-in text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg mb-6 mx-auto">
+                            <span className="text-4xl">🔑</span>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4">Enter Your API Key</h2>
+                        <p className="text-slate-600 dark:text-slate-400 mb-6">
+                            Please enter your Google Gemini API key to allow MindMate to analyze your entries. Your key is saved only in your browser.
+                        </p>
+                        <form onSubmit={handleSubmit}>
+                            <input 
+                                type="password"
+                                value={inputKey}
+                                onChange={(e) => setInputKey(e.target.value)}
+                                placeholder="Enter your API key..."
+                                className="w-full text-center p-3 glass-effect rounded-xl focus:ring-2 focus:ring-teal-500 transition-all mb-6"
+                            />
+                            <button 
+                                type="submit"
+                                className="w-full px-8 py-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-bold rounded-2xl shadow-xl shadow-teal-500/50 hover:shadow-teal-500/70 transition-all duration-300 transform hover:scale-105"
+                            >
+                                Save & Start
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+
+        // ========== MAIN APP ==========
+        const App = () => {
+            const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+            const [view, setView] = useState('landing');
+            const [apiKey, setApiKey] = useState(() => localStorage.getItem('mindmate_apiKey') || '');
+            
+            const [entries, setEntries] = useState(() => {
+                const savedEntries = localStorage.getItem('mindmate_entries');
+                return savedEntries ? JSON.parse(savedEntries) : [];
+            });
+
+            const [affirmations, setAffirmations] = useState(() => {
+                const savedAffirmations = localStorage.getItem('mindmate_affirmations');
+                return savedAffirmations ? JSON.parse(savedAffirmations) : DEFAULT_AFFIRMATIONS;
+            });
+
+            useEffect(() => {
+                localStorage.setItem('mindmate_entries', JSON.stringify(entries));
+            }, [entries]);
+
+            useEffect(() => {
+                localStorage.setItem('mindmate_affirmations', JSON.stringify(affirmations));
+            }, [affirmations]);
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <Header theme={theme} setTheme={setTheme} />
+
+                    {/* Show Modal if no API key */}
+                    {!apiKey && <ApiKeyModal setApiKey={setApiKey} />}
+
+                    {/* Only render main content if API key exists */}
+                    {apiKey && (
+                        <main className="flex-grow flex flex-col bg-gradient-to-br from-violet-50 via-pink-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden min-h-0">
+                            {view === 'landing' && <LandingPage onStart={() => setView('journal')} />}
+                            {view === 'journal' && (
+                                <JournalPage 
+                                    entries={entries} 
+                                    setEntries={setEntries} 
+                                    affirmations={affirmations} 
+                                    setAffirmations={setAffirmations} 
+                                    theme={theme}
+                                    apiKey={apiKey} 
+                                />
+                            )}
+                        </main>
+                    )}
+                    {apiKey && <Footer />}
+                </div>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
