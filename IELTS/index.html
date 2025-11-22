@@ -30891,7 +30891,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-[300px] flex flex-col items-center justify-center text-center space-y-8", children: [
           status === "idle" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-24 h-24 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center shadow-xl shadow-rose-500/20 animate-blob", children: /* @__PURE__ */ jsxRuntimeExports.jsx(User, { size: 40, className: "text-white" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-24 h-24 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center shadow-xl shadow-rose-500/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(User, { size: 40, className: "text-white" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto", children: [
               "Practice with our ",
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-slate-700 dark:text-slate-200 capitalize", children: persona }),
@@ -31017,6 +31017,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   const WritingSection = () => {
     var _a, _b;
     const { updateScore } = useScore();
+    const { writingTest, setWritingTest } = useTest();
     const [taskType, setTaskType] = reactExports.useState("task1");
     const [taskData, setTaskData] = reactExports.useState(null);
     const [response, setResponse] = reactExports.useState("");
@@ -31025,14 +31026,40 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     const [feedback, setFeedback] = reactExports.useState(null);
     const [timeLeft, setTimeLeft] = reactExports.useState(0);
     const [timerActive, setTimerActive] = reactExports.useState(false);
-    const generatePrompt = () => __async(null, null, function* () {
+    const stateRef = React.useRef({
+      taskType,
+      taskData,
+      response,
+      feedback,
+      timeLeft,
+      timerActive
+    });
+    reactExports.useEffect(() => {
+      stateRef.current = { taskType, taskData, response, feedback, timeLeft, timerActive };
+    }, [taskType, taskData, response, feedback, timeLeft, timerActive]);
+    reactExports.useEffect(() => {
+      if (writingTest) {
+        setTaskType(writingTest.taskType);
+        setTaskData(writingTest.taskData);
+        setResponse(writingTest.response);
+        setFeedback(writingTest.feedback);
+        setTimeLeft(writingTest.timeLeft);
+        setTimerActive(false);
+      } else {
+        generatePrompt(taskType);
+      }
+      return () => {
+        setWritingTest(stateRef.current);
+      };
+    }, []);
+    const generatePrompt = (..._0) => __async(null, [..._0], function* (type = taskType) {
       setLoading(true);
       setFeedback(null);
       setResponse("");
       setTimerActive(false);
-      setTimeLeft(taskType === "task1" ? 20 * 60 : 40 * 60);
+      setTimeLeft(type === "task1" ? 20 * 60 : 40 * 60);
       try {
-        const data = yield generateWritingTask(taskType);
+        const data = yield generateWritingTask(type);
         setTaskData(data);
       } catch (error) {
         console.error("Failed to generate prompt", error);
@@ -31040,9 +31067,12 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         setLoading(false);
       }
     });
-    reactExports.useEffect(() => {
-      generatePrompt();
-    }, [taskType]);
+    const handleTaskTypeChange = (type) => {
+      if (type !== taskType) {
+        setTaskType(type);
+        generatePrompt(type);
+      }
+    };
     reactExports.useEffect(() => {
       let interval;
       if (timerActive && timeLeft > 0) {
@@ -31098,7 +31128,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              onClick: () => setTaskType("task1"),
+              onClick: () => handleTaskTypeChange("task1"),
               className: `px-6 py-2 rounded-lg text-sm font-bold transition-all ${taskType === "task1" ? "bg-white dark:bg-black text-violet-600 shadow-sm" : "text-slate-500 hover:text-slate-800 dark:hover:text-white"}`,
               children: "Task 1"
             }
@@ -31106,7 +31136,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              onClick: () => setTaskType("task2"),
+              onClick: () => handleTaskTypeChange("task2"),
               className: `px-6 py-2 rounded-lg text-sm font-bold transition-all ${taskType === "task2" ? "bg-white dark:bg-black text-violet-600 shadow-sm" : "text-slate-500 hover:text-slate-800 dark:hover:text-white"}`,
               children: "Task 2"
             }
@@ -31121,7 +31151,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
                 /* @__PURE__ */ jsxRuntimeExports.jsx(PenTool, { size: 18, className: "text-violet-500" }),
                 "Current Task"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: generatePrompt, disabled: loading, className: "text-slate-400 hover:text-violet-500 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: loading ? "animate-spin" : "" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => generatePrompt(taskType), disabled: loading, className: "text-slate-400 hover:text-violet-500 transition-colors", children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: loading ? "animate-spin" : "" }) })
             ] }),
             loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-8 text-center", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "animate-spin mx-auto text-violet-500 mb-2" }),
@@ -31233,6 +31263,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
   };
   const Listening = () => {
     const { updateScore } = useScore();
+    const { listeningTest, setListeningTest } = useTest();
     const [currentPart, setCurrentPart] = reactExports.useState(1);
     const [testData, setTestData] = reactExports.useState({});
     const [audioUrls, setAudioUrls] = reactExports.useState({});
@@ -31244,6 +31275,17 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     const [finalScore, setFinalScore] = reactExports.useState(0);
     const [showHistory, setShowHistory] = reactExports.useState(false);
     const [history, setHistory] = reactExports.useState([]);
+    const stateRef = React.useRef({
+      currentPart,
+      testData,
+      audioUrls,
+      answers,
+      submitted,
+      finalScore
+    });
+    reactExports.useEffect(() => {
+      stateRef.current = { currentPart, testData, audioUrls, answers, submitted, finalScore };
+    }, [currentPart, testData, audioUrls, answers, submitted, finalScore]);
     reactExports.useEffect(() => {
       const saved = localStorage.getItem("ielts_listening_history");
       if (saved) {
@@ -31321,9 +31363,18 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       }
     });
     reactExports.useEffect(() => {
-      loadPart(1);
+      if (listeningTest) {
+        setCurrentPart(listeningTest.currentPart);
+        setTestData(listeningTest.testData);
+        setAudioUrls(listeningTest.audioUrls);
+        setAnswers(listeningTest.answers);
+        setSubmitted(listeningTest.submitted);
+        setFinalScore(listeningTest.finalScore);
+      } else {
+        loadPart(1);
+      }
       return () => {
-        Object.values(audioUrls).forEach((url) => URL.revokeObjectURL(url));
+        setListeningTest(stateRef.current);
       };
     }, []);
     const handleNextPart = () => {
@@ -31380,9 +31431,11 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       setSubmitted(false);
       setAnswers({});
       setTestData({});
+      Object.values(audioUrls).forEach((url) => URL.revokeObjectURL(url));
       setAudioUrls({});
       setCurrentPart(1);
       setFinalScore(0);
+      setListeningTest(null);
       loadPart(1);
     };
     const loadHistoricalTest = (result) => {
@@ -31429,7 +31482,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         ] })
       ] });
     }
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pt-16 md:pt-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-8", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-3xl font-black text-slate-900 dark:text-white mb-2", children: "IELTS Listening Practice" }),
@@ -31455,30 +31508,32 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
           "Generating Test Content Part ",
           currentPart,
           "..."
-        ] })
-      ] }) : currentTest ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        !submitted && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sticky top-4 z-40 bg-slate-50/95 dark:bg-neutral-900/95 backdrop-blur-md p-4 rounded-2xl mb-8 flex flex-col items-center justify-center border border-slate-200 dark:border-white/10 shadow-xl ring-1 ring-black/5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 w-full max-w-md", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-0 text-[10px] font-bold uppercase text-slate-400 tracking-widest shrink-0", children: "Audio" }),
-            audioLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-10 bg-slate-100 dark:bg-white/5 rounded-lg flex items-center justify-center gap-2 text-xs text-slate-500 animate-pulse border border-slate-200 dark:border-white/10", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, className: "animate-spin text-cyan-500" }),
-              " Generating Neural Audio..."
-            ] }) : audioUrls[currentPart] ? /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { controls: true, src: audioUrls[currentPart], className: "w-full h-10 invert dark:invert-0" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full flex gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded text-[10px] text-yellow-700 dark:text-yellow-400 flex items-center justify-center", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 12, className: "mr-1" }),
-                " Neural Audio Failed"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => playBrowserTTS(currentTest.script), className: "flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-colors", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 14 }),
-                " Play Browser TTS"
-              ] })
-            ] })
-          ] }),
-          audioUrls[currentPart] && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[10px] text-cyan-500 flex items-center gap-1 mt-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(WandSparkles, { size: 10 }),
-            " Powered by Gemini 2.5 Flash TTS"
-          ] })
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => loadPart(currentPart), className: "mt-4 text-xs text-slate-400 hover:text-cyan-500 underline", children: "Stuck? Refresh Questions" })
+      ] }) : currentTest ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        !submitted && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed top-0 left-0 md:left-64 right-0 z-50 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 shadow-lg animate-in slide-in-from-top-full duration-500", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-4xl mx-auto p-3 flex items-center gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden md:flex flex-col items-center gap-1 text-[10px] font-bold uppercase text-slate-400 tracking-widest shrink-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Volume2, { size: 16 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Audio" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: audioLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full h-10 bg-slate-100 dark:bg-white/5 rounded-lg flex items-center justify-center gap-2 text-xs text-slate-500 animate-pulse border border-slate-200 dark:border-white/10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 14, className: "animate-spin text-cyan-500" }),
+            " Generating Audio..."
+          ] }) : audioUrls[currentPart] ? /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { controls: true, src: audioUrls[currentPart], className: "w-full h-10 invert dark:invert-0" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full flex gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex items-center gap-2 text-[10px] text-red-500 bg-red-50 dark:bg-red-900/20 px-3 rounded border border-red-100 dark:border-red-900/30 whitespace-nowrap", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 12 }),
+              "Generation Failed"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => playBrowserTTS(currentTest.script), className: "flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-colors", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { size: 14 }),
+              " Play Browser TTS"
+            ] })
+          ] }) }),
+          audioUrls[currentPart] && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:flex text-[10px] text-cyan-500 items-center gap-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(WandSparkles, { size: 12 }),
+            " Gemini 2.5 Flash"
+          ] })
+        ] }) }),
         !submitted ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-8", children: currentTest.questions.map((q, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-medium text-slate-800 dark:text-slate-200 mb-4 text-lg", children: [
@@ -31623,6 +31678,7 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     ] });
   };
   const IELTSReading = () => {
+    const { readingTest, setReadingTest } = useTest();
     const [currentPassage, setCurrentPassage] = reactExports.useState(1);
     const [testData, setTestData] = reactExports.useState({});
     const [loading, setLoading] = reactExports.useState(false);
@@ -31634,6 +31690,18 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     const [timerActive, setTimerActive] = reactExports.useState(false);
     const [showHistory, setShowHistory] = reactExports.useState(false);
     const [history, setHistory] = reactExports.useState([]);
+    const stateRef = React.useRef({
+      currentPassage,
+      testData,
+      answers,
+      submitted,
+      finalScore,
+      timeLeft,
+      timerActive
+    });
+    reactExports.useEffect(() => {
+      stateRef.current = { currentPassage, testData, answers, submitted, finalScore, timeLeft, timerActive };
+    }, [currentPassage, testData, answers, submitted, finalScore, timeLeft, timerActive]);
     reactExports.useEffect(() => {
       const saved = localStorage.getItem("ielts_reading_history");
       if (saved) {
@@ -31663,17 +31731,6 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
         localStorage.removeItem("ielts_reading_history");
       }
     };
-    reactExports.useEffect(() => {
-      let interval;
-      if (timerActive && timeLeft > 0 && !submitted) {
-        interval = setInterval(() => {
-          setTimeLeft((prev) => prev - 1);
-        }, 1e3);
-      } else if (timeLeft === 0 && !submitted) {
-        calculateScore();
-      }
-      return () => clearInterval(interval);
-    }, [timerActive, timeLeft, submitted]);
     const formatTime = (seconds) => {
       const m = Math.floor(seconds / 60);
       const s = seconds % 60;
@@ -31702,7 +31759,20 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       }
     });
     reactExports.useEffect(() => {
-      loadPassage(1);
+      if (readingTest) {
+        setCurrentPassage(readingTest.currentPassage);
+        setTestData(readingTest.testData);
+        setAnswers(readingTest.answers);
+        setSubmitted(readingTest.submitted);
+        setFinalScore(readingTest.finalScore);
+        setTimeLeft(readingTest.timeLeft);
+        setTimerActive(false);
+      } else {
+        loadPassage(1);
+      }
+      return () => {
+        setReadingTest(stateRef.current);
+      };
     }, []);
     const handleNextPassage = () => {
       if (currentPassage < 3) {
@@ -31953,7 +32023,16 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
                 }) })
               ] }, part);
             }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => window.location.reload(), className: "w-full py-4 text-emerald-500 font-bold hover:bg-emerald-500/10 rounded-xl transition-colors border border-transparent hover:border-emerald-500/30", children: "Start New Reading Test" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
+              setSubmitted(false);
+              setAnswers({});
+              setTestData({});
+              setCurrentPassage(1);
+              setFinalScore(0);
+              setTimeLeft(60 * 60);
+              setReadingTest(null);
+              loadPassage(1);
+            }, className: "w-full py-4 text-emerald-500 font-bold hover:bg-emerald-500/10 rounded-xl transition-colors border border-transparent hover:border-emerald-500/30", children: "Start New Reading Test" })
           ] })
         ) }) : null
       ] })
@@ -32294,6 +32373,18 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: `w-24 h-24 text-${color}-500/5 -rotate-12` }) })
     ] });
   };
+  const TestContext = reactExports.createContext({
+    listeningTest: null,
+    setListeningTest: () => {
+    },
+    readingTest: null,
+    setReadingTest: () => {
+    },
+    writingTest: null,
+    setWritingTest: () => {
+    }
+  });
+  const useTest = () => reactExports.useContext(TestContext);
   const App = () => {
     const [isDark, setIsDark] = reactExports.useState(true);
     const [onboarded, setOnboarded] = reactExports.useState(() => {
@@ -32306,6 +32397,9 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
     const [hasKey, setHasKey] = reactExports.useState(false);
     const [xp, setXp] = reactExports.useState(0);
     const [level, setLevel] = reactExports.useState(1);
+    const [listeningTest, setListeningTest] = reactExports.useState(null);
+    const [readingTest, setReadingTest] = reactExports.useState(null);
+    const [writingTest, setWritingTest] = reactExports.useState(null);
     const addXP = (amount) => {
       const newXp = xp + amount;
       setXp(newXp);
@@ -32418,9 +32512,9 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
       setScores(newScores);
       localStorage.setItem("ielts_scores", JSON.stringify(newScores));
     };
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeContext.Provider, { value: { isDark, toggleTheme }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(XPContext.Provider, { value: { xp, addXP, level }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ScoreContext.Provider, { value: { scores, updateScore }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(HashRouter, { children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeContext.Provider, { value: { isDark, toggleTheme }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(XPContext.Provider, { value: { xp, addXP, level }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ScoreContext.Provider, { value: { scores, updateScore }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TestContext.Provider, { value: { listeningTest, setListeningTest, readingTest, setReadingTest, writingTest, setWritingTest }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(HashRouter, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ScrollToTop, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 transition-colors duration-300 pb-24 md:pb-0 font-sans selection:bg-cyan-500/30", children: !onboarded ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 max-w-4xl mx-auto min-h-screen flex flex-col justify-start pt-20", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 transition-colors duration-300 pb-20 md:pb-0 font-sans selection:bg-cyan-500/30 overflow-x-hidden", children: !onboarded ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 max-w-4xl mx-auto min-h-screen flex flex-col justify-start pt-20", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-end mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: toggleTheme, className: "p-2 rounded-full bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors", children: isDark ? /* @__PURE__ */ jsxRuntimeExports.jsx(Sun, { size: 20 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Moon, { size: 20 }) }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(DiagnosticTest, { onComplete: handleDiagnosticComplete })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -32464,15 +32558,15 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
           /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/speaking", element: /* @__PURE__ */ jsxRuntimeExports.jsx(LiveSpeaking, {}) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/veo", element: /* @__PURE__ */ jsxRuntimeExports.jsx(VeoVisuals, {}) })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 p-2 flex justify-around z-50 pb-safe shadow-2xl", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 pb-1 pt-3 px-2 flex justify-around z-50 shadow-2xl", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { to: "/listening", icon: Volume2, label: "Listen" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { to: "/reading", icon: BookOpen, label: "Read" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { to: "/", icon: LayoutDashboard, label: "Hub" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { to: "/writing", icon: PenTool, label: "Write" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { to: "/speaking", icon: Mic, label: "Speak" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(NavItem, { to: "/speaking", icon: Mic, label: "Speaking" })
         ] })
       ] }) })
-    ] }) }) }) });
+    ] }) }) }) }) });
   };
   const mount = () => {
     const rootElement = document.getElementById("root");
@@ -32492,7 +32586,8 @@ Please change the parent <Route path="${parentPath}"> to <Route path="${parentPa
 })();</script>
 </head>
 
-<body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 transition-colors duration-300">
+<body
+  class="bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 transition-colors duration-300 overflow-x-hidden">
   <div id="root">
     <div
       style="display: flex; justify-content: center; align-items: center; height: 100vh; color: #888; font-family: sans-serif;">
